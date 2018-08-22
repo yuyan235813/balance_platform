@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainWindow</class>
+ <widget class="QMainWindow" name="mainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>牛逼的称重系统</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="qmenuSystemSetup">
+    <property name="title">
+     <string>系统设置</string>
+    </property>
+    <addaction name="actionBalanceFormSetup"/>
+    <addaction name="actionParameterSetup"/>
+    <addaction name="actionUserPermission"/>
+    <addaction name="actionSystemParameterSetup"/>
+   </widget>
+   <widget class="QMenu" name="qmenuBasicInfoSetup">
+    <property name="title">
+     <string>基本信息设置</string>
+    </property>
+    <addaction name="actionCarInfo"/>
+    <addaction name="actionSupplier"/>
+    <addaction name="actionReceiving"/>
+    <addaction name="actionGoodsName"/>
+   </widget>
+   <widget class="QMenu" name="qmenuQuery">
+    <property name="title">
+     <string>查询</string>
+    </property>
+    <addaction name="actionBalanceQuery"/>
+   </widget>
+   <widget class="QMenu" name="qmenuHelp">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="qmenuSystemSetup"/>
+   <addaction name="qmenuBasicInfoSetup"/>
+   <addaction name="qmenuQuery"/>
+   <addaction name="qmenuHelp"/>
+  </widget>
+  <action name="actionBalanceFormSetup">
+   <property name="text">
+    <string>磅单设置</string>
+   </property>
+  </action>
+  <action name="actionParameterSetup">
+   <property name="text">
+    <string>参数设置</string>
+   </property>
+  </action>
+  <action name="actionUserPermission">
+   <property name="text">
+    <string>用户和权限管理</string>
+   </property>
+  </action>
+  <action name="actionSystemParameterSetup">
+   <property name="text">
+    <string>系统参数设置</string>
+   </property>
+  </action>
+  <action name="actionCarInfo">
+   <property name="text">
+    <string>车辆设置</string>
+   </property>
+  </action>
+  <action name="actionSupplier">
+   <property name="text">
+    <string>供货单位</string>
+   </property>
+  </action>
+  <action name="actionReceiving">
+   <property name="text">
+    <string>收获单位</string>
+   </property>
+  </action>
+  <action name="actionGoodsName">
+   <property name="text">
+    <string>货物名称</string>
+   </property>
+  </action>
+  <action name="actionBalanceQuery">
+   <property name="text">
+    <string>程中查询</string>
+   </property>
+  </action>
+   <action name="actionHelp">
+   <property name="text">
+    <string>帮助信息</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>关于</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
