@@ -17,7 +17,7 @@ def read_com_interface(my_serial):
     :return:
     """
     while True:
-        data = my_serial.read_all()
+        data = my_serial.readline(12)
         print_data(data)
         # 验证数据
         verify = verify_data(data)
@@ -120,5 +120,7 @@ if __name__ == '__main__':
         print("open success")
     else:
         print("open failed")
-    data = read_com_interface(my_serial)
+    while True:
+        data = read_com_interface(my_serial)
+        print(data)
     my_serial.close()
