@@ -35,6 +35,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.__timer.timeout.connect(self.showLcd)
         self.__timer.start(200)  # 设置定时间隔为1000ms即1s，并启动定时器
 
+
     def showLcd(self):
         """
         显示数据
@@ -42,7 +43,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         weight = read_com_interface(self.__serial)
         # weight = self.read_com_interface()
-        print(weight)
+        # print(weight)
         self.weightLcdNumber.display(weight)
 
     def init_serial(self):
@@ -59,6 +60,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.__count += 1
             return self.__count
             time.sleep(100)
+
+
+    def get_stop_flag(self):
+        """
+        获取停止读取标志
+        :return:
+        """
+        pass
+
 
 
 if __name__ == '__main__':

@@ -88,15 +88,20 @@ def format_data(data):
     ret = ''
     for item in data[1:-4]:
         ret = ret + chr(item)
-    dot = data[-4]
-    return ret[0:0-dot] + '.' + ret[0-dot:]
+    dot = chr(data[-4])
+    print('============%s' % dot)
+    if dot == '0':
+        return ret
+    else:
+        return float(ret[0:0-dot] + '.' + ret[0-dot:])
 
 
 def func():
     data1 = [0x02, 0x2B, 0x30, 0x31, 0x32, 0x30, 0x30, 0x35, 0x02, 0x32, 0x46, 0x03]
     data2 = [0X02, 0x2D, 0x30, 0x31, 0x32, 0x30, 0x30, 0x35, 0x02, 0x32, 0x39, 0x03]
     data3 = [0X02, 0x2D, 0x30, 0x31, 0x32, 0x30, 0x30, 0x35, 0x00, 0x32, 0x42, 0x03]
-    for data in (data1, data2, data3):
+    data4 = [0x02, 0x2b, 0x30, 0x30, 0x30, 0x30, 0x34, 0x30, 0x30, 0x31, 0x46, 0x03]
+    for data in (data4,):
         ret = data[1]
         for item in data[2:-3]:
             ret = ret ^ item
@@ -111,16 +116,18 @@ def func():
         print('v2 = %s, %s' % (bin(v2), hex(v2)))
         print('high = %s, %s' % (bin(high), hex(high)))
         print('low = %s, %s' % (bin(low), hex(low)))
+        print(format_data(data))
         print('================')
 
 
 if __name__ == '__main__':
-    my_serial = serial.Serial('COM3', 9600, timeout=0.5)  # /dev/ttyUSB0
-    if my_serial.isOpen():
-        print("open success")
-    else:
-        print("open failed")
-    while True:
-        data = read_com_interface(my_serial)
-        print(data)
-    my_serial.close()
+    # my_serial = serial.Serial('COM3', 9600, timeout=0.5)  # /dev/ttyUSB0
+    # if my_serial.isOpen():
+    #     print("open success")
+    # else:
+    #     print("open failed")
+    # while True:
+    #     data = read_com_interface(my_serial)
+    #     print(data)
+    # my_serial.close()
+    func()

@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="icon/system_setup.py">
+    <file>system_setup.png</file>
+  </qresource>
+</RCC>

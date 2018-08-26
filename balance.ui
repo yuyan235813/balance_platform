@@ -222,7 +222,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="balanceNumber">
+          <widget class="QLabel" name="balanceNoBlael">
            <property name="font">
             <font>
              <family>微软雅黑</family>
@@ -253,7 +253,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="pickBalanceButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>
@@ -349,7 +349,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLCDNumber" name="lcdNumber_2">
+            <widget class="QLCDNumber" name="totalWeightLcdNumber">
              <property name="smallDecimalPoint">
               <bool>true</bool>
              </property>
@@ -417,7 +417,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLCDNumber" name="lcdNumber">
+            <widget class="QLCDNumber" name="leatherWeightLcdNumber">
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -438,7 +438,7 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLCDNumber" name="lcdNumber_3">
+            <widget class="QLCDNumber" name="actualWeightLcdNumber">
              <property name="smallDecimalPoint">
               <bool>true</bool>
              </property>
@@ -532,21 +532,21 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+            <widget class="QDoubleSpinBox" name="extraWeightSpinBox">
              <property name="maximum">
               <double>99999.000000000000000</double>
              </property>
             </widget>
            </item>
            <item row="8" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+            <widget class="QDoubleSpinBox" name="priceSpinBox">
              <property name="maximum">
               <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
            <item row="10" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox">
+            <widget class="QDoubleSpinBox" name="amountSpinBox">
              <property name="maximum">
               <double>99999.990000000005239</double>
              </property>
@@ -661,7 +661,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="CarComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -694,7 +694,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="comboBox_4">
+            <widget class="QComboBox" name="ffdComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
