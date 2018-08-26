@@ -115,7 +115,7 @@ def func():
 
 
 if __name__ == '__main__':
-    my_serial = serial.Serial('COM5', 9600, timeout=0.5)  # /dev/ttyUSB0
+    my_serial = serial.Serial('COM3', 9600, timeout=0.5)  # /dev/ttyUSB0
     if my_serial.isOpen():
         print("open success")
     else:
