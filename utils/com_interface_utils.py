@@ -9,7 +9,7 @@ import serial
 from time import sleep
 from conf.constant import ErrorCode, NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
-
+from utils.log_utils import Logger as logger
 
 
 def read_com_interface(my_serial):
@@ -38,8 +38,8 @@ def print_data(data):
     :param data:
     :return:
     """
-    print('read data 16h: %s' % ' '.join(hex(x) for x in data))
-    print('read data 10d: %s' % ' '.join(str(x) for x in data))
+    logger.info('read data 16h: %s' % ' '.join(hex(x) for x in data))
+    logger.info('read data 10d: %s' % ' '.join(str(x) for x in data))
 
 
 def verify_data(data):
@@ -91,7 +91,6 @@ def format_data(data):
     for item in data[1:-4]:
         ret = ret + chr(item)
     dot = chr(data[-4])
-    print('============%s' % dot)
     if dot == '0':
         return ret
     else:
@@ -131,14 +130,14 @@ def func():
 
 
 if __name__ == '__main__':
-    # my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
-    # if my_serial.isOpen():
-    #     print("open success")
-    # else:
-    #     print("open failed")
-    # while True:
-    #     data = read_com_interface(my_serial)
-    #     print(data)
-    # my_serial.close()
+    my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+    if my_serial.isOpen():
+        print("open success")
+    else:
+        print("open failed")
+    while True:
+        data = read_com_interface(my_serial)
+        print(data)
+    my_serial.close()
     # func()
-    print(get_bytes_num())
+    # print(get_bytes_num())

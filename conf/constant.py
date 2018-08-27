@@ -5,7 +5,6 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-from enum import Enum
 
 
 class ErrorCode:

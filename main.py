@@ -8,8 +8,8 @@
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
-from utils import com_interface_utils
-from utils import normal_utils
+from utils import com_interface_utils, normal_utils
+from utils.log_utils import Logger as logger
 from conf.constant import NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
 import sys
@@ -62,9 +62,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
         if self._serial.isOpen():
-            print("open success")
+            logger.info("open success")
         else:
-            print("open failed")
+            logger.error("open failed")
 
     def read_com_interface(self):
             self.__count += 1
