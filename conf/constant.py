@@ -8,7 +8,7 @@
 from enum import Enum
 
 
-class ErrorCode(Enum):
+class ErrorCode:
     """
     定义错误码
     """
@@ -22,7 +22,7 @@ class ErrorCode(Enum):
     DATA_LENGTH_ERROR = 'E1006'
 
 
-class NormalParam(Enum):
+class NormalParam:
     """
     定义时间相关的常量
     """

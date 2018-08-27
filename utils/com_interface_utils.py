@@ -98,6 +98,14 @@ def format_data(data):
         return float(ret[0:0-dot] + '.' + ret[0-dot:])
 
 
+def get_bytes_num():
+    """
+    计算稳定时长内的数据个数
+    :return:
+    """
+    return NormalParam.STABLES_DURATION * 1000 / NormalParam.COM_READ_DURATION
+
+
 def func():
     data1 = [0x02, 0x2B, 0x30, 0x31, 0x32, 0x30, 0x30, 0x35, 0x02, 0x32, 0x46, 0x03]
     data2 = [0X02, 0x2D, 0x30, 0x31, 0x32, 0x30, 0x30, 0x35, 0x02, 0x32, 0x39, 0x03]
@@ -123,13 +131,14 @@ def func():
 
 
 if __name__ == '__main__':
-    my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
-    if my_serial.isOpen():
-        print("open success")
-    else:
-        print("open failed")
-    while True:
-        data = read_com_interface(my_serial)
-        print(data)
-    my_serial.close()
+    # my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+    # if my_serial.isOpen():
+    #     print("open success")
+    # else:
+    #     print("open failed")
+    # while True:
+    #     data = read_com_interface(my_serial)
+    #     print(data)
+    # my_serial.close()
     # func()
+    print(get_bytes_num())
