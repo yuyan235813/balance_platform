@@ -11,3 +11,4 @@ COM_INTERFACE = 'COM3'
 COM_BAUD_RATE = 9600
 LOGGER_DIR = sys.stdout
 # LOGGER_DIR = '../log/runtime.log'
+DEBUG = False

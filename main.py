@@ -11,10 +11,9 @@ from PyQt5.QtCore import QTimer
 from utils import com_interface_utils, normal_utils
 from utils.log_utils import Logger as logger
 from conf.constant import NormalParam
-from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
+from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 import sys
 import serial
-import time
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -24,7 +23,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     def __init__(self):
         super(MainForm, self).__init__()
         self.setupUi(self)
-        self.init_serial()
+        if not DEBUG:
+            self.init_serial()
         self.initData()
 
     def initData(self):
@@ -40,21 +40,22 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
 
-    def showLcd(self):
+    def showLcd(self, debug=DEBUG):
         u"""
         显示数据
         :return:
         """
-        weight = com_interface_utils.read_com_interface(self.__serial)
-        # weight = self.read_com_interface()
-        # print(weight)
+        if debug:
+            weight = self.read_com_interface()
+            logger.debug(weight)
+        else:
+            weight = com_interface_utils.read_com_interface(self.__serial)
         self.weightLcdNumber.display(weight)
         if len(self._weightList) < self._weightLength:
             self._weightList.append(weight)
         else:
             self._weightList.pop(0)
             self._weightList.append(weight)
-
 
     def init_serial(self):
         u"""
@@ -67,10 +68,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             logger.error("open failed")
 
     def read_com_interface(self):
-            self.__count += 1
-            return self.__count
-            time.sleep(10)
-
+        return 100
 
     def check_weight_state(self):
         u"""
@@ -79,7 +77,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         if len(self._weightList) == self._weightLength:
             if normal_utils.stdev(self._weightList) <= NormalParam.STABLES_ERROR:
-                self.weightLabel.text(u'稳定')
+                self.stateLabel.setText(u'稳定')
+                self.stateLabel.setStyleSheet('color:green')
+        else:
+            self.stateLabel.setText(u'读取中……')
+
 
 
 
