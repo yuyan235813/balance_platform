@@ -5,15 +5,31 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
+from enum import Enum
 
 
-class ErrorCode:
+class ErrorCode(Enum):
     """
     定义错误码
     """
+    # 数据为空
     NOT_DATA_ERROR = 'E1001'
+    # 数据起始错误
     BEGIN_ERROR = 'E1002'
     END_ERROR = 'E1003'
     HIGH_VERIFY_ERROR = 'E1004'
     LOW_VERIFY_ERROR = 'E1005'
     DATA_LENGTH_ERROR = 'E1006'
+
+
+class NormalParam(Enum):
+    """
+    定义时间相关的常量
+    """
+    # 读取 COM 接口延时 ms
+    COM_READ_DURATION = 10
+    # 判断稳定时长 s
+    STABLES_DURATION = 3
+    # 判断稳定误差阀值
+    STABLES_ERROR = 0
+

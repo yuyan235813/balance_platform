@@ -5,10 +5,12 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-from balance import Ui_mainWindow
+from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
-from PyQt5.Qt import QTimer
-from com_test import read_com_interface
+from PyQt5.QtCore import QTimer
+from utils.com_interface_utils import read_com_interface
+from conf.constant import NormalParam
+from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
 import sys
 import serial
 import time
@@ -29,12 +31,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         初始化数据和定时器
         :return:
         """
-        self.__count = 1
-        self.__timer = QTimer(self)  # 新建一个定时器
+        self._count = 1
+        self._timer = QTimer(self)  # 新建一个定时器
         # 关联timeout信号和showTime函数，每当定时器过了指定时间间隔，就会调用showTime函数
-        self.__timer.timeout.connect(self.showLcd)
-        self.__timer.start(200)  # 设置定时间隔为1000ms即1s，并启动定时器
-
+        self._timer.timeout.connect(self.showLcd)
+        self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
 
     def showLcd(self):
         """
@@ -50,8 +51,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         :return:
         """
-        self.__serial = serial.Serial('COM3', 9600, timeout=0.5)  # /dev/ttyUSB0
-        if self.__serial.isOpen():
+        self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+        if self._serial.isOpen():
             print("open success")
         else:
             print("open failed")
@@ -59,7 +60,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     def read_com_interface(self):
             self.__count += 1
             return self.__count
-            time.sleep(100)
+            time.sleep(10)
 
 
     def get_stop_flag(self):

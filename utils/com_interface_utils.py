@@ -7,7 +7,9 @@
 """
 import serial
 from time import sleep
-from constant import ErrorCode
+from conf.constant import ErrorCode, NormalParam
+from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
+
 
 
 def read_com_interface(my_serial):
@@ -26,7 +28,7 @@ def read_com_interface(my_serial):
         else:
             print(verify)
             continue
-        sleep(0.02)
+        sleep(NormalParam.COM_READ_DURATION / 2)
     return format_data(data)
 
 
@@ -121,13 +123,13 @@ def func():
 
 
 if __name__ == '__main__':
-    # my_serial = serial.Serial('COM3', 9600, timeout=0.5)  # /dev/ttyUSB0
-    # if my_serial.isOpen():
-    #     print("open success")
-    # else:
-    #     print("open failed")
-    # while True:
-    #     data = read_com_interface(my_serial)
-    #     print(data)
-    # my_serial.close()
-    func()
+    my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+    if my_serial.isOpen():
+        print("open success")
+    else:
+        print("open failed")
+    while True:
+        data = read_com_interface(my_serial)
+        print(data)
+    my_serial.close()
+    # func()
