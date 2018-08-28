@@ -28,7 +28,7 @@ def read_com_interface(my_serial):
         else:
             print(verify)
             continue
-        sleep(NormalParam.COM_READ_DURATION / 2)
+        sleep(NormalParam.COM_READ_DURATION / 2 /1000)
     return format_data(data)
 
 
@@ -92,7 +92,7 @@ def format_data(data):
         ret = ret + chr(item)
     dot = chr(data[-4])
     if dot == '0':
-        return ret
+        return float(ret)
     else:
         return float(ret[0:0-dot] + '.' + ret[0-dot:])
 

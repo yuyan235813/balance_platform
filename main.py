@@ -49,13 +49,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             weight = self.read_com_interface()
             logger.debug(weight)
         else:
-            weight = com_interface_utils.read_com_interface(self.__serial)
+            weight = com_interface_utils.read_com_interface(self._serial)
         self.weightLcdNumber.display(weight)
         if len(self._weightList) < self._weightLength:
             self._weightList.append(weight)
         else:
             self._weightList.pop(0)
             self._weightList.append(weight)
+
 
     def init_serial(self):
         u"""
@@ -79,6 +80,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if normal_utils.stdev(self._weightList) <= NormalParam.STABLES_ERROR:
                 self.stateLabel.setText(u'稳定')
                 self.stateLabel.setStyleSheet('color:green')
+            else:
+                self.stateLabel.setText(u'读取中……')
+                self.stateLabel.setStyleSheet('color:black')
         else:
             self.stateLabel.setText(u'读取中……')
 
