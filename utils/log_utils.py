@@ -23,10 +23,10 @@ class Logger:
         file_name = os.path.basename(tb[-2][0])
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if config.LOGGER_DIR == sys.stdout:
-            print('%s [INFO] %s: %s' % (current_time, file_name, msg), file=config.LOGGER_DIR)
+            print(u'%s [INFO] %s: %s' % (current_time, file_name, msg))
         else:
-            with open(config.LOGGER_DIR, 'a+') as f:
-                f.write('%s [INFO] %s: %s\n' % (current_time, file_name, msg))
+            with open(config.LOGGER_DIR, 'a+', encoding='utf-8') as f:
+                f.write(u'%s [INFO] %s: %s\n' % (current_time, file_name, msg))
 
     @staticmethod
     def debug(msg):
@@ -34,10 +34,10 @@ class Logger:
         file_name = os.path.basename(tb[-2][0])
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if config.LOGGER_DIR == sys.stdout:
-            print('%s [DEBUG] %s: %s' % (current_time, file_name, msg), file=config.LOGGER_DIR)
+            print(u'%s [DEBUG] %s: %s' % (current_time, file_name, msg))
         else:
-            with open(config.LOGGER_DIR, 'a+') as f:
-                f.write('%s [DEBUG] %s: %s\n' % (current_time, file_name, msg))
+            with open(config.LOGGER_DIR, 'a+', encoding='utf-8') as f:
+                f.write(u'%s [DEBUG] %s: %s\n' % (current_time, file_name, msg))
 
     @staticmethod
     def error(msg):
@@ -45,10 +45,10 @@ class Logger:
         file_name = os.path.basename(tb[-2][0])
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if config.LOGGER_DIR == sys.stdout:
-            print('%s [ERROR] %s: %s' % (current_time, file_name, msg), file=config.LOGGER_DIR)
+            print(u'\033[31m%s [ERROR] %s: %s\033[0m' % (current_time, file_name, msg))
         else:
-            with open(config.LOGGER_DIR, 'a+') as f:
-                f.write('%s [ERROR] %s: %s\n' % (current_time, file_name, msg))
+            with open(config.LOGGER_DIR, 'a+', encoding='utf-8') as f:
+                f.write(u'%s [ERROR] %s: %s\n' % (current_time, file_name, msg))
 
 
 if __name__ == '__main__':

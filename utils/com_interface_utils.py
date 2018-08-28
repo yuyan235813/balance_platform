@@ -27,7 +27,7 @@ def read_com_interface(my_serial):
         if 0 == verify:
             break
         else:
-            print(verify)
+            logger.error(verify)
             continue
         sleep(NormalParam.COM_READ_DURATION / 2 /1000)
     return format_data(data)
