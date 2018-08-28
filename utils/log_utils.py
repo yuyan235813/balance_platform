@@ -53,5 +53,5 @@ class Logger:
 
 if __name__ == '__main__':
     Logger.info('test')
-    # Logger.debug('test')
-    # Logger.error('test')
+    Logger.debug('test')
+    Logger.error('test')

@@ -19,7 +19,8 @@ def read_com_interface(my_serial):
     :return:
     """
     while True:
-        data = my_serial.readline(12)
+        my_serial.flush()
+        data = my_serial.read(12)
         print_data(data)
         # 验证数据
         verify = verify_data(data)
