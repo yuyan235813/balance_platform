@@ -6,6 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from ui.balance import Ui_mainWindow
+from ui.params_setup import Ui_paramsSetupForm
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from utils import com_interface_utils, normal_utils
@@ -26,6 +27,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.setupUi(self)
         self.weightLcdNumber.display(0)
         self.init_data()
+        self.params_form = ParamsForm()
+        self.actionParameterSetup.triggered.connect(self.params_form.show)
 
     def init_data(self):
         u"""
@@ -35,8 +38,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._is_open = False
         self._com_worker = COMThread()
         self._com_worker.start()
-        self._weightList = []
-        self._weightLength = com_interface_utils.get_bytes_num()
+        self._weight = {}
         self._timer = QTimer(self)  # 新建一个定时器
         # 关联timeout信号和showTime函数，每当定时器过了指定时间间隔，就会调用showTime函数
         self._com_worker.trigger.connect(self.show_lcd)
@@ -51,11 +53,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if is_open:
             self._is_open = True
             self.weightLcdNumber.display(weight)
-            if len(self._weightList) < self._weightLength:
-                self._weightList.append(weight)
-            else:
-                self._weightList.pop(0)
-                self._weightList.append(weight)
+            now = int(time.time() * 1000)
+            self._weight[now] = weight
+            del_keys = [k for k in self._weight.keys() if now - k > (NormalParam.STABLES_DURATION + 1) * 1000]
+            [self._weight.pop(k) for k in del_keys]
 
     def check_weight_state(self):
         u"""
@@ -63,15 +64,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         if self._is_open:
-            if len(self._weightList) == self._weightLength:
-                if normal_utils.stdev(self._weightList) <= NormalParam.STABLES_ERROR:
+            now = int(time.time() * 1000)
+            first = min(self._weight.keys())
+            if first + NormalParam.STABLES_DURATION * 1000 < now:
+                weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
+                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
-                else:
-                    self.stateLabel.setText(u'读取中……')
-                    self.stateLabel.setStyleSheet('color:black')
             else:
                 self.stateLabel.setText(u'读取中……')
+                self.stateLabel.setStyleSheet('color:black')
         else:
             self.stateLabel.setText(u'称重仪表未连接！')
             self.stateLabel.setStyleSheet('color:red')
@@ -92,7 +94,7 @@ class COMThread(QThread):
         :return:
         """
         self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
-        if self._serial.is_open():
+        if self._serial.isOpen():
             logger.info("open success")
         else:
             logger.error("open failed")
@@ -106,7 +108,7 @@ class COMThread(QThread):
         if DEBUG:
             while True:
                 weight = 100
-                self.trigger.emit(0, weight)
+                self.trigger.emit(1, weight)
                 time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
         else:
             while not self._is_conn:
@@ -125,6 +127,15 @@ class COMThread(QThread):
                 weight = com_interface_utils.read_com_interface(self._serial)
                 self.trigger.emit(is_open, weight)
                 time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+
+
+class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
+    """
+    参数设置
+    """
+    def __init__(self):
+        super(ParamsForm, self).__init__()
+        self.setupUi(self)
 
 
 if __name__ == '__main__':
