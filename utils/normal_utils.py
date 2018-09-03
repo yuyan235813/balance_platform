@@ -5,7 +5,6 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-from utils.log_utils import Logger as logger
 
 
 def stdev(sequence):
