@@ -38,7 +38,11 @@
          <number>6</number>
         </property>
         <item row="0" column="1">
-         <widget class="QComboBox" name="portComboBox"/>
+         <widget class="QComboBox" name="portComboBox">
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;COM1&lt;/p&gt;&lt;p&gt;COM2&lt;/p&gt;&lt;p&gt;COM3&lt;/p&gt;&lt;p&gt;COM4&lt;/p&gt;&lt;p&gt;COM5&lt;/p&gt;&lt;p&gt;COM6&lt;/p&gt;&lt;p&gt;COM7&lt;/p&gt;&lt;p&gt;COM8&lt;/p&gt;&lt;p&gt;COM9&lt;/p&gt;&lt;p&gt;COM10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
          <widget class="QComboBox" name="dataComboBox"/>
@@ -500,13 +504,8 @@
     </layout>
    </item>
   </layout>
-  <zorder>pushButton_3</zorder>
-  <zorder>pushButton_4</zorder>
   <zorder>groupBox</zorder>
   <zorder>groupBox_2</zorder>
-  <zorder>label_5</zorder>
-  <zorder>camera1PushButton</zorder>
-  <zorder>pushButton</zorder>
  </widget>
  <resources/>
  <connections/>
