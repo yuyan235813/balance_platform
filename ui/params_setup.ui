@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>440</height>
+    <width>530</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,8 +18,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>450</width>
-    <height>440</height>
+    <width>530</width>
+    <height>460</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -28,27 +28,23 @@
   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,3,1">
    <item>
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>通信参数设置</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QGridLayout" name="gridLayout" rowstretch="2,0,0,0" columnstretch="1,0,0,0,0,0,0,0">
+       <layout class="QGridLayout" name="gridLayout" rowstretch="2,0,0,0" columnstretch="0,0,0,0,0,0,0,0,0">
         <property name="spacing">
          <number>6</number>
         </property>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="portComboBox">
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;COM1&lt;/p&gt;&lt;p&gt;COM2&lt;/p&gt;&lt;p&gt;COM3&lt;/p&gt;&lt;p&gt;COM4&lt;/p&gt;&lt;p&gt;COM5&lt;/p&gt;&lt;p&gt;COM6&lt;/p&gt;&lt;p&gt;COM7&lt;/p&gt;&lt;p&gt;COM8&lt;/p&gt;&lt;p&gt;COM9&lt;/p&gt;&lt;p&gt;COM10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="dataComboBox"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+        <item row="0" column="6">
+         <widget class="QLabel" name="label_2">
           <property name="font">
            <font>
             <family>微软雅黑</family>
@@ -56,38 +52,30 @@
            </font>
           </property>
           <property name="text">
-           <string>端口号</string>
+           <string>奇偶校验:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="dataComboBox">
+          <property name="editable">
+           <bool>true</bool>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QComboBox" name="baudComboBox">
+          <property name="editable">
+           <bool>true</bool>
           </property>
-         </spacer>
+         </widget>
         </item>
         <item row="0" column="7">
-         <widget class="QComboBox" name="verifyComboBox"/>
-        </item>
-        <item row="0" column="5">
-         <spacer name="horizontalSpacer_9">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QComboBox" name="verifyComboBox">
+          <property name="editable">
+           <bool>true</bool>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_4">
@@ -98,15 +86,12 @@
            </font>
           </property>
           <property name="text">
-           <string>数据位</string>
+           <string>数据位:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
-         <widget class="QComboBox" name="baudComboBox"/>
-        </item>
-        <item row="0" column="6">
-         <widget class="QLabel" name="label_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
           <property name="font">
            <font>
             <family>微软雅黑</family>
@@ -114,12 +99,9 @@
            </font>
           </property>
           <property name="text">
-           <string>奇偶校验</string>
+           <string>端口号:</string>
           </property>
          </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QComboBox" name="stopComboBox"/>
         </item>
         <item row="3" column="3">
          <spacer name="verticalSpacer_7">
@@ -143,20 +125,7 @@
            </font>
           </property>
           <property name="text">
-           <string>波特率</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QLabel" name="label_6">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>停止位</string>
+           <string>波特率:</string>
           </property>
          </widget>
         </item>
@@ -172,6 +141,101 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="2" column="4">
+         <widget class="QComboBox" name="stopComboBox">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>停止位:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="portComboBox">
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;COM1&lt;/p&gt;&lt;p&gt;COM2&lt;/p&gt;&lt;p&gt;COM3&lt;/p&gt;&lt;p&gt;COM4&lt;/p&gt;&lt;p&gt;COM5&lt;/p&gt;&lt;p&gt;COM6&lt;/p&gt;&lt;p&gt;COM7&lt;/p&gt;&lt;p&gt;COM8&lt;/p&gt;&lt;p&gt;COM9&lt;/p&gt;&lt;p&gt;COM10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="8">
+         <widget class="QPushButton" name="verifyPushButton">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>…</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="portPushButton">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>…</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="dataPushButton">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>…</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QPushButton" name="stopPushButton">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>…</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QPushButton" name="baudPushButton">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>…</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -204,7 +268,7 @@
              </font>
             </property>
             <property name="text">
-             <string>用户名1</string>
+             <string>用户名1:</string>
             </property>
            </widget>
           </item>
@@ -220,7 +284,7 @@
              </font>
             </property>
             <property name="text">
-             <string>密码1</string>
+             <string>密码1:</string>
             </property>
            </widget>
           </item>
@@ -266,7 +330,7 @@
              </font>
             </property>
             <property name="text">
-             <string>IP地址1</string>
+             <string>IP地址1:</string>
             </property>
            </widget>
           </item>
@@ -296,7 +360,7 @@
              </font>
             </property>
             <property name="text">
-             <string>IP地址2</string>
+             <string>IP地址2:</string>
             </property>
            </widget>
           </item>
@@ -316,7 +380,7 @@
              </font>
             </property>
             <property name="text">
-             <string>用户名2</string>
+             <string>用户名2:</string>
             </property>
            </widget>
           </item>
@@ -332,7 +396,7 @@
              </font>
             </property>
             <property name="text">
-             <string>密码2</string>
+             <string>密码2:</string>
             </property>
            </widget>
           </item>
@@ -475,7 +539,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="savePushButton">
        <property name="text">
         <string>保存</string>
        </property>
@@ -495,7 +559,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="cancelPushButton">
        <property name="text">
         <string>取消</string>
        </property>

@@ -51,7 +51,10 @@ class EasySqlite:
         _cursor = self._connection.cursor()
         # 执行SQL获取结果
         try:
-            _cursor.execute(sql, args)
+            if args and (isinstance(args[0], tuple) or isinstance(args[0], list)):
+                _cursor.executemany(sql, args)
+            else:
+                _cursor.execute(sql, args)
             if commit:
                 self._connection.commit()
             data = _cursor.fetchall()
@@ -79,14 +82,12 @@ class EasySqlite:
         :param result_dict:
         :return:
         """
-        return self.__execute(sql, args, result_dict)
+        if self.__execute(sql, args, result_dict):
+            return 1
+        else:
+            return 0
 
 
 if __name__ == '__main__':
-    db = EasySqlite('../db/browser.db')
-    # print(db.execute("select name from sqlite_master where type=?", ['table']))
-    # print(db.execute("pragma table_info([user])"))
-    # print(db.update("insert into user(id, name, password) values (?, ?, ?)", [1, "李五", "123456"]))
-    print(db.query("select id, name userName, password pwd from user"))
-    data = db.query("select * from user")
-    print(data)
+    db = EasySqlite('../rmf/db/balance.db')
+    ret = db.update('replace into t_data_bit_conf(data_bit) values(?)', args=[[-1], [-2]])

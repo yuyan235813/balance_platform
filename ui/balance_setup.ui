@@ -19,6 +19,18 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>357</width>
+    <height>634</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>357</width>
+    <height>634</height>
+   </size>
+  </property>
   <property name="font">
    <font>
     <family>微软雅黑</family>
@@ -58,7 +70,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidget"/>
+     <widget class="QListWidget" name="listWidget">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="12,3,1,3">
