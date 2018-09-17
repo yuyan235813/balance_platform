@@ -5,6 +5,8 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtSql import QSqlQueryModel
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
@@ -15,6 +17,7 @@ from conf.constant import NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 from setup_form import SetupForm
 from params_form import ParamsForm
+from system_params_form import SystemParamsForm
 from functools import partial
 import subprocess
 import sys
@@ -31,11 +34,43 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.setupUi(self)
         self.weightLcdNumber.display(0)
+        # 查询模型
+        self.queryModel = None
         self.init_data()
         self.params_form = ParamsForm()
         self.actionParameterSetup.triggered.connect(self.params_form.show)
         self.setup_form = SetupForm()
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
+        self.system_params_form = SystemParamsForm()
+        self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+
+    def show(self):
+        """
+        显示界面
+        :return:
+        """
+        super().show()
+        query_sql = 'select * from t_balance'
+        self.setTableView()
+
+    def setTableView(self):
+        """
+
+        :return:
+        """
+        # 声明查询模型
+        self.queryModel = QSqlQueryModel(self)
+        # 设置模型
+
+        # 设置表格表头
+        self.queryModel.setHeaderData(0, Qt.Horizontal, "编号")
+        self.queryModel.setHeaderData(1, Qt.Horizontal, "姓名")
+        self.queryModel.setHeaderData(2, Qt.Horizontal, "性别")
+        self.queryModel.setHeaderData(3, Qt.Horizontal, "年龄")
+        self.queryModel.setHeaderData(4, Qt.Horizontal, "院系")
+        self.queryModel.setQuery("select 1,2,3,4,5")
+        self.tableView.setModel(self.queryModel)
+
 
     def init_data(self):
         u"""

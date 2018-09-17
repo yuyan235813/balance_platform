@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS `t_balance`;
 CREATE TABLE t_balance(
+  id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(64) NOT NULL, --'单号'
   car_id text NOT NULL, --'车号'
   total_weight decimal(10,2) DEFAULT NULL, --'毛重'
@@ -30,6 +31,8 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 ); -- 磅单存储表
+insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
+  values(12345566, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
 
 
 DROP TABLE IF EXISTS `t_com_conf`;
@@ -108,3 +111,15 @@ CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
 );
+
+DROP TABLE IF EXISTS `t_system_params_conf`;
+CREATE TABLE `t_system_params_conf` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `unit` text not null default '吨', -- 计量单位
+  `company` text not null default 'xxx有限责任公司', -- 公司名称
+  `auto_save` int not null default 1, -- 是否自动保存信息
+  `price` decimal(10,2) not null default 0.0, -- 单价
+  `precision` text not null default '元' -- 精度
+);
+
+replace into t_system_params_conf(id) values(1);
