@@ -697,14 +697,14 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="ffdComboBox">
+            <widget class="QComboBox" name="supplierComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QComboBox" name="comboBox_2">
+            <widget class="QComboBox" name="receiverComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -737,7 +737,7 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QComboBox" name="comboBox_3">
+            <widget class="QComboBox" name="goodsComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -796,7 +796,7 @@
             </widget>
            </item>
            <item row="8" column="1">
-            <widget class="QComboBox" name="comboBox_5">
+            <widget class="QComboBox" name="operatorComboBox">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -913,7 +913,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="printPushButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>
@@ -938,7 +938,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_3">
+          <widget class="QPushButton" name="savePushButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>
@@ -963,7 +963,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="rmLeatherPushButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>
@@ -988,7 +988,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_5">
+          <widget class="QPushButton" name="clearPushButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>

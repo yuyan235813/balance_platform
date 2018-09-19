@@ -5,17 +5,25 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtSql import QSqlQueryModel
 from ui.balance import Ui_mainWindow
-from ui.params_setup import Ui_paramsSetupForm
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from utils import com_interface_utils, normal_utils
 from utils.log_utils import Logger as logger
+from utils import normal_utils
 from conf.constant import NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
+from setup_form import SetupForm
+from params_form import ParamsForm
+from system_params_form import SystemParamsForm
+from functools import partial
+import subprocess
 import sys
 import serial
 import time
+import os
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -26,9 +34,43 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.setupUi(self)
         self.weightLcdNumber.display(0)
+        # 查询模型
+        self.queryModel = None
         self.init_data()
         self.params_form = ParamsForm()
         self.actionParameterSetup.triggered.connect(self.params_form.show)
+        self.setup_form = SetupForm()
+        self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
+        self.system_params_form = SystemParamsForm()
+        self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+
+    def show(self):
+        """
+        显示界面
+        :return:
+        """
+        super().show()
+        query_sql = 'select * from t_balance'
+        self.setTableView()
+
+    def setTableView(self):
+        """
+
+        :return:
+        """
+        # 声明查询模型
+        self.queryModel = QSqlQueryModel(self)
+        # 设置模型
+
+        # 设置表格表头
+        self.queryModel.setHeaderData(0, Qt.Horizontal, "编号")
+        self.queryModel.setHeaderData(1, Qt.Horizontal, "姓名")
+        self.queryModel.setHeaderData(2, Qt.Horizontal, "性别")
+        self.queryModel.setHeaderData(3, Qt.Horizontal, "年龄")
+        self.queryModel.setHeaderData(4, Qt.Horizontal, "院系")
+        self.queryModel.setQuery("select 1,2,3,4,5")
+        self.tableView.setModel(self.queryModel)
+
 
     def init_data(self):
         u"""
@@ -77,6 +119,22 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         else:
             self.stateLabel.setText(u'称重仪表未连接！')
             self.stateLabel.setStyleSheet('color:red')
+
+    def closeEvent(self, event):
+        """
+        点击X号退出事件
+        :param event:
+        :return:
+        """
+        reply = QtWidgets.QMessageBox.question(self,
+                                               '本程序',
+                                               "是否要退出程序？",
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            sys.exit(app.exec_())
+        else:
+            event.ignore()
 
 
 class COMThread(QThread):
@@ -128,43 +186,6 @@ class COMThread(QThread):
                 self.trigger.emit(is_open, weight)
                 time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
 
-
-class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
-    """
-    参数设置
-    """
-    def __init__(self):
-        super(ParamsForm, self).__init__()
-        self.setupUi(self)
-        self.portComboBox.addItem("COM1")
-        self.portComboBox.addItem("COM2")
-        self.portComboBox.addItem("COM3")
-        self.portComboBox.addItem("COM4")
-        self.portComboBox.addItem("COM5")
-        self.portComboBox.addItem("COM6")
-        self.portComboBox.addItem("COM7")
-        self.portComboBox.addItem("COM8")
-        self.portComboBox.addItem("COM9")
-        self.portComboBox.addItem("COM10")
-        self.baudComboBox.addItem("1200")
-        self.baudComboBox.addItem("2400")
-        self.baudComboBox.addItem("4800")
-        self.baudComboBox.addItem("9600")
-        self.baudComboBox.addItem("19200")
-        self.verifyComboBox.addItem("None")
-        self.verifyComboBox.addItem("Odd")
-        self.verifyComboBox.addItem("Even")
-        self.dataComboBox.addItem("5")
-        self.dataComboBox.addItem("6")
-        self.dataComboBox.addItem("7")
-        self.dataComboBox.addItem("8")
-        self.dataComboBox.addItem("9")
-        self.stopComboBox.addItem("1")
-        self.stopComboBox.addItem("1.5")
-        self.stopComboBox.addItem("2")
-        import sqlite3
-        conn = sqlite3.connect('test.db')
-        cursor = conn.cursor()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
