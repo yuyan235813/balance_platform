@@ -7,7 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import *
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -1008,20 +1007,3 @@ class Ui_Dialog(object):
         self.pushButton_73.setText(_translate("Dialog", "-"))
         self.pushButton_78.setText(_translate("Dialog", "确定"))
 
-
-class ParamsDialog(QtWidgets.QDialog, Ui_Dialog):
-    """
-    参数修改
-    """
-    def __init__(self):
-        super(ParamsDialog, self).__init__()
-        self.setupUi(self)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
-
-if __name__ == '__main__':
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    myshow = ParamsDialog()
-    myshow.show()
-    sys.exit(app.exec_())
