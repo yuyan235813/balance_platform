@@ -33,6 +33,8 @@ CREATE TABLE t_balance(
 ); -- 磅单存储表
 insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
   values(12345566, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
+insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
+  values(12345567, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
 
 
 DROP TABLE IF EXISTS `t_com_conf`;

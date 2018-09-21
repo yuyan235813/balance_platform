@@ -12,6 +12,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from utils import com_interface_utils, normal_utils
 from utils.log_utils import Logger as logger
+from utils.sqllite_util import EasySqlite
 from utils import normal_utils
 from conf.constant import NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
@@ -34,8 +35,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.setupUi(self)
         self.weightLcdNumber.display(0)
-        # 查询模型
-        self.queryModel = None
+        self.db = EasySqlite(r'rmf/db/balance.db')
         self.init_data()
         self.params_form = ParamsForm()
         self.actionParameterSetup.triggered.connect(self.params_form.show)
@@ -43,6 +43,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+        self.pickBalanceButton.clicked.connect(self.display_data)
 
     def show(self):
         """
@@ -50,27 +51,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         super().show()
-        query_sql = 'select * from t_balance'
-        self.setTableView()
-
-    def setTableView(self):
-        """
-
-        :return:
-        """
-        # 声明查询模型
-        self.queryModel = QSqlQueryModel(self)
-        # 设置模型
-
-        # 设置表格表头
-        self.queryModel.setHeaderData(0, Qt.Horizontal, "编号")
-        self.queryModel.setHeaderData(1, Qt.Horizontal, "姓名")
-        self.queryModel.setHeaderData(2, Qt.Horizontal, "性别")
-        self.queryModel.setHeaderData(3, Qt.Horizontal, "年龄")
-        self.queryModel.setHeaderData(4, Qt.Horizontal, "院系")
-        self.queryModel.setQuery("select 1,2,3,4,5")
-        self.tableView.setModel(self.queryModel)
-
+        self.set_table_view()
 
     def init_data(self):
         u"""
@@ -113,12 +94,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
+                    self.pickBalanceButton.setEnabled(True)
             else:
                 self.stateLabel.setText(u'读取中……')
                 self.stateLabel.setStyleSheet('color:black')
+                self.pickBalanceButton.setEnabled(False)
         else:
             self.stateLabel.setText(u'称重仪表未连接！')
             self.stateLabel.setStyleSheet('color:red')
+            self.pickBalanceButton.setEnabled(False)
 
     def closeEvent(self, event):
         """
@@ -135,6 +119,41 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             sys.exit(app.exec_())
         else:
             event.ignore()
+
+    def set_table_view(self):
+        """
+        :return:
+        """
+        header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
+                  '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '称重时间1', '称重日期',
+                  '称重时间2', '操作员', '备注', '备用1', '备用2', '备用3', '备用4']
+        query_sql = 'select * from t_balance'
+        data_list = self.db.query(query_sql)
+        row_no, col_no = len(data_list), len(header)
+        model = QStandardItemModel(row_no, col_no)
+        model.setHorizontalHeaderLabels(header)
+        for row in range(row_no):
+            values = list(data_list[row].values())
+            for col in range(col_no):
+                item = QStandardItem(str(values[col]))
+                model.setItem(row, col, item)
+        self.tableView.setModel(model)
+        self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
+
+    def display_data(self, data):
+        if data:
+            self.balanceNoBlael.setText(str(data.get('balance_id', '0')))
+            self.leatherWeightLcdNumber.display(data.get('leather_weight', 0))
+            self.totalWeightLcdNumber.display(data.get('total_weight', 0))
+            self.actualWeightLcdNumber.display(data.get('actual_weight', 0))
+            self.goodsComboBox.setCurrentText(data.get('goods_name', ''))
+            QtWidgets.QMessageBox.question(self,
+                                           '本程序',
+                                           str(data),
+                                           QtWidgets.QMessageBox.Yes)
+        else:
+            print(self.weightLcdNumber.value())
+            self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
 
 
 class COMThread(QThread):
