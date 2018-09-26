@@ -19,6 +19,7 @@ from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
+from Supply_form import SupplyForm
 from functools import partial
 import subprocess
 import sys
@@ -44,6 +45,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.system_params_form = SystemParamsForm()
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
         self.pickBalanceButton.clicked.connect(self.display_data)
+        self.Supply_form = SupplyForm()
+        self.actionSupplier.triggered.connect(self.Supply_form.show)
 
     def show(self):
         """
