@@ -19,6 +19,7 @@ from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
+from car_form import CarManageForm
 from functools import partial
 import subprocess
 import sys
@@ -43,6 +44,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+        self.car_form = CarManageForm()
+        self.actionCarInfo.triggered.connect(self.car_form.show)
         self.pickBalanceButton.clicked.connect(self.display_data)
 
     def show(self):

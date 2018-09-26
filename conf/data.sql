@@ -21,9 +21,9 @@ CREATE TABLE t_balance(
   driver text, --'驾驶员'
   poddid bigint(64) DEFAULT NULL, --'计划单号'
   delivery text, --'运货单位'
-  balance_time1 datetime DEFAULT NULL, --'称重时间1'
-  balance_date date DEFAULT NULL, --'称重日期'
-  balance_time2 datetime DEFAULT NULL, --'称重时间2'
+  balance_time1 datetime DEFAULT (datetime('now', 'localtime')), --'称重时间1'
+  balance_date date DEFAULT (date('now')), --'称重日期'
+  balance_time2 datetime DEFAULT (datetime('now', 'localtime')), --'称重时间2'
   operator text, --'操作员'
   extend text, --'备注'
   ext1 text, -- '备用1'
@@ -125,3 +125,14 @@ CREATE TABLE `t_system_params_conf` (
 );
 
 replace into t_system_params_conf(id) values(1);
+
+DROP TABLE IF EXISTS `t_car`;
+CREATE TABLE `t_car` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `car_no` text not null default '', -- 计量单位
+  `leather_weight` decimal(10,2) DEFAULT NULL, --'皮重'
+  `add_time` datetime not null default (datetime('now', 'localtime')), -- 公司名称
+  `status` int not null default 1 -- 1:有效；0：删除
+);
+
+replace into t_car(car_no, leather_weight) values('鲁JA00012', 10.2);

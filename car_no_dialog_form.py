@@ -8,13 +8,15 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from functools import partial
-from ui.car_no_dialog import Ui_Dialog
+from ui.car_no_dialog import Ui_DockWidget
 
 
-class CarNoDialogForm(QtWidgets.QMainWindow, Ui_Dialog):
+class CarNoDialogForm(QtWidgets.QDockWidget, Ui_DockWidget):
     """
     车牌号输入键盘
     """
+    my_signal = pyqtSignal(str)
+
     def __init__(self):
         super(CarNoDialogForm, self).__init__()
         self.setupUi(self)
@@ -50,7 +52,7 @@ class CarNoDialogForm(QtWidgets.QMainWindow, Ui_Dialog):
         :return:
         """
         self.text = char
-        print(self.text)
+        self.my_signal.emit(self.text)
 
     def click_letter(self, char):
         """
@@ -59,7 +61,7 @@ class CarNoDialogForm(QtWidgets.QMainWindow, Ui_Dialog):
         :return:
         """
         self.text += char
-        print(self.text)
+        self.my_signal.emit(self.text)
 
 
 if __name__ == '__main__':
