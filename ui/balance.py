@@ -519,7 +519,7 @@ class Ui_mainWindow(object):
         self.actionSystemParameterSetup.setText(_translate("mainWindow", "系统参数设置"))
         self.actionCarInfo.setText(_translate("mainWindow", "车辆设置"))
         self.actionSupplier.setText(_translate("mainWindow", "供货单位"))
-        self.actionReceiving.setText(_translate("mainWindow", "收获单位"))
+        self.actionReceiving.setText(_translate("mainWindow", "收货单位"))
         self.actionGoodsName.setText(_translate("mainWindow", "货物名称"))
         self.actionBalanceQuery.setText(_translate("mainWindow", "程中查询"))
         self.actionHelp.setText(_translate("mainWindow", "帮助信息"))

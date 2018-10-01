@@ -21,6 +21,8 @@ from params_form import ParamsForm
 from system_params_form import SystemParamsForm
 from car_form import CarManageForm
 from Supply_form import SupplyForm
+from receiver_form import receiverForm
+from cargo_form import cargoForm
 from functools import partial
 import subprocess
 import sys
@@ -50,6 +52,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.pickBalanceButton.clicked.connect(self.display_data)
         self.Supply_form = SupplyForm()
         self.actionSupplier.triggered.connect(self.Supply_form.show)
+        self.receiver_form = receiverForm()
+        self.actionReceiving.triggered.connect(self.receiver_form.show)
+        self.car_form = cargoForm()
+        self.actionGoodsName.triggered.connect(self.car_form.show)
 
     def show(self):
         """
