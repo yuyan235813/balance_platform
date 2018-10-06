@@ -521,7 +521,7 @@ class Ui_mainWindow(object):
         self.actionSupplier.setText(_translate("mainWindow", "供货单位"))
         self.actionReceiving.setText(_translate("mainWindow", "收货单位"))
         self.actionGoodsName.setText(_translate("mainWindow", "货物名称"))
-        self.actionBalanceQuery.setText(_translate("mainWindow", "程中查询"))
+        self.actionBalanceQuery.setText(_translate("mainWindow", "称重查询"))
         self.actionHelp.setText(_translate("mainWindow", "帮助信息"))
         self.actionAbout.setText(_translate("mainWindow", "关于"))
 

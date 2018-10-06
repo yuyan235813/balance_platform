@@ -23,6 +23,7 @@ from car_form import CarManageForm
 from Supply_form import SupplyForm
 from receiver_form import receiverForm
 from cargo_form import cargoForm
+from poll_form import pollmainForm
 from functools import partial
 import subprocess
 import sys
@@ -54,8 +55,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionSupplier.triggered.connect(self.Supply_form.show)
         self.receiver_form = receiverForm()
         self.actionReceiving.triggered.connect(self.receiver_form.show)
-        self.car_form = cargoForm()
-        self.actionGoodsName.triggered.connect(self.car_form.show)
+        self.cargo_form = cargoForm()
+        self.actionGoodsName.triggered.connect(self.cargo_form.show)
+        self.poll_form = pollmainForm()
+        self.actionBalanceQuery.triggered.connect(self.poll_form.show)
 
     def show(self):
         """
@@ -107,6 +110,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
+                else:
+                    self.stateLabel.setText(u'读取中……')
+                    self.stateLabel.setStyleSheet('color:black')
+                    self.pickBalanceButton.setEnabled(False)
             else:
                 self.stateLabel.setText(u'读取中……')
                 self.stateLabel.setStyleSheet('color:black')
