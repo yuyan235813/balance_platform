@@ -6,6 +6,7 @@
 @Email   : 794339312@qq.com
 """
 import os
+import datetime
 
 
 def stdev(sequence):
@@ -40,6 +41,13 @@ def get_file_list(path, type='.rmf'):
         else:
             pass
     return list_name
+
+def get_cur_time():
+    """
+    获取当前时间
+    :return:
+    """
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 if __name__ == '__main__':

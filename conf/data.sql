@@ -129,7 +129,7 @@ replace into t_system_params_conf(id) values(1);
 DROP TABLE IF EXISTS `t_car`;
 CREATE TABLE `t_car` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
-  `car_no` text not null default '', -- 计量单位
+  `car_no` text unique not null default '', -- 计量单位
   `leather_weight` decimal(10,2) DEFAULT NULL, --'皮重'
   `add_time` datetime not null default (datetime('now', 'localtime')), -- 公司名称
   `status` int not null default 1 -- 1:有效；0：删除

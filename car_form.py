@@ -6,12 +6,11 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
-from functools import partial
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.car_manage import Ui_carManageForm
 from car_no_dialog_form import CarNoDialogForm
 from utils.sqllite_util import EasySqlite
+from utils.normal_utils import get_cur_time
 
 
 class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
@@ -48,16 +47,18 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
         self.tableView.setModel(model)
-        self.tableView.doubleClicked.connect(lambda x: self.__display_data(data_list[int(x.row())]))
+        self.tableView.doubleClicked.connect(self.__display_data)
 
-    def __display_data(self, data):
+    def __display_data(self, index):
         """
         返显数据
-        :param data:
+        :param index:
         :return:
         """
-        self.carNoLineEdit.setText(str(data.get('car_no', '')))
-        self.doubleSpinBox.setValue(data.get('leather_weight', 0.0))
+        car_no = self.tableView.model().index(index.row(), 0).data()
+        leather_weight = self.tableView.model().index(index.row(), 1).data()
+        self.carNoLineEdit.setText(str(car_no))
+        self.doubleSpinBox.setValue(float(leather_weight))
 
     def __show_dialog(self):
         """
@@ -86,23 +87,61 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         添加数据
         :return:
         """
-        pass
+        car_no = self.carNoLineEdit.text()
+        leather_weight = self.doubleSpinBox.value()
+        if len(car_no.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能为空！", QtWidgets.QMessageBox.Ok)
+            return
+        if leather_weight <= 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "重量必须为正数！", QtWidgets.QMessageBox.Ok)
+            return
+        repeat = False
+        row_count = self.tableView.model().rowCount()
+        for i in range(row_count):
+            if car_no == self.tableView.model().index(i, 0).data():
+                repeat = True
+                break
+        if repeat:
+            QtWidgets.QMessageBox.warning(self, '本程序', "车牌号已经存在！", QtWidgets.QMessageBox.Ok)
+            return
+        cur_time = get_cur_time()
+        items = (QStandardItem(car_no),
+                 QStandardItem(str(round(leather_weight, 2))),
+                 QStandardItem(cur_time))
+        self.tableView.model().insertRow(0, items)
 
     def __delete_data(self):
         """
         删除数据
         :return:
         """
-        pass
+        current_row = self.tableView.currentIndex().row()
+        status = self.tableView.model().removeRow(current_row)
+        print(self.tableView.model().rowCount())
+        if not status:
+            QtWidgets.QMessageBox.warning(self, '本程序', "删除失败！", QtWidgets.QMessageBox.Ok)
+            return
 
     def __save_data(self):
         """
         保存数据
         :return:
         """
-
-    def closeEvent(self, event):
-        self.close()
+        data = []
+        model = self.tableView.model()
+        for row_iter in range(model.rowCount()):
+            car_no = model.index(row_iter, 0).data()
+            leather_weight = model.index(row_iter, 1).data()
+            add_time = model.index(row_iter, 2).data()
+            data.append((car_no, leather_weight, add_time))
+        delete_sql = 'delete from t_car'
+        self.db.update(delete_sql)
+        update_sql = 'replace into t_car(car_no, leather_weight, add_time) values (?,?,?)'
+        ret = self.db.update(update_sql, data)
+        if ret:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 
 
 if __name__ == '__main__':

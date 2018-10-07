@@ -20,7 +20,7 @@ from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
 from car_form import CarManageForm
-from Supply_form import SupplyForm
+# from Supply_form import SupplyForm
 from functools import partial
 import subprocess
 import sys
@@ -48,8 +48,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.car_form = CarManageForm()
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.pickBalanceButton.clicked.connect(self.display_data)
-        self.Supply_form = SupplyForm()
-        self.actionSupplier.triggered.connect(self.Supply_form.show)
+        # self.Supply_form = SupplyForm()
+        # self.actionSupplier.triggered.connect(self.Supply_form.show)
 
     def show(self):
         """
@@ -101,6 +101,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
+                else:
+                    self.stateLabel.setText(u'读取中……')
+                    self.stateLabel.setStyleSheet('color:black')
+                    self.pickBalanceButton.setEnabled(False)
             else:
                 self.stateLabel.setText(u'读取中……')
                 self.stateLabel.setStyleSheet('color:black')

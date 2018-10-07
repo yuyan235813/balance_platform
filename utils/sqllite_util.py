@@ -74,7 +74,7 @@ class EasySqlite:
         """
         return self.__execute(sql, args, result_dict)
 
-    def update(self, sql, args=[], result_dict=True) -> list:
+    def update(self, sql, args=[], result_dict=True) -> int:
         """
         查询数据
         :param sql:
@@ -82,10 +82,12 @@ class EasySqlite:
         :param result_dict:
         :return:
         """
-        if self.__execute(sql, args, result_dict):
-            return 1
-        else:
+        ret = self.__execute(sql, args, result_dict)
+        print(ret)
+        if ret:
             return 0
+        else:
+            return 1
 
 
 if __name__ == '__main__':
