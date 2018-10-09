@@ -93,11 +93,21 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
         model.setHorizontalHeaderLabels(header)
+        totalweight = 0
+        leatherweight = 0
+        actualweight = 0
         for row in range(row_no):
             values = list(column[row].values())
+            totalweight = int(totalweight) + int(str(values[2]))
+            leatherweight = int(leatherweight) + int(str(values[3]))
+            actualweight = int(actualweight) + int(str(values[4]))
             for col in range(col_no):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
+        model.setItem(int(row_no), 0, QStandardItem('总计'))
+        model.setItem(int(row_no), 2, QStandardItem(str(totalweight)))
+        model.setItem(int(row_no), 3, QStandardItem(str(leatherweight)))
+        model.setItem(int(row_no), 4, QStandardItem(str(actualweight)))
         self.tableView.setModel(model)
         self.tableView.doubleClicked.connect(lambda x: self.display_data(column[int(x.row())]))
 
