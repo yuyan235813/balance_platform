@@ -106,4 +106,4 @@ venv.bak/
 # idea
 .idea/
 
-.db
+*.db
