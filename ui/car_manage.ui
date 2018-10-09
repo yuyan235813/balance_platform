@@ -189,19 +189,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="updatePushButton">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>修  改</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="savePushButton">
           <property name="font">
            <font>
