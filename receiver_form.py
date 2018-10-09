@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
-from ui.Supply_manage import Ui_supplyManageForm
-from ui.supply_dialog import Ui_Supply_Dialog
+from ui.receiver_manage import Ui_receiverManageForm
+from ui.receiver_dialog import Ui_Receiver_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import *
 from utils import normal_utils
@@ -11,28 +11,28 @@ import subprocess
 from utils.log_utils import Logger as logger
 
 
-class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
+class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
     """
     参数设置
     """
     def __init__(self):
-        super(SupplyForm, self).__init__()
+        super(receiverForm, self).__init__()
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.save_data)
-        self.cancelPushButton.clicked.connect(self.cancel_SupplyForm)
-        self.supply_dialog = SupplyDialog(self)
+        self.cancelPushButton.clicked.connect(self.cancel_ReceiveForm)
+        self.receiver_dialog = ReceiverDialog(self)
 
     def show(self):
         """
         显示ui
         :return:
         """
-        super(SupplyForm, self).show()
+        super(receiverForm, self).show()
         self.set_table_view()
 
-    def cancel_SupplyForm(self):
+    def cancel_ReceiveForm(self):
         """
         显示ui
         :return:
@@ -45,7 +45,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         """
         header = ['序号',  '供货单位', '联系人', '联系电话', '地址',
                   '开户行', '账号', '税号',  '备用1', '备用2', '备用3', '备用4']
-        query_sql = 'select * from t_supplier'
+        query_sql = 'select * from t_receiver'
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -65,15 +65,15 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         :return:
         """
         # self.balanceNoBlael.setText(str(data.get('balance_id', '0')))
-        query_sql = 'select %s from %s where supplier_id = %s' % ("", table, )
+        query_sql = 'select %s from %s where receiver_id = %s' % ("", table, )
         self.supply_dialog.my_signal.connect(self.set_data)
         self.params_dialog.show(table)
 
     def display_data(self, data):
         if data:
-            id=int(data.get('supplier_id', '0'))
-            self.supply_dialog.my_signal.connect(self.set_table_view)
-            self.supply_dialog.show(id)
+            id=int(data.get('receiver_id', '0'))
+            self.receiver_dialog.my_signal.connect(self.set_table_view)
+            self.receiver_dialog.show(id)
         else:
             QtWidgets.QMessageBox.question(self,
                                            '本程序')
@@ -83,29 +83,29 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
 
         :return:
         """
-        supply_name = self.SupplyNameLineEdit.text()
-        supply_contact = self.SupplyContactLineEdit.text()
-        supply_phone = self.SupplyPhoneLineEdit.text()
-        supply_address = self.SupplyAddressLineEdit.text()
-        supply_bank = self.SupplyBankLineEdit.text()
-        supply_count = self.SupplyCountLineEdit.text()
-        supply_duty = self.SupplyDutyLineEdit.text()
-        if supply_name:
-            insert_sql = 'insert into t_supplier(name,contact,tel,address,bank,account,duty) values (?,?,?,?,?,?,?)'
-            ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
-                                          supply_count, supply_duty])
+        receiver_name = self.ReceiverNameLineEdit.text()
+        receiver_contact = self.ReceiverContactLineEdit.text()
+        receiver_phone = self.ReceiverPhoneLineEdit.text()
+        receiver_address = self.ReceiverAddressLineEdit.text()
+        receiver_bank = self.ReceiverBankLineEdit.text()
+        receiver_count = self.ReceiverCountLineEdit.text()
+        receiver_duty = self.ReceiverDutyLineEdit.text()
+        if receiver_name:
+            insert_sql = 'insert into t_receiver(name,contact,tel,address,bank,account,duty) values (?,?,?,?,?,?,?)'
+            ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
+                                              receiver_bank, receiver_count, receiver_duty])
             if ret:
                QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
             else:
                QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
                self.set_table_view()
-               self.SupplyNameLineEdit.clear()
-               self.SupplyContactLineEdit.clear()
-               self.SupplyPhoneLineEdit.clear()
-               self.SupplyAddressLineEdit.clear()
-               self.SupplyBankLineEdit.clear()
-               self.SupplyCountLineEdit.clear()
-               self.SupplyDutyLineEdit.clear()
+               self.ReceiverNameLineEdit.clear()
+               self.ReceiverContactLineEdit.clear()
+               self.ReceiverPhoneLineEdit.clear()
+               self.ReceiverAddressLineEdit.clear()
+               self.ReceiverCountLineEdit.clear()
+               self.ReceiverBankLineEdit.clear()
+               self.ReceiverDutyLineEdit.clear()
         else:
             QtWidgets.QMessageBox.question(self,
                                            '本程序',
@@ -113,60 +113,60 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
                                            QtWidgets.QMessageBox.Yes)
 
 
-class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
+class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):
     """
     参数修改
     """
     my_signal = pyqtSignal(str)
 
     def __init__(self, parent):
-        super(SupplyDialog, self).__init__()
+        super(ReceiverDialog, self).__init__()
         self.setupUi(self)
         # 自定义信号
         self.table = ''
         self.column = ''
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.setWindowModality(Qt.ApplicationModal)
-        self.deletePushButton.clicked.connect(self.delete_supply)
-        self.savePushButton.clicked.connect(self.save_supply)
-        self.cancelPushButton.clicked.connect(self.cancel_supply)
+        self.deletePushButton.clicked.connect(self.delete_receiver)
+        self.savePushButton.clicked.connect(self.save_receiver)
+        self.cancelPushButton.clicked.connect(self.cancel_receiver)
 
     def show(self, column):
         """
         显示ui
         :return:
         """
-        super(SupplyDialog, self).show()
+        super(ReceiverDialog, self).show()
 
-        query_sql = 'select name,contact,tel,address,bank,account,duty,supplier_id from t_supplier  ' \
-                    'where supplier_id = %s' % (column)
+        query_sql = 'select name,contact,tel,address,bank,account,duty,receiver_id from t_receiver  ' \
+                    'where receiver_id = %s' % (column)
         data_list = self.db.query(query_sql)
-        self.SupplyNameLineEdit.setText(str(list(data_list[0].values())[0]))
-        self.SupplyContactLineEdit.setText(str(list(data_list[0].values())[1]))
-        self.SupplyPhoneLineEdit.setText(str(list(data_list[0].values())[2]))
-        self.SupplyAddressLineEdit.setText(str(list(data_list[0].values())[3]))
-        self.SupplyBankLineEdit.setText(str(list(data_list[0].values())[4]))
-        self.SupplyCountLineEdit.setText(str(list(data_list[0].values())[5]))
-        self.SupplyDutyLineEdit.setText(str(list(data_list[0].values())[6]))
-        self.SupplyIdLineEdit.setText(str(list(data_list[0].values())[7]))
+        self.ReceiverNameLineEdit.setText(str(list(data_list[0].values())[0]))
+        self.ReceiverContactLineEdit.setText(str(list(data_list[0].values())[1]))
+        self.ReceiverPhoneLineEdit.setText(str(list(data_list[0].values())[2]))
+        self.ReceiverAddressLineEdit.setText(str(list(data_list[0].values())[3]))
+        self.ReceiverBankLineEdit.setText(str(list(data_list[0].values())[4]))
+        self.ReceiverCountLineEdit.setText(str(list(data_list[0].values())[5]))
+        self.ReceiverDutyLineEdit.setText(str(list(data_list[0].values())[6]))
+        self.ReceiverIdLineEdit.setText(str(list(data_list[0].values())[7]))
 
-    def save_supply(self):
+    def save_receiver(self):
         """
         保存item
         :return:
         """
-        supply_name = self.SupplyNameLineEdit.text()
-        supply_contact = self.SupplyContactLineEdit.text()
-        supply_phone = self.SupplyPhoneLineEdit.text()
-        supply_address = self.SupplyAddressLineEdit.text()
-        supply_bank = self.SupplyBankLineEdit.text()
-        supply_count = self.SupplyCountLineEdit.text()
-        supply_duty = self.SupplyDutyLineEdit.text()
-        supply_id = self.SupplyIdLineEdit.text()
-        insert_sql = 'update  t_supplier set name=?,contact=?,tel=?,address=?,bank=?,account=?,duty=? ' \
-                     'where  supplier_id = ?'
-        ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
-                                          supply_count, supply_duty,int(supply_id)])
+        receiver_name = self.ReceiverNameLineEdit.text()
+        receiver_contact = self.ReceiverContactLineEdit.text()
+        receiver_phone = self.ReceiverPhoneLineEdit.text()
+        receiver_address = self.ReceiverAddressLineEdit.text()
+        receiver_bank = self.ReceiverBankLineEdit.text()
+        receiver_count = self.ReceiverCountLineEdit.text()
+        receiver_duty = self.ReceiverDutyLineEdit.text()
+        receiver_id = self.ReceiverIdLineEdit.text()
+        insert_sql = 'update  t_receiver set name=?,contact=?,tel=?,address=?,bank=?,account=?,duty=? ' \
+                     'where  receiver_id = ?'
+        ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
+                                              receiver_bank, receiver_count, receiver_duty,int(receiver_id)])
         if ret:
             QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:
@@ -174,21 +174,21 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
             self.close()
             self.my_signal.emit(self.table)
 
-    def cancel_supply(self):
+    def cancel_receiver(self):
         """
         取消更改
         :return:
         """
         self.close()
 
-    def delete_supply(self):
+    def delete_receiver(self):
         """
         删除item
         :return:
         """
-        supply_id = self.SupplyIdLineEdit.text()
-        delete_sql = 'delete from t_supplier where  supplier_id = ?'
-        ret = self.db.update(delete_sql, [int(supply_id)])
+        receiver_id = self.ReceiverIdLineEdit.text()
+        delete_sql = 'delete from t_receiver where  receiver_id = ?'
+        ret = self.db.update(delete_sql, [int(receiver_id)])
         if ret:
             QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
         else:
@@ -199,6 +199,6 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    myshow = SupplyForm()
+    myshow = receiverForm()
     myshow.show()
     sys.exit(app.exec_())

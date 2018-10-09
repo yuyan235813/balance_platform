@@ -20,7 +20,10 @@ from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
 from car_form import CarManageForm
-# from Supply_form import SupplyForm
+from Supply_form import SupplyForm
+from receiver_form import receiverForm
+from cargo_form import cargoForm
+from poll_form import pollmainForm
 from functools import partial
 import subprocess
 import sys
@@ -48,8 +51,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.car_form = CarManageForm()
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.pickBalanceButton.clicked.connect(self.display_data)
-        # self.Supply_form = SupplyForm()
-        # self.actionSupplier.triggered.connect(self.Supply_form.show)
+        self.Supply_form = SupplyForm()
+        self.actionSupplier.triggered.connect(self.Supply_form.show)
+        self.receiver_form = receiverForm()
+        self.actionReceiving.triggered.connect(self.receiver_form.show)
+        self.cargo_form = cargoForm()
+        self.actionGoodsName.triggered.connect(self.cargo_form.show)
+        self.poll_form = pollmainForm()
+        self.actionBalanceQuery.triggered.connect(self.poll_form.show)
 
     def show(self):
         """
@@ -58,6 +67,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         super().show()
         self.set_table_view()
+        cargo_query_sql = 'select name from t_cargo'
+        cargo_list = self.db.query(cargo_query_sql)
+        cargo_row_no = len(cargo_list)
+        for row in range(cargo_row_no):
+            values = list(cargo_list[row].values())[0]
+            self.goodsComboBox.addItem(values)
+        self.goodsComboBox.clearEditText()
+        supply_query_sql = 'select name from t_supplier'
+        supply_list = self.db.query(supply_query_sql)
+        supply_row_no = len(supply_list)
+        for row in range(supply_row_no):
+            values = list(supply_list[row].values())[0]
+            self.supplierComboBox.addItem(values)
+        self.supplierComboBox.clearEditText()
+        receiver_query_sql = 'select name from t_receiver'
+        receiver_list = self.db.query(receiver_query_sql)
+        receiver_row_no = len(receiver_list)
+        for row in range(receiver_row_no):
+            values = list(receiver_list[row].values())[0]
+            self.receiverComboBox.addItem(values)
+        self.receiverComboBox.clearEditText()
 
     def init_data(self):
         u"""

@@ -1,0 +1,1 @@
+sqlite3 balance.db ".dump" > balance.sql
