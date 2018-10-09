@@ -1,6 +1,7 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE t_balance(
+  id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(64) NOT NULL, --'单号'
   car_id text NOT NULL, --'车号'
   total_weight decimal(10,2) DEFAULT NULL, --'毛重'
@@ -21,9 +22,9 @@ CREATE TABLE t_balance(
   driver text, --'驾驶员'
   poddid bigint(64) DEFAULT NULL, --'计划单号'
   delivery text, --'运货单位'
-  balance_time1 datetime DEFAULT NULL, --'称重时间1'
-  balance_date date DEFAULT NULL, --'称重日期'
-  balance_time2 datetime DEFAULT NULL, --'称重时间2'
+  balance_time1 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间1'
+  balance_date date not null DEFAULT (date('now')), --'称重日期'
+  balance_time2 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间2'
   operator text, --'操作员'
   extend text, --'备注'
   ext1 text, -- '备用1'
@@ -31,7 +32,15 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-INSERT INTO t_balance VALUES(12345566,'鲁JA00012',200,10,190,'金条','啦啦啦','山东',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1538470580316,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
+  values(12345566, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
+insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
+  values(12345567, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
+
+CREATE TABLE `t_rmf` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `default_rmf` text not null default '' -- 默认磅单rmf
+);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
