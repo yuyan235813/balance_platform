@@ -22,6 +22,8 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
+        self.begindateEdit.setDate(QDate.currentDate())
+        self.enddateEdit.setDate(QDate.currentDate())
         self.QueryPushButton.clicked.connect(self.poll_data)
         self.cancelPushButton.clicked.connect(self.cancel_pollForm)
         self.pollresult = PollResultForm(self)
@@ -39,15 +41,21 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         """
         begin_date = self.begindateEdit.text()+' 00:00:00'
         begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
-        print(datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S"))
-        end_date=self.enddateEdit.text()+' 23:59:59'
-        end_date_24 = datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
-        carNo= self.CarNoLineEdit.text()
+        begin_date_zero =str(begin_date_zero)
+        print(begin_date_zero)
+        end_date = self.enddateEdit.text()+' 23:59:59'
+        end_date_24 = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
+        end_date_24 = str(end_date_24)
+        carNo = self.CarNoLineEdit.text()
         receiver_name = self.ReceiverNameLineEdit.text()
         cargo_name = self.CargoNameLineEdit.text()
         supply_name = self.SupplyNameLineEdit.text()
         balance_Id = self.balanceNoLineEdit.text()
         condition = ' where'
+        print(condition)
+        condition = condition + ' balance_time1 >= "' + begin_date_zero + '"  and  balance_time1' \
+                                                                          ' <= "' + end_date_24 + '"  and'
+        print(condition)
         if carNo:
             condition = condition + ' car_id = "'+carNo+'"  and'
         if balance_Id:
@@ -59,7 +67,8 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         if supply_name:
             condition = condition + ' supplier = "'+supply_name+'" and'
         condition = condition[:-3]
-        query_sql = 'select * from t_balance'+condition
+        query_sql = 'select balance_id,car_id,total_weight,leather_weight,actual_weight,balance_time1,' \
+                    'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
         print(query_sql)
         data_list = self.db.query(query_sql)
         self.pollresult.show(data_list)
@@ -87,9 +96,8 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         :return:
         """
         super(PollResultForm, self).show()
-        header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
-                  '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '称重时间1', '称重日期',
-                  '称重时间2', '操作员', '备注', '备用1', '备用2', '备用3', '备用4']
+        header = ['单号', '车牌号', '毛重', '皮重', '净重','称重时间1',  '称重时间2','货物名', '收货单位',  '供货单位',
+                  '操作员' ]
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
         model.setHorizontalHeaderLabels(header)

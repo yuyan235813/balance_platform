@@ -167,7 +167,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
                   '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '称重时间1', '称重日期',
                   '称重时间2', '操作员', '备注', '备用1', '备用2', '备用3', '备用4']
-        query_sql = 'select * from t_balance'
+        query_sql = 'select balance_id from t_balance'
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)

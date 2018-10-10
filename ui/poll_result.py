@@ -15,11 +15,18 @@ class Ui_PollResultForm(object):
         self.tableView = QtWidgets.QTableView(PollResultForm)
         self.tableView.setGeometry(QtCore.QRect(70, 80, 721, 192))
         self.tableView.setObjectName("tableView")
+        self.printPushButton = QtWidgets.QPushButton(PollResultForm)
+        self.printPushButton.setGeometry(QtCore.QRect(450, 300, 75, 23))
+        font = QtGui.QFont()
+        font.setKerning(True)
+        self.printPushButton.setFont(font)
+        self.printPushButton.setObjectName("printPushButton")
 
         self.retranslateUi(PollResultForm)
         QtCore.QMetaObject.connectSlotsByName(PollResultForm)
 
     def retranslateUi(self, PollResultForm):
         _translate = QtCore.QCoreApplication.translate
-        PollResultForm.setWindowTitle(_translate("PollResultForm", "查询结果"))
+        PollResultForm.setWindowTitle(_translate("PollResultForm", "Form"))
+        self.printPushButton.setText(_translate("PollResultForm", "打印"))
 

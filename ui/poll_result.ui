@@ -23,6 +23,24 @@
     </rect>
    </property>
   </widget>
+  <widget class="QPushButton" name="printPushButton">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>300</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="text">
+    <string>打印</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
