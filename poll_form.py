@@ -121,7 +121,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
 
     def display_data(self, data):
         if data:
-            id=int(data.get('balance_id', '0'))
+            id=int(data.get('balance_id', '1'))
             # self.balance_detail.my_signal.connect(self.set_table_view)
             self.balance_detail.show(id)
         else:

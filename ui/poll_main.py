@@ -7,8 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import datetime
-
 
 class Ui_PollmainForm(object):
     def setupUi(self, PollmainForm):
@@ -66,6 +64,7 @@ class Ui_PollmainForm(object):
         self.label_7.setObjectName("label_7")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_7)
         self.balanceNoLineEdit = QtWidgets.QLineEdit(self.groupBox)
+        self.balanceNoLineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.balanceNoLineEdit.setObjectName("balanceNoLineEdit")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.balanceNoLineEdit)
         self.label_12 = QtWidgets.QLabel(self.groupBox)
@@ -76,6 +75,7 @@ class Ui_PollmainForm(object):
         self.label_12.setObjectName("label_12")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_12)
         self.SupplyNameLineEdit = QtWidgets.QLineEdit(self.groupBox)
+        self.SupplyNameLineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.SupplyNameLineEdit.setObjectName("SupplyNameLineEdit")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.SupplyNameLineEdit)
         self.begindateEdit = QtWidgets.QDateEdit(self.groupBox)
@@ -122,6 +122,7 @@ class Ui_PollmainForm(object):
         self.UnCompleteradioButton.setObjectName("UnCompleteradioButton")
         self.formLayout_2.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.UnCompleteradioButton)
         self.CompleteradioButton = QtWidgets.QRadioButton(self.groupBox)
+        self.CompleteradioButton.setChecked(True)
         self.CompleteradioButton.setObjectName("CompleteradioButton")
         self.formLayout_2.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.CompleteradioButton)
         self.AllradioButton = QtWidgets.QRadioButton(self.groupBox)

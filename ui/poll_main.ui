@@ -242,6 +242,9 @@
           <property name="text">
            <string>完成</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item row="5" column="0">
