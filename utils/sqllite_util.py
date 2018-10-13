@@ -84,7 +84,7 @@ class EasySqlite:
         """
         ret = self.__execute(sql, args, result_dict)
         print(ret)
-        if ret:
+        if ret or ret is None:
             return 0
         else:
             return 1
