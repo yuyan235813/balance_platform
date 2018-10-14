@@ -2,7 +2,7 @@ PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE t_balance(
   id integer primary key AUTOINCREMENT, -- ID
-  balance_id bigint(64) NOT NULL, --'单号'
+  balance_id bigint(16) unique NOT NULL, --'单号'
   car_id text NOT NULL, --'车号'
   total_weight decimal(10,2) DEFAULT NULL, --'毛重'
   leather_weight decimal(10,2) DEFAULT NULL, --'皮重'
@@ -14,7 +14,7 @@ CREATE TABLE t_balance(
   extra decimal(10,2) DEFAULT NULL, --'另扣'
   impurity decimal(10,2) DEFAULT NULL, --'杂质'
   water decimal(10,2) DEFAULT NULL, --'水分'
-  pirce decimal(10,2) DEFAULT NULL, --'单价'
+  price decimal(10,2) DEFAULT NULL, --'单价'
   amount decimal(10,2) DEFAULT NULL, --'金额'
   oil decimal(10,2) DEFAULT NULL, --'含油'
   sweight decimal(10,2) DEFAULT NULL, --'结算重量'
