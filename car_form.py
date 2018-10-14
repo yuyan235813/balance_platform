@@ -24,7 +24,6 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         super(CarManageForm, self).__init__()
         self.setupUi(self)
         self.db = EasySqlite(r'rmf/db/balance.db')
-        self.__init_data()
         self.pushButton.clicked.connect(self.__show_dialog)
         self.cancelPushButton.clicked.connect(self.close)
         self.addPushButton.clicked.connect(self.__add_data)
@@ -173,6 +172,14 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+
+    def show(self):
+        """
+        显示
+        :return:
+        """
+        super().show()
+        self.__init_data()
 
 
 class CarManageChangeForm(QtWidgets.QDialog, Ui_dialog):

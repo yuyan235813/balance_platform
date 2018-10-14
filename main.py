@@ -67,8 +67,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.savePushButton.clicked.connect(self.save_data)
         self.clearPushButton.clicked.connect(self.clear_data)
-        self.rmLeatherPushButton.clicked.connect(self.remove_leather)
+        self.saveLeatherPushButton.clicked.connect(self.save_leather)
         self.printPushButton.clicked.connect(self.print_data)
+        self.CarComboBox.editTextChanged.connect(self.update_weight)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
 
@@ -193,7 +194,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
                   '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '称重时间1', '称重日期',
                   '称重时间2', '操作员', '备注', '备用1', '备用2', '备用3', '备用4']
-        query_sql = 'select balance_id from t_balance'
+        query_sql = 'select * from t_balance'
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -212,15 +213,22 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.totalWeightLcdNumber.display(data.get('total_weight', 0))
             self.leatherWeightLcdNumber.display(data.get('leather_weight', 0))
             self.actualWeightLcdNumber.display(data.get('actual_weight', 0))
-            self.priceSpinBox.setValue(data.get('price', 0))
-            self.amountSpinBox.setValue(data.get('amount', 0))
-            self.CarComboBox.setCurrentText(data.get('car_id', 0))
+            self.priceSpinBox.setValue(data.get('price', 0.))
+            self.amountSpinBox.setValue(data.get('amount', 0.))
+            self.CarComboBox.setCurrentText(data.get('car_id', ''))
             self.supplierComboBox.setCurrentText(data.get('supplier', ''))
             self.receiverComboBox.setCurrentText(data.get('receiver', ''))
             self.goodsComboBox.setCurrentText(data.get('goods_name', ''))
             self.operatorComboBox.setCurrentText(data.get('operator', ''))
         else:
             self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
+
+    def update_weight(self):
+        """
+        更行重量
+        :return:
+        """
+        pass
 
     def save_data(self, warning=True):
         """
@@ -241,6 +249,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
         operator = u'系统管理员'
+        car_query = """select car_no, leather_weight from t_car where car_no='%s'""" % car_no
+        ret = self.db.query(car_query)
+        if not ret:
+            # 没有存皮的情况
+            balance_query = """select balance_id, total_weight, leather_weight, actual_weight, car_no 
+                from t_balance where car_no = '%s' and status = 0""" % car_no
+            ret1 = self.db.query(balance_query)
+            if ret1:
+                QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 有未完成的称重，点击OK完成！" % car_no, QtWidgets.QMessageBox.Ok)
+                update_sql = """update t_balance set leather_weight=?, actual_weight=?, status = 1"""
+                for item in ret1:
+                    total_weight_db = item.get('total_weight', 0)
+                    actual_weight = abs(total_weight - total_weight_db)
+                    leather_weight_db = total_weight if total_weight_db > total_weight else total_weight_db
+                    self.db.update(update_sql, args=(leather_weight_db, actual_weight))
+        else:
+            # 有存皮
+            leather_weight_db = ret[0].get('leather_weight', 0)
+            actual_weight = total_weight - leather_weight_db
+
+
         insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                      extra, price, amount, car_id, supplier, receiver, goods_name, operator) 
                      values(?,?,?,?,?,?,?,?,?,?,?,?)'''
@@ -272,7 +301,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.goodsComboBox.setCurrentText('')
         self.operatorComboBox.setCurrentText('')
 
-    def remove_leather(self):
+    def save_leather(self):
         """
         去皮
         :return:
@@ -280,14 +309,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         car_no = self.CarComboBox.currentText()
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车号不能为空！", QtWidgets.QMessageBox.Ok)
+            return
         car_query = """select car_no, leather_weight from t_car where car_no = '%s'""" % car_no
         ret = self.db.query(car_query)
-        if not ret:
-            QtWidgets.QMessageBox.warning(self, '本程序', "车号：%s 没有存皮！" % car_no, QtWidgets.QMessageBox.Ok)
+        if ret:
+            QtWidgets.QMessageBox.warning(self, '本程序', "车号：%s 已有存皮！" % car_no, QtWidgets.QMessageBox.Ok)
             return
-        leather_weight = float(ret[0].get('leather_weight', 0))
-        self.leatherWeightLcdNumber.display(leather_weight)
-        self.actualWeightLcdNumber.display(self.totalWeightLcdNumber.value() - leather_weight)
+        leather_weight = self.leatherWeightLcdNumber.value()
+        car_update = """insert into t_car(car_no, leather_weight) values(?,?)"""
+        print((car_no, leather_weight))
+        self.db.update(car_update, args=(car_no, leather_weight))
 
     def print_data(self):
         """
@@ -337,8 +368,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super().moveEvent(a0)
         point = a0.pos()
         point1 = self.pushButton.pos()
-        print(point)
-        print(point1)
         if point1.x() == 0:
             point.setX(point.x() + 300)
             point.setY(point.y() + 260)
