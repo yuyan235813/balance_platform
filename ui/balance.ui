@@ -986,14 +986,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="rmLeatherPushButton">
+          <widget class="QPushButton" name="saveLeatherPushButton">
            <property name="font">
             <font>
              <pointsize>14</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>去    皮</string>
+            <string>存    皮</string>
            </property>
           </widget>
          </item>

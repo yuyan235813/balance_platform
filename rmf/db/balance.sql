@@ -11,12 +11,12 @@ CREATE TABLE t_balance(
   supplier text, --'供货单位'
   receiver text, --'收货单位'
   package_weight decimal(10,2) DEFAULT NULL, --'包装物重'
-  extra decimal(10,2) DEFAULT NULL, --'另扣'
-  impurity decimal(10,2) DEFAULT NULL, --'杂质'
-  water decimal(10,2) DEFAULT NULL, --'水分'
-  price decimal(10,2) DEFAULT NULL, --'单价'
-  amount decimal(10,2) DEFAULT NULL, --'金额'
-  oil decimal(10,2) DEFAULT NULL, --'含油'
+  extra decimal(10,2) DEFAULT 0, --'另扣'
+  impurity decimal(10,2) DEFAULT 0, --'杂质'
+  water decimal(10,2) DEFAULT 0, --'水分'
+  price decimal(10,2) DEFAULT 0, --'单价'
+  amount decimal(10,2) DEFAULT 0, --'金额'
+  oil decimal(10,2) DEFAULT 0, --'含油'
   sweight decimal(10,2) DEFAULT NULL, --'结算重量'
   specification text, --'规格'
   driver text, --'驾驶员'
@@ -26,6 +26,7 @@ CREATE TABLE t_balance(
   balance_date date not null DEFAULT (date('now')), --'称重日期'
   balance_time2 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间2'
   operator text, --'操作员'
+  status int not null default 0, --'是否完成'
   extend text, --'备注'
   ext1 text, -- '备用1'
   ext2 text, -- '备用2'
@@ -166,12 +167,22 @@ CREATE TABLE `t_car` (
 );
 INSERT INTO t_car VALUES(4,'京B124320',14,'2018-10-09 22:07:26',1);
 INSERT INTO t_car VALUES(5,'鲁JA00012',10.199999999999999289,'2018-10-09 22:07:02',1);
-DELETE FROM sqlite_sequence;
-INSERT INTO sqlite_sequence VALUES('t_rmf',1);
-INSERT INTO sqlite_sequence VALUES('t_com',1);
-INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
-INSERT INTO sqlite_sequence VALUES('t_supplier',4);
-INSERT INTO sqlite_sequence VALUES('t_receiver',1);
-INSERT INTO sqlite_sequence VALUES('t_cargo',2);
-INSERT INTO sqlite_sequence VALUES('t_car',5);
+CREATE TABLE `t_role` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `role_name` text unique not null default '系统管理员', -- 车牌号
+  `user_name` text not null default '', --'用户名'
+  `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
+  `role` int not null default 2, -- 角色
+  `status` int not null default 1 -- 1:有效；0：删除
+);
+
+CREATE TABLE `t_user` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `user_id` text unique not null default '', -- 车牌号
+  `user_name` text not null default '', --'用户名'
+  `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
+  `status` int not null default 1 -- 1:有效；0：删除
+);
+
+
 COMMIT;
