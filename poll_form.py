@@ -188,11 +188,11 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     def cancel_detail(self):
         """
