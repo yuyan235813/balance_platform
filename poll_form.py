@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from ui.poll_main import Ui_PollmainForm
 from ui.poll_result import Ui_PollResultForm
 from ui.balance_detail import Ui_balance_detailDialog
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtCore import *
 from utils import normal_utils
 from utils.sqllite_util import EasySqlite
@@ -11,6 +11,14 @@ import os
 import subprocess
 from utils.log_utils import Logger as logger
 import datetime
+from PyQt5.QtPrintSupport import QPrinter,QPrintDialog
+from PyQt5.QtWidgets import (QApplication,QDialog,
+        QHBoxLayout,QPushButton, QTableWidget, QTableWidgetItem,QVBoxLayout)
+import html
+from PyQt5.QtGui import (QFont,QFontMetrics,QPainter,QTextCharFormat,
+                         QTextCursor, QTextDocument, QTextFormat,
+                         QTextOption, QTextTableFormat,
+                         QPixmap,QTextBlockFormat)
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -89,6 +97,72 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.setWindowModality(Qt.ApplicationModal)
         self.balance_detail = Balance_detailDialog(self)
+        self.printPushButton.clicked.connect(self.printViaHtml)
+        self.printer = QPrinter()
+        self.printer.setPageSize(QPrinter.Letter)
+        self.table = QTableWidget()
+
+    def printViaHtml(self):
+        htmltext = ""
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        query_sql = 'select * from t_system_params_conf'
+        data_list = self.db.query(query_sql)
+        company = list(data_list[0].values())[2]
+        htmltext += (
+                   "<p align=center ><font size=65>{0}报表</font></p>"
+                   "</p><p> </p><p>  <p align=right>{1}</p>"
+                   "<table  align=center cellpadding=0  border=0.5 cellspacing=0 width=100%> "
+                   "<thead><tr><th>单号</th><th>车号</th>"
+                   "<th>毛重</th><th>皮重</th>"
+                   "<th>净重</th><th>货物名称</th>"
+                   "<th>供货单位</th><th>收货单位</th></tr></thead>".format(company, date)
+               )
+        row_no = self.tableView.model().rowCount()
+        for row in range(row_no):
+            balance_id = self.tableView.model().index(row, 0).data()
+            if self.tableView.model().index(row, 1).data() ==None:
+                car_No =''
+            else:
+                car_No = self.tableView.model().index(row, 1).data()
+            total_weight = self.tableView.model().index(row, 2).data()
+            leather_weight = self.tableView.model().index(row, 3).data()
+            actual_weight = self.tableView.model().index(row, 4).data()
+            if self.tableView.model().index(row, 7).data()==None:
+                goods_name = ''
+            else:
+                goods_name = self.tableView.model().index(row, 7).data()
+            if self.tableView.model().index(row, 8).data()==None:
+                supplier =''
+            else:
+                supplier = self.tableView.model().index(row, 8).data()
+            if self.tableView.model().index(row, 9).data()==None:
+                receiver =''
+            else:
+                receiver=self.tableView.model().index(row, 9).data()
+            # balance_id = self.tableView.model().index(row, 8).data()
+            print(self.tableView.model().index(row, 0).data())
+            htmltext += ("<tr><td align=center>{0}</td>"
+                         "<td align=center>{1}</td>"
+                         "<td align=center>{2}</td>"
+                         "<td align=center>{3}</td>"
+                         "<td align=center>{4}</td>"
+                         "<td align=center>{5}</td>"
+                         "<td align=center>{6}</td>"
+                         "<td align=center>{7}</td>"
+                         "</tr>".format(
+                      balance_id,car_No,total_weight,leather_weight,actual_weight,goods_name,supplier,receiver))
+
+        htmltext += (
+                    "</table>")
+
+        dialog = QPrintDialog(self.printer, self)
+        if dialog.exec_():
+            document = QTextDocument()
+            document.setHtml(htmltext)
+            document.print_(self.printer)
+
+    def print_data(self):
+        QtWidgets.QMessageBox.information(self, u'本程序', u'打印成功!', QtWidgets.QMessageBox.Ok)
 
     def show(self, column):
         """
@@ -96,8 +170,8 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         :return:
         """
         super(PollResultForm, self).show()
-        header = ['单号', '车牌号', '毛重', '皮重', '净重','称重时间1',  '称重时间2','货物名', '收货单位',  '供货单位',
-                  '操作员' ]
+        header = ['单号', '车牌号', '毛重', '皮重', '净重', '称重时间1',  '称重时间2', '货物名', '收货单位',  '供货单位',
+                  '操作员']
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
         model.setHorizontalHeaderLabels(header)
