@@ -175,14 +175,15 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
         model.setHorizontalHeaderLabels(header)
-        totalweight = 0
-        leatherweight = 0
-        actualweight = 0
+        totalweight = 0.0
+        leatherweight = 0.0
+        actualweight = 0.0
         for row in range(row_no):
             values = list(column[row].values())
-            totalweight = int(totalweight) + int(str(values[2]))
-            leatherweight = int(leatherweight) + int(str(values[3]))
-            actualweight = int(actualweight) + int(str(values[4]))
+            print( int(str(values[2])))
+            totalweight = float(totalweight) + float(str(values[2]))
+            leatherweight = float(leatherweight) + float(str(values[3]))
+            actualweight = float(actualweight) + float(str(values[4]))
             for col in range(col_no):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
@@ -220,6 +221,9 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.deletePushButton.clicked.connect(self.delete_detail)
         self.savePushButton.clicked.connect(self.save_detail)
         self.cancelPushButton.clicked.connect(self.cancel_detail)
+        self.printPushButton.clicked.connect(self.print_data)
+        self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
+        self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
 
     def show(self, column):
         """
@@ -244,7 +248,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.supplyNameLineEdit_2.setText(str(list(data_list[0].values())[9]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
 
-    def save_detail(self):
+    def save_detail(self, warning=True):
         """
         保存item
         :return:
@@ -289,6 +293,21 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+
+    def print_data(self):
+        """
+        打印
+        :return:
+        """
+        balance_id = int(self.balanceNoLineEdit.text())
+        self.save_detail(warning=False)
+        sql = 'select default_rmf from t_rmf'
+        ret = self.db.query(sql)
+        default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select * from t_balance where balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        print(cmd_str)
+        logger.debug(cmd_str)
+        self.p = subprocess.Popen(cmd_str)
 
 
 if __name__ == '__main__':
