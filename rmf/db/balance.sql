@@ -3,7 +3,7 @@ BEGIN TRANSACTION;
 CREATE TABLE t_balance(
   id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(16) unique NOT NULL, --'单号'
-  car_id text NOT NULL, --'车号'
+  car_no text NOT NULL, --'车号'
   total_weight decimal(10,2) DEFAULT NULL, --'毛重'
   leather_weight decimal(10,2) DEFAULT NULL, --'皮重'
   actual_weight decimal(10,2) DEFAULT NULL, --'净重'
@@ -33,15 +33,8 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
-  values(12345566, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
-insert into t_balance(balance_id, car_id, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver)
-  values(12345567, '鲁JA00012', 200, 10, 190, '金条', '啦啦啦', '666');
-
-CREATE TABLE `t_rmf` (
-  `id` integer primary key AUTOINCREMENT, -- 'ID'
-  `default_rmf` text not null default '' -- 默认磅单rmf
-);
+INSERT INTO t_balance VALUES(1,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(2,12345567,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
@@ -165,8 +158,8 @@ CREATE TABLE `t_car` (
   `add_time` datetime not null default (datetime('now', 'localtime')), -- 添加时间
   `status` int not null default 1 -- 1:有效；0：删除
 );
-INSERT INTO t_car VALUES(4,'京B124320',14,'2018-10-09 22:07:26',1);
-INSERT INTO t_car VALUES(5,'鲁JA00012',10.199999999999999289,'2018-10-09 22:07:02',1);
+INSERT INTO t_car VALUES(4,'京B24320',14,'2018-10-09 22:07:26',1);
+INSERT INTO t_car VALUES(5,'鲁J00012',10.199999999999999289,'2018-10-09 22:07:02',1);
 CREATE TABLE `t_role` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `role_name` text unique not null default '系统管理员', -- 车牌号
@@ -175,7 +168,6 @@ CREATE TABLE `t_role` (
   `role` int not null default 2, -- 角色
   `status` int not null default 1 -- 1:有效；0：删除
 );
-
 CREATE TABLE `t_user` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `user_id` text unique not null default '', -- 车牌号
@@ -183,6 +175,12 @@ CREATE TABLE `t_user` (
   `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
   `status` int not null default 1 -- 1:有效；0：删除
 );
-
-
+DELETE FROM sqlite_sequence;
+INSERT INTO sqlite_sequence VALUES('t_balance',2);
+INSERT INTO sqlite_sequence VALUES('t_rmf',1);
+INSERT INTO sqlite_sequence VALUES('t_com',1);
+INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
+INSERT INTO sqlite_sequence VALUES('t_supplier',4);
+INSERT INTO sqlite_sequence VALUES('t_cargo',1);
+INSERT INTO sqlite_sequence VALUES('t_car',5);
 COMMIT;

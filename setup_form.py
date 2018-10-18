@@ -63,9 +63,9 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         logger.debug(insert_sql)
         ret = db.update(insert_sql)
         if ret:
-            QtWidgets.QMessageBox.warning(self, '本程序', "设置失败102", QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, '本程序', "设置成功", QtWidgets.QMessageBox.Ok)
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "设置失败102", QtWidgets.QMessageBox.Ok)
 
     def preview_rmf(self):
         """
