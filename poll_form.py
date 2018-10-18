@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from ui.poll_main import Ui_PollmainForm
 from ui.poll_result import Ui_PollResultForm
 from ui.balance_detail import Ui_balance_detailDialog
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtCore import *
 from utils import normal_utils
 from utils.sqllite_util import EasySqlite
@@ -11,6 +11,14 @@ import os
 import subprocess
 from utils.log_utils import Logger as logger
 import datetime
+from PyQt5.QtPrintSupport import QPrinter,QPrintDialog
+from PyQt5.QtWidgets import (QApplication,QDialog,
+        QHBoxLayout,QPushButton, QTableWidget, QTableWidgetItem,QVBoxLayout)
+import html
+from PyQt5.QtGui import (QFont,QFontMetrics,QPainter,QTextCharFormat,
+                         QTextCursor, QTextDocument, QTextFormat,
+                         QTextOption, QTextTableFormat,
+                         QPixmap,QTextBlockFormat)
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -89,6 +97,72 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.setWindowModality(Qt.ApplicationModal)
         self.balance_detail = Balance_detailDialog(self)
+        self.printPushButton.clicked.connect(self.printViaHtml)
+        self.printer = QPrinter()
+        self.printer.setPageSize(QPrinter.Letter)
+        self.table = QTableWidget()
+
+    def printViaHtml(self):
+        htmltext = ""
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        query_sql = 'select * from t_system_params_conf'
+        data_list = self.db.query(query_sql)
+        company = list(data_list[0].values())[2]
+        htmltext += (
+                   "<p align=center ><font size=65>{0}报表</font></p>"
+                   "</p><p> </p><p>  <p align=right>{1}</p>"
+                   "<table  align=center cellpadding=0  border=0.5 cellspacing=0 width=100%> "
+                   "<thead><tr><th>单号</th><th>车号</th>"
+                   "<th>毛重</th><th>皮重</th>"
+                   "<th>净重</th><th>货物名称</th>"
+                   "<th>供货单位</th><th>收货单位</th></tr></thead>".format(company, date)
+               )
+        row_no = self.tableView.model().rowCount()
+        for row in range(row_no):
+            balance_id = self.tableView.model().index(row, 0).data()
+            if self.tableView.model().index(row, 1).data() ==None:
+                car_No =''
+            else:
+                car_No = self.tableView.model().index(row, 1).data()
+            total_weight = self.tableView.model().index(row, 2).data()
+            leather_weight = self.tableView.model().index(row, 3).data()
+            actual_weight = self.tableView.model().index(row, 4).data()
+            if self.tableView.model().index(row, 7).data()==None:
+                goods_name = ''
+            else:
+                goods_name = self.tableView.model().index(row, 7).data()
+            if self.tableView.model().index(row, 8).data()==None:
+                supplier =''
+            else:
+                supplier = self.tableView.model().index(row, 8).data()
+            if self.tableView.model().index(row, 9).data()==None:
+                receiver =''
+            else:
+                receiver=self.tableView.model().index(row, 9).data()
+            # balance_id = self.tableView.model().index(row, 8).data()
+            print(self.tableView.model().index(row, 0).data())
+            htmltext += ("<tr><td align=center>{0}</td>"
+                         "<td align=center>{1}</td>"
+                         "<td align=center>{2}</td>"
+                         "<td align=center>{3}</td>"
+                         "<td align=center>{4}</td>"
+                         "<td align=center>{5}</td>"
+                         "<td align=center>{6}</td>"
+                         "<td align=center>{7}</td>"
+                         "</tr>".format(
+                      balance_id,car_No,total_weight,leather_weight,actual_weight,goods_name,supplier,receiver))
+
+        htmltext += (
+                    "</table>")
+
+        dialog = QPrintDialog(self.printer, self)
+        if dialog.exec_():
+            document = QTextDocument()
+            document.setHtml(htmltext)
+            document.print_(self.printer)
+
+    def print_data(self):
+        QtWidgets.QMessageBox.information(self, u'本程序', u'打印成功!', QtWidgets.QMessageBox.Ok)
 
     def show(self, column):
         """
@@ -96,19 +170,20 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         :return:
         """
         super(PollResultForm, self).show()
-        header = ['单号', '车牌号', '毛重', '皮重', '净重','称重时间1',  '称重时间2','货物名', '收货单位',  '供货单位',
-                  '操作员' ]
+        header = ['单号', '车牌号', '毛重', '皮重', '净重', '称重时间1',  '称重时间2', '货物名', '收货单位',  '供货单位',
+                  '操作员']
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
         model.setHorizontalHeaderLabels(header)
-        totalweight = 0
-        leatherweight = 0
-        actualweight = 0
+        totalweight = 0.0
+        leatherweight = 0.0
+        actualweight = 0.0
         for row in range(row_no):
             values = list(column[row].values())
-            totalweight = int(totalweight) + int(str(values[2]))
-            leatherweight = int(leatherweight) + int(str(values[3]))
-            actualweight = int(actualweight) + int(str(values[4]))
+            print( int(str(values[2])))
+            totalweight = float(totalweight) + float(str(values[2]))
+            leatherweight = float(leatherweight) + float(str(values[3]))
+            actualweight = float(actualweight) + float(str(values[4]))
             for col in range(col_no):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
@@ -121,7 +196,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
 
     def display_data(self, data):
         if data:
-            id=int(data.get('balance_id', '0'))
+            id=int(data.get('balance_id', '1'))
             # self.balance_detail.my_signal.connect(self.set_table_view)
             self.balance_detail.show(id)
         else:
@@ -146,6 +221,9 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.deletePushButton.clicked.connect(self.delete_detail)
         self.savePushButton.clicked.connect(self.save_detail)
         self.cancelPushButton.clicked.connect(self.cancel_detail)
+        self.printPushButton.clicked.connect(self.print_data)
+        self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
+        self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
 
     def show(self, column):
         """
@@ -170,7 +248,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.supplyNameLineEdit_2.setText(str(list(data_list[0].values())[9]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
 
-    def save_detail(self):
+    def save_detail(self, warning=True):
         """
         保存item
         :return:
@@ -188,11 +266,11 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     def cancel_detail(self):
         """
@@ -215,6 +293,21 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+
+    def print_data(self):
+        """
+        打印
+        :return:
+        """
+        balance_id = int(self.balanceNoLineEdit.text())
+        self.save_detail(warning=False)
+        sql = 'select default_rmf from t_rmf'
+        ret = self.db.query(sql)
+        default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select * from t_balance where balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        print(cmd_str)
+        logger.debug(cmd_str)
+        self.p = subprocess.Popen(cmd_str)
 
 
 if __name__ == '__main__':

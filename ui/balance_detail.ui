@@ -132,6 +132,9 @@
           <property name="maxLength">
            <number>15</number>
           </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item row="1" column="0">
@@ -148,7 +151,11 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="totalWeightLineEdit"/>
+         <widget class="QLineEdit" name="totalWeightLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_7">
@@ -168,12 +175,18 @@
           <property name="echoMode">
            <enum>QLineEdit::Normal</enum>
           </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="totalWeighttimeLineEdit">
           <property name="echoMode">
            <enum>QLineEdit::Normal</enum>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -201,6 +214,9 @@
          <widget class="QLineEdit" name="operatorLineEdit_4">
           <property name="echoMode">
            <enum>QLineEdit::Normal</enum>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -265,6 +281,9 @@
           <property name="maxLength">
            <number>15</number>
           </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item row="1" column="0">
@@ -281,7 +300,11 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="leatherWeightLineEdit"/>
+         <widget class="QLineEdit" name="leatherWeightLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="leatherWeighttimeLineEdit"/>
@@ -357,10 +380,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
-  <zorder>groupBox</zorder>
-  <zorder>printPushButton</zorder>
-  <zorder>deletePushButton</zorder>
  </widget>
  <resources/>
  <connections/>
