@@ -52,7 +52,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.setup_form = SetupForm()
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
-        self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+        self.actionSystemParameterSetup.triggered.connect(self.system_params_form_show)
         self.car_form = CarManageForm()
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.Supply_form = SupplyForm()
@@ -64,7 +64,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.poll_form = pollmainForm()
         self.actionBalanceQuery.triggered.connect(self.poll_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
-        self.savePushButton.clicked.connect(self.save_data)
+        self.savePushButton.clicked.connect(partial(self.save_data, True))
         self.clearPushButton.clicked.connect(self.clear_data)
         self.saveLeatherPushButton.clicked.connect(self.save_leather)
         self.printPushButton.clicked.connect(self.print_data)
@@ -73,6 +73,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(120)
         self.balance_status = 0
+
+
+    @normal_utils.has_permission('admin', 'system_params_form1')
+    def system_params_form_show(self):
+        self.system_params_form.show()
 
     def show(self):
         """
@@ -221,6 +226,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.receiverComboBox.setCurrentText(data.get('receiver', ''))
             self.goodsComboBox.setCurrentText(data.get('goods_name', ''))
             self.operatorComboBox.setCurrentText(data.get('operator', ''))
+            self.balance_status = data.get('status', '')
         else:
             self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
 
@@ -270,6 +276,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                      extra, price, amount, car_no, supplier, receiver, goods_name, operator, status) 
                      values(?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+
         data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                 supplier, receiver, goods_name, operator, self.balance_status)
         ret = self.db.update(insert_sql, args=data)
@@ -280,6 +287,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
         if ret:
             self.set_table_view()
+            self.clear_data()
 
     def clear_data(self):
         """
@@ -297,6 +305,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.receiverComboBox.setCurrentText('')
         self.goodsComboBox.setCurrentText('')
         self.operatorComboBox.setCurrentText('')
+        self.balance_status = 0
 
     def save_leather(self):
         """

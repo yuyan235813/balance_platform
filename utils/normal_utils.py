@@ -7,6 +7,8 @@
 """
 import os
 import datetime
+from utils.sqllite_util import EasySqlite
+from PyQt5.QtWidgets import QMessageBox
 
 
 def stdev(sequence):
@@ -62,6 +64,67 @@ def generate_balance_id():
     return balance_id
 
 
+def has_permission(user_id, operation):
+    def base_has_permission(func):
+        def wrapper(*args, **kw):
+            print('pre')
+            print('user_id=%s, operation=%s' % (user_id, operation))
+            db = EasySqlite(r'rmf/db/balance.db')
+            sql_tmp = """select 
+                        user_id,
+                        opt_type,
+                        opt_name,
+                        opt_code
+                    from 
+                        (
+                            select
+                                user_id, 
+                                role_id 
+                            from 
+                                t_user 
+                            where 
+                                user_id = '%s'
+                        )t1 
+                        join
+                        (
+                            select 
+                                a.object_id,
+                                a.object_type,
+                                b.opt_type,
+                                b.opt_name, 
+                                b.opt_code
+                            from 
+                                t_permission a 
+                                join 
+                                t_operation b on a.operation_id=b.id 
+                            where 
+                                a.status=1 
+                                and b.status=1
+                        )t2 on (t1.user_id=t2.object_id or t1.role_id=t2.object_id);"""
+            sql = sql_tmp % user_id
+            ret = db.query(sql)
+            print(ret)
+            opt_list = []
+            for item in ret:
+                opt_list.append(item.get('opt_code'))
+            if operation in opt_list:
+                output = func(*args, **kw)
+            else:
+                print(args[0])
+                QMessageBox.warning(args[0], '本程序', "没有权限！", QMessageBox.Ok)
+                return
+            print('post')
+            return output
+        return wrapper
+    return base_has_permission
+
+
+@has_permission('admin', 'system_params_form1')
+def test_fun(text):
+    print('我就是我，不一样的烟火 %s' % text)
+
+
 if __name__ == '__main__':
-    print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))
-    print(generate_balance_id())
+    # print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))
+    # print(generate_balance_id())
+    test_fun('tttt')

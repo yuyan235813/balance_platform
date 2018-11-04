@@ -1,5 +1,3 @@
-PRAGMA foreign_keys=OFF;
-BEGIN TRANSACTION;
 CREATE TABLE t_balance(
   id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(16) unique NOT NULL, --'单号'
@@ -163,24 +161,31 @@ INSERT INTO t_car VALUES(5,'鲁J00012',10.199999999999999289,'2018-10-09 22:07:0
 CREATE TABLE `t_role` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `role_name` text unique not null default '系统管理员', -- 车牌号
-  `user_name` text not null default '', --'用户名'
-  `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
-  `role` int not null default 2, -- 角色
   `status` int not null default 1 -- 1:有效；0：删除
 );
+insert into t_role values(1, '系统管理员', 1);
 CREATE TABLE `t_user` (
-  `id` integer primary key AUTOINCREMENT, -- 'ID'
-  `user_id` text unique not null default '', -- 车牌号
-  `user_name` text not null default '', --'用户名'
+  `id` integer primary key AUTOINCREMENT, -- ID
+  `user_id` text unique not null default '', -- 用户ID
+  `user_name` text not null default '', --用户名
   `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
+  `role_id` int not null default 1, -- 角色ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
-DELETE FROM sqlite_sequence;
-INSERT INTO sqlite_sequence VALUES('t_balance',2);
-INSERT INTO sqlite_sequence VALUES('t_rmf',1);
-INSERT INTO sqlite_sequence VALUES('t_com',1);
-INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
-INSERT INTO sqlite_sequence VALUES('t_supplier',4);
-INSERT INTO sqlite_sequence VALUES('t_cargo',1);
-INSERT INTO sqlite_sequence VALUES('t_car',5);
-COMMIT;
+insert into t_user values(1, 'admin', '系统管理员', '1256dce64096d2242f73cb55c572b9c3', 1, 1);
+create table `t_operation`(
+  `id` integer primary key AUTOINCREMENT, -- ID
+  `opt_type` int not null default 1, --操作类型，1：菜单，2：功能
+  `opt_name` text not null default '', --操作名称
+  `opt_code` text not null default '', --操作代码
+  `status` int not null default 1 -- 1:有效；0：删除
+);
+insert into t_operation values(1, 1, '系统参数设置', 'system_params_form', 1);
+create table `t_permission`(
+  `id` integer primary key AUTOINCREMENT, -- ID
+  `object_type` int not null default 1, --类型，1：角色；2：用户
+  `object_id` int not null default 1, --类型，object_type=1：角色ID；object_type=2：用户ID
+  `operation_id` int not null default 0, --操作ID
+  `status` int not null default 1 -- 1:有效；0：删除
+);
+insert into t_permission values (1, 1, 1, 1, 1);
