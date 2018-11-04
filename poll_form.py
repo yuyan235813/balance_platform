@@ -65,7 +65,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
                                                                           ' <= "' + end_date_24 + '"  and'
         print(condition)
         if carNo:
-            condition = condition + ' car_id = "'+carNo+'"  and'
+            condition = condition + ' car_no = "'+carNo+'"  and'
         if balance_Id:
             condition = condition + ' balance_id = "'+balance_Id+'" and'
         if cargo_name:
@@ -75,7 +75,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         if supply_name:
             condition = condition + ' supplier = "'+supply_name+'" and'
         condition = condition[:-3]
-        query_sql = 'select balance_id,car_id,total_weight,leather_weight,actual_weight,balance_time1,' \
+        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
         print(query_sql)
         data_list = self.db.query(query_sql)
@@ -232,7 +232,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         """
         super(Balance_detailDialog, self).show()
 
-        query_sql = 'select balance_id,car_id,total_weight,leather_weight,actual_weight,balance_time1,' \
+        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance  ' \
                     'where balance_id = %s' % (column)
         data_list = self.db.query(query_sql)
@@ -261,7 +261,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         supplyName = self.supplyNameLineEdit_2.text()
         operator = self.operatorLineEdit_4.text()
         balance_No = self.balanceNoLineEdit.text()
-        insert_sql = 'update  t_balance set car_id=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,' \
+        insert_sql = 'update  t_balance set car_no=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,' \
                      'supplier=?,operator=? '  'where  balance_id = ?'
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
