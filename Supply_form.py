@@ -91,7 +91,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         supply_count = self.SupplyCountLineEdit.text()
         supply_duty = self.SupplyDutyLineEdit.text()
         if supply_name:
-            insert_sql = 'insert into t_supplier(name,contact,tel,address,bank,account,duty) values (?,?,?,?,?,?,?)'
+            insert_sql = 'insert into t_supplier(supplier_name,supplier_contact,supplier_tel,supplier_address,supplier_bank,supplier_account,supplier_duty) values (?,?,?,?,?,?,?)'
             ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
                                           supply_count, supply_duty])
             if ret:
@@ -138,7 +138,7 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
         """
         super(SupplyDialog, self).show()
 
-        query_sql = 'select name,contact,tel,address,bank,account,duty,supplier_id from t_supplier  ' \
+        query_sql = 'select supplier_name,supplier_contact,supplier_tel,supplier_address,supplier_bank,supplier_account,supplier_duty,supplier_id from t_supplier  ' \
                     'where supplier_id = %s' % (column)
         data_list = self.db.query(query_sql)
         self.SupplyNameLineEdit.setText(str(list(data_list[0].values())[0]))
@@ -163,7 +163,7 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
         supply_count = self.SupplyCountLineEdit.text()
         supply_duty = self.SupplyDutyLineEdit.text()
         supply_id = self.SupplyIdLineEdit.text()
-        insert_sql = 'update  t_supplier set name=?,contact=?,tel=?,address=?,bank=?,account=?,duty=? ' \
+        insert_sql = 'update  t_supplier set supplier_name=?,supplier_contact=?,supplier_tel=?,supplier_address=?,supplier_bank=?,supplier_account=?,supplier_duty=? ' \
                      'where  supplier_id = ?'
         ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
                                           supply_count, supply_duty,int(supply_id)])

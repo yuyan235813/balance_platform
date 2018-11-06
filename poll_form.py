@@ -236,6 +236,20 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance  ' \
                     'where balance_id = %s' % (column)
         data_list = self.db.query(query_sql)
+        supply_query_sql = 'select supplier_name from t_supplier'
+        supply_list = self.db.query(supply_query_sql)
+        supply_row_no = len(supply_list)
+        for row in range(supply_row_no):
+            values = list(supply_list[row].values())[0]
+            self.supplierComboBox.addItem(values)
+        self.supplierComboBox.clearEditText()
+        receiver_query_sql = 'select receiver_name from t_receiver'
+        receiver_list = self.db.query(receiver_query_sql)
+        receiver_row_no = len(receiver_list)
+        for row in range(receiver_row_no):
+            values = list(receiver_list[row].values())[0]
+            self.receiverComboBox.addItem(values)
+        self.receiverComboBox.clearEditText()
         self.balanceNoLineEdit.setText(str(list(data_list[0].values())[0]))
         self.carNoLineEdit.setText(str(list(data_list[0].values())[1]))
         self.totalWeightLineEdit.setText(str(list(data_list[0].values())[2]))
@@ -244,9 +258,10 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.leatherWeighttimeLineEdit.setText(str(list(data_list[0].values())[5]))
         self.totalWeighttimeLineEdit.setText(str(list(data_list[0].values())[6]))
         self.cargoNameLineEdit.setText(str(list(data_list[0].values())[7]))
-        self.receiverNameLineEdit_3.setText(str(list(data_list[0].values())[8]))
-        self.supplyNameLineEdit_2.setText(str(list(data_list[0].values())[9]))
+        self.receiverComboBox.setCurrentText(str(list(data_list[0].values())[8]))
+        self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[9]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
+
 
     def save_detail(self, warning=True):
         """
@@ -257,8 +272,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         totalWeight = self.totalWeightLineEdit.text()
         leatherWeight = self.leatherWeightLineEdit.text()
         goodnNmes = self.cargoNameLineEdit.text()
-        receiverName = self.receiverNameLineEdit_3.text()
-        supplyName = self.supplyNameLineEdit_2.text()
+        receiverName = self.receiverComboBox.text()
+        supplyName = self.supplierComboBox.text()
         operator = self.operatorLineEdit_4.text()
         balance_No = self.balanceNoLineEdit.text()
         insert_sql = 'update  t_balance set car_no=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,' \
@@ -304,7 +319,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         print(cmd_str)
         logger.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
