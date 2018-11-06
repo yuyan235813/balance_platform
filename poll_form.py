@@ -304,7 +304,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select * from t_balance where balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         print(cmd_str)
         logger.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
