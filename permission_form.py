@@ -13,6 +13,7 @@ from ui.car_manage_change import Ui_dialog
 from utils.sqllite_util import EasySqlite
 from utils.normal_utils import get_cur_time
 from utils.log_utils import Logger as logger
+from functools import reduce
 
 
 class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
@@ -25,6 +26,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
+        self.addUserPushButton.clicked.connect(self.__add_user)
+        self.editRolePushButton.clicked.connect(self.__change_role)
+        self.editUserPushButton.clicked.connect(self.__change_user)
 
     def __init_data(self):
         """
@@ -45,10 +49,14 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         for item in role_ret:
             role_item.append(item.get('role_name'))
         self.roleListWidget.addItems(role_item)
-        self.userListWidget.itemDoubleClicked.connect(self.__change_user)
         self.userListWidget.itemClicked.connect(self.__show_user_permissions)
-        self.roleListWidget.itemDoubleClicked.connect(self.__change_role)
         self.roleListWidget.itemClicked.connect(self.__show_role_permissions)
+
+        model = QStandardItemModel(1, 2)
+        model.setHorizontalHeaderLabels(('允许', '功能名称'))
+        self.permissionTableView.setModel(model)
+        model.setHorizontalHeaderLabels(('允许', '菜单名称'))
+        self.optionTableView.setModel(model)
 
     def show(self):
         """
@@ -81,6 +89,41 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :return:
         """
         print(model.text())
+        user_name = model.text()
+        sql_tmp = """
+            select t1.opt_type, opt_name, case when t2.object_id is null then 0 else 1 end as has_permission
+            from
+            (select opt_type, opt_name, id from t_operation where status = 1) t1
+            left join
+            (select * from (select user_id, role_id from t_user where user_name = '%s' and status = 1) a 
+                join t_permission b 
+                on (a.user_id = b.object_id and b.object_type = 2) or (a.role_id = b.object_id and b.object_type = 1)
+            ) t2 on t1.id = t2.operation_id"""
+        sql = sql_tmp % user_name
+        ret = self.db.query(sql)
+        opt_item = []
+        permission_item = []
+        for item in ret:
+            row_data = ('√' if item.get('has_permission') else 'X', item.get('opt_name'))
+            if item.get('opt_type') == 1:
+                opt_item.append(row_data)
+            else:
+                permission_item.append(row_data)
+        model = QStandardItemModel(len(opt_item), 2)
+        model.setHorizontalHeaderLabels(('允许', '菜单名称'))
+        for row in range(len(opt_item)):
+            for col in range(2):
+                item = QStandardItem(opt_item[row][col])
+                model.setItem(row, col, item)
+        self.optionTableView.setModel(model)
+
+        model = QStandardItemModel(len(permission_item), 2)
+        model.setHorizontalHeaderLabels(('允许', '功能名称'))
+        for row in range(len(permission_item)):
+            for col in range(2):
+                item = QStandardItem(permission_item[row][col])
+                model.setItem(row, col, item)
+        self.permissionTableView.setModel(model)
 
     def __show_role_permissions(self, model):
         """
@@ -89,10 +132,52 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :return:
         """
         print(model.text())
+        role_name = model.text()
+        sql_tmp = """
+                    select t1.opt_type, opt_name, case when t2.object_id is null then 0 else 1 end as has_permission
+                    from
+                    (select opt_type, opt_name, id from t_operation where status = 1) t1
+                    left join
+                    (select * from (select id as role_id from t_role where role_name = '%s' and status = 1) a 
+                        join t_permission b 
+                        on a.role_id = b.object_id and b.object_type = 1
+                    ) t2 on t1.id = t2.operation_id"""
+        sql = sql_tmp % role_name
+        ret = self.db.query(sql)
+        opt_item = []
+        permission_item = []
+        for item in ret:
+            row_data = ('√' if item.get('has_permission') else 'X', item.get('opt_name'))
+            if item.get('opt_type') == 1:
+                opt_item.append(row_data)
+            else:
+                permission_item.append(row_data)
+        model = QStandardItemModel(len(opt_item), 2)
+        model.setHorizontalHeaderLabels(('允许', '菜单名称'))
+        for row in range(len(opt_item)):
+            for col in range(2):
+                item = QStandardItem(opt_item[row][col])
+                model.setItem(row, col, item)
+        self.optionTableView.setModel(model)
+
+        model = QStandardItemModel(len(permission_item), 2)
+        model.setHorizontalHeaderLabels(('允许', '功能名称'))
+        for row in range(len(permission_item)):
+            for col in range(2):
+                item = QStandardItem(permission_item[row][col])
+                model.setItem(row, col, item)
+        self.permissionTableView.setModel(model)
 
     def __save_data(self):
         pass
 
+    def __add_user(self):
+        """
+        添加用户
+        :return:
+        """
+        item = self.userListWidget.currentItem()
+        print(item.text())
 
 if __name__ == '__main__':
     import sys

@@ -175,12 +175,13 @@ CREATE TABLE `t_user` (
 insert into t_user values(1, 'admin', '系统管理员', '1256dce64096d2242f73cb55c572b9c3', 1, 1);
 create table `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
-  `opt_type` int not null default 1, --操作类型，1：菜单，2：功能
+  `opt_type` int not null default 1, --操作类型，1：功能，2：权限
   `opt_name` text not null default '', --操作名称
   `opt_code` text not null default '', --操作代码
   `status` int not null default 1 -- 1:有效；0：删除
 );
 insert into t_operation values(1, 1, '系统参数设置', 'system_params_form', 1);
+insert into t_operation values(2, 1, '磅单设置', 'setup_form', 1);
 create table `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
@@ -189,3 +190,15 @@ create table `t_permission`(
   `status` int not null default 1 -- 1:有效；0：删除
 );
 insert into t_permission values (1, 1, 1, 1, 1);
+insert into t_permission values (2, 2, 'admin', 2, 1);
+
+
+
+
+
+
+
+
+
+
+
