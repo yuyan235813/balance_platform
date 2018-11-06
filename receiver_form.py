@@ -91,7 +91,7 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
         receiver_count = self.ReceiverCountLineEdit.text()
         receiver_duty = self.ReceiverDutyLineEdit.text()
         if receiver_name:
-            insert_sql = 'insert into t_receiver(name,contact,tel,address,bank,account,duty) values (?,?,?,?,?,?,?)'
+            insert_sql = 'insert into t_receiver(receiver_name,receiver_,tel,receiver_address,receiver_bank,receiver_account,receiver_duty) values (?,?,?,?,?,?,?)'
             ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
                                               receiver_bank, receiver_count, receiver_duty])
             if ret:
@@ -138,7 +138,7 @@ class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):
         """
         super(ReceiverDialog, self).show()
 
-        query_sql = 'select name,contact,tel,address,bank,account,duty,receiver_id from t_receiver  ' \
+        query_sql = 'select receiver_name,receiver_contact,receiver_tel,receiver_address,receiver_bank,receiver_account,receiver_duty,receiver_id from t_receiver  ' \
                     'where receiver_id = %s' % (column)
         data_list = self.db.query(query_sql)
         self.ReceiverNameLineEdit.setText(str(list(data_list[0].values())[0]))
@@ -163,7 +163,7 @@ class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):
         receiver_count = self.ReceiverCountLineEdit.text()
         receiver_duty = self.ReceiverDutyLineEdit.text()
         receiver_id = self.ReceiverIdLineEdit.text()
-        insert_sql = 'update  t_receiver set name=?,contact=?,tel=?,address=?,bank=?,account=?,duty=? ' \
+        insert_sql = 'update  t_receiver set receiver_name=?,receiver_contact=?,receiver_tel=?,receiver_address=?,receiver_bank=?,receiver_account=?,receiver_duty=? ' \
                      'where  receiver_id = ?'
         ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
                                               receiver_bank, receiver_count, receiver_duty,int(receiver_id)])

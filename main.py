@@ -171,14 +171,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(cargo_list[row].values())[0]
             self.goodsComboBox.addItem(values)
         self.goodsComboBox.clearEditText()
-        supply_query_sql = 'select name from t_supplier'
+        supply_query_sql = 'select supplier_name from t_supplier'
         supply_list = self.db.query(supply_query_sql)
         supply_row_no = len(supply_list)
         for row in range(supply_row_no):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
-        receiver_query_sql = 'select name from t_receiver'
+        receiver_query_sql = 'select receiver_name from t_receiver'
         receiver_list = self.db.query(receiver_query_sql)
         receiver_row_no = len(receiver_list)
         for row in range(receiver_row_no):
@@ -345,7 +345,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select * from t_balance where balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         logger.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 

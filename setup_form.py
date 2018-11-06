@@ -82,7 +82,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         设置磅单
         :return:
         """
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select * from t_balance" -r "%s" -a 2' % \
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where t_balance.supplier = t_supplier.supplier_name" -r "%s" -a 2' % \
                   self.selectedLineEdit.text()
         logger.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
