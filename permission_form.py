@@ -13,7 +13,7 @@ from ui.car_manage_change import Ui_dialog
 from utils.sqllite_util import EasySqlite
 from utils.normal_utils import get_cur_time
 from utils.log_utils import Logger as logger
-from functools import reduce
+from functools import reduce, partial
 
 
 class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
@@ -57,6 +57,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.permissionTableView.setModel(model)
         model.setHorizontalHeaderLabels(('允许', '菜单名称'))
         self.optionTableView.setModel(model)
+
+        self.optionTableView.doubleClicked.connect(partial(self.__change_permissions, 1))
+        self.permissionTableView.doubleClicked.connect(partial(self.__change_permissions, 2))
 
     def show(self):
         """
@@ -167,6 +170,23 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 item = QStandardItem(permission_item[row][col])
                 model.setItem(row, col, item)
         self.permissionTableView.setModel(model)
+
+    def __change_permissions(self, type, index):
+        """
+        更新权限设置
+        :return:
+        """
+        row = index.row()
+        if type == 1:
+            index = self.optionTableView.model().index(row, 0)
+            has_permission = '√' if 'X' == self.optionTableView.model().data(index) else 'X'
+            self.optionTableView.model().setData(index, has_permission)
+        else:
+            index = self.permissionTableView.model().index(row, 0)
+            has_permission = '√' if 'X' == self.permissionTableView.model().data(index) else 'X'
+            self.permissionTableView.model().setData(index, has_permission)
+
+
 
     def __save_data(self):
         pass
