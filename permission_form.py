@@ -9,6 +9,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.permission_setup import Ui_permissionSetupForm
+from ui.user_manage import Ui_Form
 from ui.car_manage_change import Ui_dialog
 from utils.sqllite_util import EasySqlite
 from utils.normal_utils import get_cur_time
@@ -27,8 +28,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
         self.addUserPushButton.clicked.connect(self.__add_user)
+        self.addRolePushButton.clicked.connect(self.__add_role)
         self.editRolePushButton.clicked.connect(self.__change_role)
         self.editUserPushButton.clicked.connect(self.__change_user)
+        self.deleteUserPushButton.clicked.connect(self.__delete_user)
+        self.deleteUserPushButton.clicked.connect(self.__delete_role)
+        self.userMangeForm = UserManageForm()
+        self.userMangeForm.my_signal.connect(self.__init_data)
 
     def __init_data(self):
         """
@@ -36,6 +42,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :return:
         """
         # 用户
+        self.userListWidget.clear()
         user_sql = 'select user_id, user_name from t_user where status = 1 order by id;'
         user_ret = self.db.query(user_sql)
         user_item = []
@@ -68,22 +75,6 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         """
         super().show()
         self.__init_data()
-
-    def __change_user(self, model):
-        """
-        更改用户
-        :param model:
-        :return:
-        """
-        print(model.text())
-
-    def __change_role(self, model):
-        """
-        更改角色
-        :param model:
-        :return:
-        """
-        print(model.text())
 
     def __show_user_permissions(self, model):
         """
@@ -186,8 +177,6 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             has_permission = '√' if 'X' == self.permissionTableView.model().data(index) else 'X'
             self.permissionTableView.model().setData(index, has_permission)
 
-
-
     def __save_data(self):
         pass
 
@@ -196,8 +185,173 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         添加用户
         :return:
         """
-        item = self.userListWidget.currentItem()
-        print(item.text())
+        self.userMangeForm.show(0)
+
+    def __add_role(self):
+        """
+        添加用户
+        :return:
+        """
+        pass
+
+    def __change_user(self):
+        """
+        更改用户
+        :param model:
+        :return:
+        """
+        if not self.userListWidget.currentItem():
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要修改的用户！", QtWidgets.QMessageBox.Ok)
+            return
+        user_name = self.userListWidget.currentItem().text()
+        self.userMangeForm.show(user_name)
+
+    def __change_role(self, model):
+        """
+        更改角色
+        :param model:
+        :return:
+        """
+        pass
+
+    def __delete_user(self):
+        """
+        添加用户
+        :return:
+        """
+        if not self.userListWidget.currentItem():
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的用户！", QtWidgets.QMessageBox.Ok)
+            return
+        user_name = self.userListWidget.currentItem().text()
+        reply = QtWidgets.QMessageBox.question(self,
+                                               '本程序',
+                                               "是否要删除用户 %s？" % user_name,
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            sql = "delete from t_user where user_name = '%s'" % user_name
+            ret = self.db.update(sql)
+            if ret:
+                QtWidgets.QMessageBox.warning(self, '本程序', "删除成功！", QtWidgets.QMessageBox.Ok)
+                self.__init_data()
+            else:
+                QtWidgets.QMessageBox.warning(self, '本程序', "删除失败！", QtWidgets.QMessageBox.Ok)
+        else:
+            return
+
+
+    def __delete_role(self):
+        """
+        添加用户
+        :return:
+        """
+        pass
+
+class UserManageForm(QtWidgets.QWidget, Ui_Form):
+    """
+    用户管理
+    """
+    my_signal = pyqtSignal(str)
+
+    def __init__(self):
+        super(UserManageForm, self).__init__()
+        self.setupUi(self)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+        self.savePushButton.clicked.connect(self.__save_data)
+        self.cancelPushButton.clicked.connect(self.close)
+        self.user_id = 0
+        self.password = -1
+
+    def show(self, user_name):
+        """
+        展示界面
+        :return:
+        """
+        super().show()
+        sql = "select role_name from t_role where status = 1"
+        ret=self.db.query(sql, result_dict=False)
+        role_list = list(list(zip(*ret))[0])
+        self.roleComboBox.addItems(role_list)
+        if user_name == 0:
+            pass
+        else:
+            sql = "select a.user_id, a.user_name, a.password, b.role_name from t_user a join t_role b on a.role_id = b.id where a.user_name = '%s'" % user_name
+            ret = self.db.query(sql)
+            self.user_id = ret[0].get('user_id')
+            user_name = ret[0].get('user_name')
+            self.password = ret[0].get('password')
+            role_name = ret[0].get('role_name')
+            self.roleComboBox.setCurrentText(role_name)
+            self.userIDLineEdit.setText(self.user_id)
+            self.userIDLineEdit.setEnabled(False)
+            self.userNameLineEdit.setText(user_name)
+            self.passwordLineEdit1.setText(self.password)
+            self.passwordLineEdit2.setText(self.password)
+
+    def __save_data(self):
+        """
+        保存数据
+        :return:
+        """
+        role_name = self.roleComboBox.currentText()
+        user_id = self.userIDLineEdit.text()
+        if user_id:
+            sql = "select user_id from t_user"
+            ret = self.db.query(sql, result_dict=False)
+            user_id_list = list(list(zip(*ret))[0])
+            if user_id in user_id_list:
+                QtWidgets.QMessageBox.warning(self, '本程序', "用户代码已存在！", QtWidgets.QMessageBox.Ok)
+                return
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请输入用户代码！", QtWidgets.QMessageBox.Ok)
+            return
+        user_name = self.userNameLineEdit.text()
+        if user_name:
+            sql = "select user_name from t_user"
+            ret = self.db.query(sql, result_dict=False)
+            user_name_list = list(list(zip(*ret))[0])
+            if user_name in user_name_list:
+                QtWidgets.QMessageBox.warning(self, '本程序', "用户名已存在！", QtWidgets.QMessageBox.Ok)
+                return
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请输入用户名！", QtWidgets.QMessageBox.Ok)
+            return
+        user_pwd1 = self.passwordLineEdit1.text()
+        user_pwd2 = self.passwordLineEdit2.text()
+        if user_pwd1 and user_pwd2:
+            if user_pwd1 != user_pwd2:
+                QtWidgets.QMessageBox.warning(self, '本程序', "两次密码不一样！", QtWidgets.QMessageBox.Ok)
+                return
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请输入密码！", QtWidgets.QMessageBox.Ok)
+            return
+        # todo 密码加密
+        if user_pwd1 == self.password:
+            pass
+        else:
+            pass
+        role_sql = "select id from t_role where role_name = '%s'" % role_name
+        ret = self.db.query(role_sql)
+        role_id = ret[0].get('id')
+        if self.user_id == 0:
+            user_sql = "insert into t_user(user_id, user_name, role_id, password) values('%s','%s','%s','%s')" % \
+                       (user_id, user_name, role_id, user_pwd1)
+        else:
+            user_sql = "update t_user set user_name='%s', role_id='%s', password='%s'" % \
+                       (user_name, role_id, user_pwd1)
+        print(user_sql)
+        ret = self.db.update(user_sql)
+        if ret:
+            QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+            self.my_signal.emit(user_name)
+            self.close()
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+
+
+
+
+
 
 if __name__ == '__main__':
     import sys

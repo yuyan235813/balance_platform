@@ -23,6 +23,8 @@ class Ui_permissionSetupForm(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.tab_3)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.userListWidget = QtWidgets.QListWidget(self.tab_3)
+        self.userListWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.userListWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.userListWidget.setObjectName("userListWidget")
         self.verticalLayout_2.addWidget(self.userListWidget)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
@@ -43,6 +45,8 @@ class Ui_permissionSetupForm(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.tab_4)
         self.verticalLayout.setObjectName("verticalLayout")
         self.roleListWidget = QtWidgets.QListWidget(self.tab_4)
+        self.roleListWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.roleListWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.roleListWidget.setObjectName("roleListWidget")
         self.verticalLayout.addWidget(self.roleListWidget)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -100,13 +104,13 @@ class Ui_permissionSetupForm(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_4)
 
         self.retranslateUi(permissionSetupForm)
-        self.userRoleQTabWidget.setCurrentIndex(1)
+        self.userRoleQTabWidget.setCurrentIndex(0)
         self.permissionTabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(permissionSetupForm)
 
     def retranslateUi(self, permissionSetupForm):
         _translate = QtCore.QCoreApplication.translate
-        permissionSetupForm.setWindowTitle(_translate("permissionSetupForm", "Form"))
+        permissionSetupForm.setWindowTitle(_translate("permissionSetupForm", "用户和权限管理"))
         self.addUserPushButton.setText(_translate("permissionSetupForm", "添加"))
         self.editUserPushButton.setText(_translate("permissionSetupForm", "修改"))
         self.deleteUserPushButton.setText(_translate("permissionSetupForm", "删除"))
