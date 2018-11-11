@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.permission_setup import Ui_permissionSetupForm
 from ui.user_manage import Ui_Form
+from ui.role_manage import Ui_roleForm
 from ui.car_manage_change import Ui_dialog
 from utils.sqllite_util import EasySqlite
 from utils.normal_utils import get_cur_time
@@ -29,12 +30,15 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.cancelPushButton.clicked.connect(self.close)
         self.addUserPushButton.clicked.connect(self.__add_user)
         self.addRolePushButton.clicked.connect(self.__add_role)
-        self.editRolePushButton.clicked.connect(self.__change_role)
         self.editUserPushButton.clicked.connect(self.__change_user)
         self.deleteUserPushButton.clicked.connect(self.__delete_user)
-        self.deleteUserPushButton.clicked.connect(self.__delete_role)
+        self.deleteRolePushButton.clicked.connect(self.__delete_role)
         self.userMangeForm = UserManageForm()
         self.userMangeForm.my_signal.connect(self.__init_data)
+        self.roleManageForm = RoleManageForm()
+        self.roleManageForm.my_signal.connect(self.__init_data)
+        self.optionTableView.doubleClicked.connect(partial(self.__change_permissions, 1))
+        self.permissionTableView.doubleClicked.connect(partial(self.__change_permissions, 2))
 
     def __init_data(self):
         """
@@ -43,6 +47,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         """
         # 用户
         self.userListWidget.clear()
+        self.roleListWidget.clear()
         user_sql = 'select user_id, user_name from t_user where status = 1 order by id;'
         user_ret = self.db.query(user_sql)
         user_item = []
@@ -65,9 +70,6 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         model.setHorizontalHeaderLabels(('允许', '菜单名称'))
         self.optionTableView.setModel(model)
 
-        self.optionTableView.doubleClicked.connect(partial(self.__change_permissions, 1))
-        self.permissionTableView.doubleClicked.connect(partial(self.__change_permissions, 2))
-
     def show(self):
         """
         显示界面
@@ -82,8 +84,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :param model:
         :return:
         """
-        print(model.text())
-        user_name = model.text()
+        self.user_name = model.text()
         sql_tmp = """
             select t1.opt_type, opt_name, case when t2.object_id is null then 0 else 1 end as has_permission
             from
@@ -92,8 +93,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             (select * from (select user_id, role_id from t_user where user_name = '%s' and status = 1) a 
                 join t_permission b 
                 on (a.user_id = b.object_id and b.object_type = 2) or (a.role_id = b.object_id and b.object_type = 1)
+                and b.status = 0
             ) t2 on t1.id = t2.operation_id"""
-        sql = sql_tmp % user_name
+        sql = sql_tmp % self.user_name
         ret = self.db.query(sql)
         opt_item = []
         permission_item = []
@@ -125,8 +127,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :param model:
         :return:
         """
-        print(model.text())
-        role_name = model.text()
+        self.role_name = model.text()
         sql_tmp = """
                     select t1.opt_type, opt_name, case when t2.object_id is null then 0 else 1 end as has_permission
                     from
@@ -134,9 +135,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                     left join
                     (select * from (select id as role_id from t_role where role_name = '%s' and status = 1) a 
                         join t_permission b 
-                        on a.role_id = b.object_id and b.object_type = 1
+                        on a.role_id = b.object_id and b.object_type = 1 and b.status = 1
                     ) t2 on t1.id = t2.operation_id"""
-        sql = sql_tmp % role_name
+        sql = sql_tmp % self.role_name
         ret = self.db.query(sql)
         opt_item = []
         permission_item = []
@@ -178,7 +179,18 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             self.permissionTableView.model().setData(index, has_permission)
 
     def __save_data(self):
-        pass
+        """
+        保存权限
+        :return:
+        """
+        # todo 保存权限
+        model = self.optionTableView.model()
+        opt_list = list()
+        row = model.rowCount()
+        for i in range(row):
+            opt_list.append((model.data(model.index(i, 0)), model.data(model.index(i, 1))))
+        for item in opt_list:
+            print(item)
 
     def __add_user(self):
         """
@@ -192,7 +204,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         添加用户
         :return:
         """
-        pass
+        self.roleManageForm.show()
 
     def __change_user(self):
         """
@@ -205,14 +217,6 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             return
         user_name = self.userListWidget.currentItem().text()
         self.userMangeForm.show(user_name)
-
-    def __change_role(self, model):
-        """
-        更改角色
-        :param model:
-        :return:
-        """
-        pass
 
     def __delete_user(self):
         """
@@ -229,8 +233,11 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                QtWidgets.QMessageBox.No)
         if reply == QtWidgets.QMessageBox.Yes:
-            sql = "delete from t_user where user_name = '%s'" % user_name
-            ret = self.db.update(sql)
+            sql = """delete from t_permission where object_id in (select user_id from t_user where user_name = '%s') 
+                                 and object_type = 2;""" % user_name
+            self.db.update(sql, commit=False)
+            sql2 = "delete from t_user where user_name = '%s'" % user_name
+            ret = self.db.update(sql2)
             if ret:
                 QtWidgets.QMessageBox.warning(self, '本程序', "删除成功！", QtWidgets.QMessageBox.Ok)
                 self.__init_data()
@@ -239,13 +246,39 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         else:
             return
 
-
     def __delete_role(self):
         """
-        添加用户
+        删除角色
         :return:
         """
-        pass
+        if not self.roleListWidget.currentItem():
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的角色！", QtWidgets.QMessageBox.Ok)
+            return
+        role_name = self.roleListWidget.currentItem().text()
+        reply = QtWidgets.QMessageBox.question(self,
+                                               '本程序',
+                                               "是否要删除角色 %s？" % role_name,
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            query_sql = """select * from t_user a join t_role b on a.role_id = b.id where b.role_name = '%s'""" % role_name
+            query_ret = self.db.query(query_sql)
+            if query_ret:
+                QtWidgets.QMessageBox.warning(self, '本程序', "该角色下有用户存在，不允许删除！", QtWidgets.QMessageBox.Ok)
+                return
+            sql = """delete from t_permission where object_id in (select id from t_role where role_name = '%s') 
+                     and object_type = 1;""" % role_name
+            self.db.update(sql, commit=False)
+            sql2 = """delete from t_role where role_name = '%s';""" % role_name
+            ret = self.db.update(sql2, commit=True)
+            if ret:
+                QtWidgets.QMessageBox.warning(self, '本程序', "删除成功！", QtWidgets.QMessageBox.Ok)
+                self.__init_data()
+            else:
+                QtWidgets.QMessageBox.warning(self, '本程序', "删除失败！", QtWidgets.QMessageBox.Ok)
+        else:
+            return
+
 
 class UserManageForm(QtWidgets.QWidget, Ui_Form):
     """
@@ -271,6 +304,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         sql = "select role_name from t_role where status = 1"
         ret=self.db.query(sql, result_dict=False)
         role_list = list(list(zip(*ret))[0])
+        self.roleComboBox.clear()
         self.roleComboBox.addItems(role_list)
         if user_name == 0:
             pass
@@ -296,7 +330,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         role_name = self.roleComboBox.currentText()
         user_id = self.userIDLineEdit.text()
         if user_id:
-            sql = "select user_id from t_user"
+            sql = "select user_id from t_user where user_id <> '%s'" % self.user_id
             ret = self.db.query(sql, result_dict=False)
             user_id_list = list(list(zip(*ret))[0])
             if user_id in user_id_list:
@@ -307,7 +341,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
             return
         user_name = self.userNameLineEdit.text()
         if user_name:
-            sql = "select user_name from t_user"
+            sql = "select user_name from t_user where user_id <> '%s'" % self.user_id
             ret = self.db.query(sql, result_dict=False)
             user_name_list = list(list(zip(*ret))[0])
             if user_name in user_name_list:
@@ -333,15 +367,20 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         role_sql = "select id from t_role where role_name = '%s'" % role_name
         ret = self.db.query(role_sql)
         role_id = ret[0].get('id')
+        permission_sql = ''
         if self.user_id == 0:
             user_sql = "insert into t_user(user_id, user_name, role_id, password) values('%s','%s','%s','%s')" % \
                        (user_id, user_name, role_id, user_pwd1)
+            permission_sql = """insert into t_permission (object_type, object_id, operation_id, status) 
+                                 select 2 as object_type, '%s' as object_id, id, 0 as status from t_operation
+                                 where status = 1 % """ % user_id
         else:
-            user_sql = "update t_user set user_name='%s', role_id='%s', password='%s'" % \
-                       (user_name, role_id, user_pwd1)
-        print(user_sql)
+            user_sql = "update t_user set user_name='%s', role_id='%s', password='%s' where user_id = '%s'" % \
+                       (user_name, role_id, user_pwd1, user_id)
         ret = self.db.update(user_sql)
         if ret:
+            if permission_sql:
+                self.update(permission_sql)
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.my_signal.emit(user_name)
             self.close()
@@ -349,8 +388,49 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 
 
+class RoleManageForm(QtWidgets.QWidget, Ui_roleForm):
+    """
+    用户管理
+    """
+    my_signal = pyqtSignal(str)
 
+    def __init__(self):
+        super(RoleManageForm, self).__init__()
+        self.setupUi(self)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+        self.savePushButton.clicked.connect(self.__save_data)
+        self.cancelPushButton.clicked.connect(self.close)
 
+    def __save_data(self):
+        """
+        保存数据
+        :return:
+        """
+        role_name = self.roleLineEdit.text()
+        if role_name:
+            sql = "select role_name from t_role"
+            ret = self.db.query(sql, result_dict=False)
+            role_name_list = list(list(zip(*ret))[0])
+            if role_name in role_name_list:
+                QtWidgets.QMessageBox.warning(self, '本程序', "角色已存在！", QtWidgets.QMessageBox.Ok)
+                return
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请输入角色名称！", QtWidgets.QMessageBox.Ok)
+            return
+
+        role_sql = "insert into t_role(role_name) values('%s')" % role_name
+        permission_sql = """insert into t_permission (object_type, object_id, operation_id, status) 
+                                         select 1 as object_type, b.role_id as object_id, id, 0 as status from t_operation a
+                                         left join (select id as role_id from t_role where role_name = '%s') b on 1 = 1 
+                                         where status = 1 """ % role_name
+        ret = self.db.update(role_sql)
+        if ret:
+            self.db.update(permission_sql)
+            QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+            self.my_signal.emit(role_name)
+            self.close()
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 
 
 if __name__ == '__main__':

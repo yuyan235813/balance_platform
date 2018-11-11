@@ -185,7 +185,7 @@ insert into t_operation values(2, 1, '磅单设置', 'setup_form', 1);
 create table `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
-  `object_id` int not null default 1, --类型，object_type=1：角色ID；object_type=2：用户ID
+  `object_id` text not null default 1, --类型，object_type=1：角色ID；object_type=2：用户ID
   `operation_id` int not null default 0, --操作ID
   `status` int not null default 1 -- 1:有效；0：删除
 );

@@ -74,7 +74,7 @@ class EasySqlite:
         """
         return self.__execute(sql, args, result_dict)
 
-    def update(self, sql, args=[], result_dict=True) -> int:
+    def update(self, sql, args=[], result_dict=True, commit=True) -> int:
         """
         查询数据
         :param sql:
