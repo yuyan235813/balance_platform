@@ -21,6 +21,12 @@ class Ui_PollResultForm(object):
         font.setKerning(True)
         self.printPushButton.setFont(font)
         self.printPushButton.setObjectName("printPushButton")
+        self.excelPushButton_2 = QtWidgets.QPushButton(PollResultForm)
+        self.excelPushButton_2.setGeometry(QtCore.QRect(360, 300, 75, 23))
+        font = QtGui.QFont()
+        font.setKerning(True)
+        self.excelPushButton_2.setFont(font)
+        self.excelPushButton_2.setObjectName("excelPushButton_2")
 
         self.retranslateUi(PollResultForm)
         QtCore.QMetaObject.connectSlotsByName(PollResultForm)
@@ -29,4 +35,5 @@ class Ui_PollResultForm(object):
         _translate = QtCore.QCoreApplication.translate
         PollResultForm.setWindowTitle(_translate("PollResultForm", "Form"))
         self.printPushButton.setText(_translate("PollResultForm", "打印"))
+        self.excelPushButton_2.setText(_translate("PollResultForm", "导出"))
 
