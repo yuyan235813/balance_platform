@@ -82,6 +82,7 @@ class EasySqlite:
         :param result_dict:
         :return:
         """
+        print(sql, args)
         ret = self.__execute(sql, args, result_dict)
         print(ret)
         if ret or ret is None:

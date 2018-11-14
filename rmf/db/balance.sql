@@ -1,3 +1,4 @@
+BEGIN TRANSACTION;
 CREATE TABLE t_balance(
   id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(16) unique NOT NULL, --'单号'
@@ -107,18 +108,18 @@ CREATE TABLE `t_system_params_conf` (
 INSERT INTO t_system_params_conf VALUES(1,'吨','xxx有限责任公司',1,6,'元');
 CREATE TABLE `t_supplier` (
   `supplier_id` integer primary key AUTOINCREMENT, -- 'ID',
-  `supplier_name`text not null default '单位名称',
-  `supplier_contact` text  '联系人',
-  `supplier_tel` text  '联系电话',
-  `supplier_address` text  '地址',
-  `supplier_bank`text  '开户行',
-  `supplier_account` text  '账户',
-  `supplier_duty` text  '税号',
-  `supplier_remark` text '备注',
-  `supplier_reserve1` text,
-  `supplier_reserve2` text,
-  `supplier_reserve3` text,
-  `supplier_reserve4` text
+  `name`text not null default '单位名称',
+  `contact` text  '联系人',
+  `tel` text  '联系电话',
+  `address` text  '地址',
+  `bank`text  '开户行',
+  `account` text  '账户',
+  `duty` text  '税号',
+  `remark` text '备注',
+  `reserve1` text,
+  `reserve2` text,
+  `reserve3` text,
+  `reserve4` text
 );
 INSERT INTO t_supplier VALUES(1,'浙江绿城集团','武松','15689478952','浙江省杭州市','中国建设银行','4234234324324324','34234324234324234',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(2,'江苏苏宁集团','张卫东','156895748569','江苏南京','','','',NULL,NULL,NULL,NULL,NULL);
@@ -126,18 +127,18 @@ INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','
 INSERT INTO t_supplier VALUES(4,'山东金石集团','王国','18605324587','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_receiver` (
   `receiver_id` integer primary key AUTOINCREMENT, -- 'ID',
-  `receiver_name`text not null default '单位名称',
-  `receiver_contact` text  '联系人',
-  `receiver_tel` text  '联系电话',
-  `receiver_address` text  '地址',
-  `receiver_bank`text  '开户行',
-  `receiver_account` text  '账户',
-  `receiver_duty` text  '税号',
-  `receiver_remark` text '备注',
-  `receiver_reserve1` text,
-  `receiver_reserve2` text,
-  `receiver_reserve3` text,
-  `receiver_reserve4` text
+  `name`text not null default '单位名称',
+  `contact` text  '联系人',
+  `tel` text  '联系电话',
+  `address` text  '地址',
+  `bank`text  '开户行',
+  `account` text  '账户',
+  `duty` text  '税号',
+  `remark` text '备注',
+  `reserve1` text,
+  `reserve2` text,
+  `reserve3` text,
+  `reserve4` text
 );
 CREATE TABLE `t_cargo` (
   `cargo_id` integer primary key AUTOINCREMENT, -- 'ID',
@@ -163,7 +164,8 @@ CREATE TABLE `t_role` (
   `role_name` text unique not null default '系统管理员', -- 车牌号
   `status` int not null default 1 -- 1:有效；0：删除
 );
-insert into t_role values(1, '系统管理员', 1);
+INSERT INTO t_role VALUES(1,'系统管理员',1);
+INSERT INTO t_role VALUES(10,'操作员',1);
 CREATE TABLE `t_user` (
   `id` integer primary key AUTOINCREMENT, -- ID
   `user_id` text unique not null default '', -- 用户ID
@@ -172,33 +174,30 @@ CREATE TABLE `t_user` (
   `role_id` int not null default 1, -- 角色ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
-insert into t_user values(1, 'admin', '系统管理员', '1256dce64096d2242f73cb55c572b9c3', 1, 1);
-create table `t_operation`(
+INSERT INTO t_user VALUES(1,'admin','系统管理员','321',1,1);
+INSERT INTO t_user VALUES(14,'user2','操作员2','123',10,1);
+CREATE TABLE `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `opt_type` int not null default 1, --操作类型，1：功能，2：权限
   `opt_name` text not null default '', --操作名称
   `opt_code` text not null default '', --操作代码
   `status` int not null default 1 -- 1:有效；0：删除
 );
-insert into t_operation values(1, 1, '系统参数设置', 'system_params_form', 1);
-insert into t_operation values(2, 1, '磅单设置', 'setup_form', 1);
-create table `t_permission`(
+INSERT INTO t_operation VALUES(1,1,'系统参数设置','system_params_form',1);
+INSERT INTO t_operation VALUES(2,1,'磅单设置','setup_form',1);
+CREATE TABLE `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
   `object_id` text not null default 1, --类型，object_type=1：角色ID；object_type=2：用户ID
   `operation_id` int not null default 0, --操作ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
-insert into t_permission values (1, 1, 1, 1, 1);
-insert into t_permission values (2, 2, 'admin', 2, 1);
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO t_permission VALUES(3,1,'1',1,1);
+INSERT INTO t_permission VALUES(4,1,'1',2,1);
+INSERT INTO t_permission VALUES(3,1,'10',1,1);
+INSERT INTO t_permission VALUES(4,1,'10',2,1);
+INSERT INTO t_permission VALUES(5,2,'user2',1,1);
+INSERT INTO t_permission VALUES(6,2,'user2',2,1);
+INSERT INTO t_permission VALUES(5,2,'user2',1,0);
+INSERT INTO t_permission VALUES(6,2,'user2',2,1);
+COMMIT;
