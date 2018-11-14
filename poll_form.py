@@ -8,6 +8,7 @@ from utils import normal_utils
 from utils.sqllite_util import EasySqlite
 from functools import partial
 import os
+import xlwt
 import subprocess
 from utils.log_utils import Logger as logger
 import datetime
@@ -19,6 +20,7 @@ from PyQt5.QtGui import (QFont,QFontMetrics,QPainter,QTextCharFormat,
                          QTextCursor, QTextDocument, QTextFormat,
                          QTextOption, QTextTableFormat,
                          QPixmap,QTextBlockFormat)
+from xlwt import *
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -77,7 +79,6 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         condition = condition[:-3]
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
-        print(query_sql)
         data_list = self.db.query(query_sql)
         self.pollresult.show(data_list)
 
@@ -98,9 +99,78 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         self.setWindowModality(Qt.ApplicationModal)
         self.balance_detail = Balance_detailDialog(self)
         self.printPushButton.clicked.connect(self.printViaHtml)
+        self.excelPushButton_2.clicked.connect(self.writeexcel)
         self.printer = QPrinter()
         self.printer.setPageSize(QPrinter.Letter)
         self.table = QTableWidget()
+
+    def writeexcel(self):
+        book = Workbook(encoding='utf-8')
+        sheet = book.add_sheet('Sheet1')  # 创建一个sheet
+        # -----样式设置----------------
+        alignment = xlwt.Alignment()  # 创建居中
+        alignment.horz = xlwt.Alignment.HORZ_CENTER  # 可取值: HORZ_GENERAL, HORZ_LEFT, HORZ_CENTER, HORZ_RIGHT, HORZ_FILLED, HORZ_JUSTIFIED, HORZ_CENTER_ACROSS_SEL, HORZ_DISTRIBUTED
+        alignment.vert = xlwt.Alignment.VERT_CENTER  # 可取值: VERT_TOP, VERT_CENTER, VERT_BOTTOM, VERT_JUSTIFIED, VERT_DISTRIBUTED
+        style = xlwt.XFStyle()  # 创建样式
+        style.alignment = alignment  # 给样式添加文字居中属性
+        style.font.height = 430  # 设置字体大小
+
+        # ----------设置列宽高--------------
+        col1 = sheet.col(0)  # 获取第0列
+        col1.width = 380 * 20  # 设置第0列的宽为380，高为20
+        query_sql = 'select * from t_system_params_conf'
+        data_list = self.db.query(query_sql)
+        company = list(data_list[0].values())[2]
+        header = company+'报表'
+        sheet.write_merge(0, 0, 0, 7, header, style)
+        row_no = self.tableView.model().rowCount()
+        sheet.write(1, 0, '单号')
+        sheet.write(1, 1, '车号')
+        sheet.write(1, 2, '毛重')
+        sheet.write(1, 3, '皮重')
+        sheet.write(1, 4, '净重')
+        sheet.write(1, 5, '货物名称')
+        sheet.write(1, 6, '供货单位')
+        sheet.write(1, 7, '收货单位')
+        for row in range(row_no):
+            balance_id = self.tableView.model().index(row, 0).data()
+            if self.tableView.model().index(row, 1).data() == None:
+                car_No = ''
+            else:
+                car_No = self.tableView.model().index(row, 1).data()
+            total_weight = self.tableView.model().index(row, 2).data()
+            leather_weight = self.tableView.model().index(row, 3).data()
+            actual_weight = self.tableView.model().index(row, 4).data()
+            if self.tableView.model().index(row, 7).data() == None:
+                goods_name = ''
+            else:
+                goods_name = self.tableView.model().index(row, 7).data()
+            if self.tableView.model().index(row, 8).data() == None:
+                supplier = ''
+            else:
+                supplier = self.tableView.model().index(row, 8).data()
+            if self.tableView.model().index(row, 9).data() == None:
+                receiver = ''
+            else:
+                receiver = self.tableView.model().index(row, 9).data()
+            row=row+2
+            sheet.write(row, 0, balance_id)
+            sheet.write(row, 1, car_No)
+            sheet.write(row, 2, total_weight)
+            sheet.write(row, 3, leather_weight)
+            sheet.write(row, 4, actual_weight)
+            sheet.write(row, 5, goods_name)
+            sheet.write(row, 6, supplier)
+            sheet.write(row, 7, receiver)
+        today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = "d:/balance_plat"
+        folder = os.path.exists(path)
+        if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+            os.makedirs(path)
+        if book.save('d:/balance_plat/报表'+str(today_date)+'.xls'):
+            QtWidgets.QMessageBox.warning(self, '本程序', "导出失败！", QtWidgets.QMessageBox.Ok)
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "导出成功！", QtWidgets.QMessageBox.Ok)
 
     def printViaHtml(self):
         htmltext = ""
@@ -140,7 +210,6 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
             else:
                 receiver=self.tableView.model().index(row, 9).data()
             # balance_id = self.tableView.model().index(row, 8).data()
-            print(self.tableView.model().index(row, 0).data())
             htmltext += ("<tr><td align=center>{0}</td>"
                          "<td align=center>{1}</td>"
                          "<td align=center>{2}</td>"
