@@ -25,6 +25,7 @@ from Supply_form import SupplyForm
 from receiver_form import receiverForm
 from cargo_form import cargoForm
 from poll_form import pollmainForm
+from permission_form import PermissionSetupForm
 from functools import partial
 import subprocess
 import sys
@@ -37,8 +38,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
     """
-    def __init__(self):
+    def __init__(self, user_name):
         super(MainForm, self).__init__()
+        self.user_name = user_name
         self.setupUi(self)
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
@@ -63,6 +65,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionGoodsName.triggered.connect(self.cargo_form.show)
         self.poll_form = pollmainForm()
         self.actionBalanceQuery.triggered.connect(self.poll_form.show)
+        self.permission_form = PermissionSetupForm()
+        self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.savePushButton.clicked.connect(partial(self.save_data, True))
         self.clearPushButton.clicked.connect(self.clear_data)
