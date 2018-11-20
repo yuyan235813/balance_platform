@@ -38,7 +38,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
     """
-    def __init__(self, user_name):
+    def __init__(self, user_name=''):
         super(MainForm, self).__init__()
         self.user_name = user_name
         self.setupUi(self)
