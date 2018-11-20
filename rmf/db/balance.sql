@@ -108,18 +108,18 @@ CREATE TABLE `t_system_params_conf` (
 INSERT INTO t_system_params_conf VALUES(1,'吨','xxx有限责任公司',1,6,'元');
 CREATE TABLE `t_supplier` (
   `supplier_id` integer primary key AUTOINCREMENT, -- 'ID',
-  `name`text not null default '单位名称',
-  `contact` text  '联系人',
-  `tel` text  '联系电话',
-  `address` text  '地址',
-  `bank`text  '开户行',
-  `account` text  '账户',
-  `duty` text  '税号',
-  `remark` text '备注',
-  `reserve1` text,
-  `reserve2` text,
-  `reserve3` text,
-  `reserve4` text
+  `supplier_name`text not null default '单位名称',
+  `supplier_contact` text  '联系人',
+  `supplier_tel` text  '联系电话',
+  `supplier_address` text  '地址',
+  `supplier_bank`text  '开户行',
+  `supplier_account` text  '账户',
+  `supplier_duty` text  '税号',
+  `supplier_remark` text '备注',
+  `supplier_reserve1` text,
+  `supplier_reserve2` text,
+  `supplier_reserve3` text,
+  `supplier_reserve4` text
 );
 INSERT INTO t_supplier VALUES(1,'浙江绿城集团','武松','15689478952','浙江省杭州市','中国建设银行','4234234324324324','34234324234324234',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(2,'江苏苏宁集团','张卫东','156895748569','江苏南京','','','',NULL,NULL,NULL,NULL,NULL);
@@ -127,18 +127,18 @@ INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','
 INSERT INTO t_supplier VALUES(4,'山东金石集团','王国','18605324587','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_receiver` (
   `receiver_id` integer primary key AUTOINCREMENT, -- 'ID',
-  `name`text not null default '单位名称',
-  `contact` text  '联系人',
-  `tel` text  '联系电话',
-  `address` text  '地址',
-  `bank`text  '开户行',
-  `account` text  '账户',
-  `duty` text  '税号',
-  `remark` text '备注',
-  `reserve1` text,
-  `reserve2` text,
-  `reserve3` text,
-  `reserve4` text
+  `receiver_name`text not null default '单位名称',
+  `receiver_contact` text  '联系人',
+  `receiver_tel` text  '联系电话',
+  `receiver_address` text  '地址',
+  `receiver_bank`text  '开户行',
+  `receiver_account` text  '账户',
+  `receiver_duty` text  '税号',
+  `receiver_remark` text '备注',
+  `receiver_reserve1` text,
+  `receiver_reserve2` text,
+  `receiver_reserve3` text,
+  `receiver_reserve4` text
 );
 CREATE TABLE `t_cargo` (
   `cargo_id` integer primary key AUTOINCREMENT, -- 'ID',
@@ -194,10 +194,6 @@ CREATE TABLE `t_permission`(
 );
 INSERT INTO t_permission VALUES(3,1,'1',1,1);
 INSERT INTO t_permission VALUES(4,1,'1',2,1);
-INSERT INTO t_permission VALUES(3,1,'10',1,1);
-INSERT INTO t_permission VALUES(4,1,'10',2,1);
 INSERT INTO t_permission VALUES(5,2,'user2',1,1);
-INSERT INTO t_permission VALUES(6,2,'user2',2,1);
-INSERT INTO t_permission VALUES(5,2,'user2',1,0);
 INSERT INTO t_permission VALUES(6,2,'user2',2,1);
 COMMIT;
