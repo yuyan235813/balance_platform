@@ -15,7 +15,7 @@ from utils.log_utils import Logger as logger
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
 from conf.constant import NormalParam
-from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
+# from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
@@ -447,23 +447,35 @@ class COMThread(QThread):
     def __init__(self):
         self._is_conn = False
         super().__init__()
+        self.db = EasySqlite(r'rmf/db/balance.db')
+
 
     def init_serial(self):
         u"""
         :return:
         """
+        query_sql_com1 = 'select * from t_com where is_default = 1'
+        ret = self.db.query(query_sql_com1)[0]
+        COM_INTERFACE = ret['com_no']
+        COM_BAUD_RATE = ret['baud_rate']
         self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
         if self._serial.isOpen():
             logger.info("open success")
+            print("open success")
         else:
             logger.error("open failed")
-            raise Exception(u'%s 串口打开失败！' % COM_INTERFACE)
+            raise Exception(u'%s 串口打开失败！' % 'COM5')
 
     def run(self):
         """
         读取串口信息
         :return:
         """
+        DEBUG = False
+        query_sql_com1 = 'select * from t_com where is_default = 1'
+        ret = self.db.query(query_sql_com1)[0]
+        COM_INTERFACE = ret['com_no']
+
         if DEBUG:
             while True:
                 weight = 100

@@ -129,19 +129,26 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         ret_data_bit = self.update_conf('t_data_bit_conf', 'data_bit', data_bit)
         stop_bit = self.stopComboBox.currentText()
         ret_stop_bit = self.update_conf('t_stop_bit_conf', 'stop_bit', stop_bit)
+        print(ret_com_no)
+        print(ret_baud_rate)
+        print(ret_verification_bit)
+        print(ret_data_bit)
+        print(ret_stop_bit)
         success = 0
-        if not (ret_com_no or ret_baud_rate or ret_verification_bit or ret_data_bit or ret_stop_bit):
+        if  (ret_com_no or ret_baud_rate or ret_verification_bit or ret_data_bit or ret_stop_bit):
             update_sql = '''update t_com set com_no="%s",baud_rate=%s,verification_bit=%s,data_bit=%s,stop_bit=%s
              where is_default=1''' % (com_no, baud_rate, verification_bit, data_bit, stop_bit)
+            print(update_sql)
             ret = self.db.update(update_sql)
             success = 0 if ret else 1
         else:
             success = 0
         if success:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+        else:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
-        else:
-            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+
 
     def get_conf_list(self, table, column):
         """
