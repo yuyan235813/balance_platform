@@ -321,24 +321,25 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         super().show()
         sql = "select role_name from t_role where status = 1"
         ret=self.db.query(sql, result_dict=False)
-        role_list = list(list(zip(*ret))[0])
-        self.roleComboBox.clear()
-        self.roleComboBox.addItems(role_list)
-        if user_name == 0:
-            pass
-        else:
-            sql = "select a.user_id, a.user_name, a.password, b.role_name from t_user a join t_role b on a.role_id = b.id where a.user_name = '%s'" % user_name
-            ret = self.db.query(sql)
-            self.user_id = ret[0].get('user_id')
-            user_name = ret[0].get('user_name')
-            self.password = ret[0].get('password')
-            role_name = ret[0].get('role_name')
-            self.roleComboBox.setCurrentText(role_name)
-            self.userIDLineEdit.setText(self.user_id)
-            self.userIDLineEdit.setEnabled(False)
-            self.userNameLineEdit.setText(user_name)
-            self.passwordLineEdit1.setText(self.password)
-            self.passwordLineEdit2.setText(self.password)
+        if ret:
+            role_list = list(list(zip(*ret))[0])
+            self.roleComboBox.clear()
+            self.roleComboBox.addItems(role_list)
+            if user_name == 0:
+                pass
+            else:
+                sql = "select a.user_id, a.user_name, a.password, b.role_name from t_user a join t_role b on a.role_id = b.id where a.user_name = '%s'" % user_name
+                ret = self.db.query(sql)
+                self.user_id = ret[0].get('user_id')
+                user_name = ret[0].get('user_name')
+                self.password = ret[0].get('password')
+                role_name = ret[0].get('role_name')
+                self.roleComboBox.setCurrentText(role_name)
+                self.userIDLineEdit.setText(self.user_id)
+                self.userIDLineEdit.setEnabled(False)
+                self.userNameLineEdit.setText(user_name)
+                self.passwordLineEdit1.setText(self.password)
+                self.passwordLineEdit2.setText(self.password)
 
     def __save_data(self):
         """
@@ -350,10 +351,11 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         if user_id:
             sql = "select user_id from t_user where user_id <> '%s'" % self.user_id
             ret = self.db.query(sql, result_dict=False)
-            user_id_list = list(list(zip(*ret))[0])
-            if user_id in user_id_list:
-                QtWidgets.QMessageBox.warning(self, '本程序', "用户代码已存在！", QtWidgets.QMessageBox.Ok)
-                return
+            if ret:
+                user_id_list = list(list(zip(*ret))[0])
+                if user_id in user_id_list:
+                    QtWidgets.QMessageBox.warning(self, '本程序', "用户代码已存在！", QtWidgets.QMessageBox.Ok)
+                    return
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请输入用户代码！", QtWidgets.QMessageBox.Ok)
             return
@@ -361,10 +363,11 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         if user_name:
             sql = "select user_name from t_user where user_id <> '%s'" % self.user_id
             ret = self.db.query(sql, result_dict=False)
-            user_name_list = list(list(zip(*ret))[0])
-            if user_name in user_name_list:
-                QtWidgets.QMessageBox.warning(self, '本程序', "用户名已存在！", QtWidgets.QMessageBox.Ok)
-                return
+            if ret:
+                user_name_list = list(list(zip(*ret))[0])
+                if user_name in user_name_list:
+                    QtWidgets.QMessageBox.warning(self, '本程序', "用户名已存在！", QtWidgets.QMessageBox.Ok)
+                    return
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请输入用户名！", QtWidgets.QMessageBox.Ok)
             return
@@ -428,10 +431,11 @@ class RoleManageForm(QtWidgets.QWidget, Ui_roleForm):
         if role_name:
             sql = "select role_name from t_role"
             ret = self.db.query(sql, result_dict=False)
-            role_name_list = list(list(zip(*ret))[0])
-            if role_name in role_name_list:
-                QtWidgets.QMessageBox.warning(self, '本程序', "角色已存在！", QtWidgets.QMessageBox.Ok)
-                return
+            if ret:
+                role_name_list = list(list(zip(*ret))[0])
+                if role_name in role_name_list:
+                    QtWidgets.QMessageBox.warning(self, '本程序', "角色已存在！", QtWidgets.QMessageBox.Ok)
+                    return
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请输入角色名称！", QtWidgets.QMessageBox.Ok)
             return

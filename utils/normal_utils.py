@@ -64,49 +64,60 @@ def generate_balance_id():
     return balance_id
 
 
+def get_user_permission(user_id):
+    """
+    获取用户的权限
+    :param user_id:
+    :return:
+    """
+    db = EasySqlite(r'rmf/db/balance.db')
+    sql_tmp = """
+        select 
+            user_id,
+            opt_type,
+            opt_name,
+            opt_code
+        from 
+            (
+                select
+                    user_id, 
+                    role_id 
+                from 
+                    t_user 
+                where 
+                    user_id = '%s'
+            )t1 
+            join
+            (
+                select 
+                    a.object_id,
+                    a.object_type,
+                    b.opt_type,
+                    b.opt_name, 
+                    b.opt_code
+                from 
+                    t_permission a 
+                    join 
+                    t_operation b on a.operation_id=b.id 
+                where 
+                    a.status=1 
+                    and b.status=1
+            )t2 on (t1.user_id=t2.object_id or t1.role_id=t2.object_id);"""
+    sql = sql_tmp % user_id
+    ret = db.query(sql)
+    print(ret)
+    opt_list = []
+    for item in ret:
+        opt_list.append(item.get('opt_code'))
+    return opt_list
+
+
 def has_permission(user_id, operation):
     def base_has_permission(func):
         def wrapper(*args, **kw):
-            print('pre')
             print('user_id=%s, operation=%s' % (user_id, operation))
-            db = EasySqlite(r'rmf/db/balance.db')
-            sql_tmp = """select 
-                        user_id,
-                        opt_type,
-                        opt_name,
-                        opt_code
-                    from 
-                        (
-                            select
-                                user_id, 
-                                role_id 
-                            from 
-                                t_user 
-                            where 
-                                user_id = '%s'
-                        )t1 
-                        join
-                        (
-                            select 
-                                a.object_id,
-                                a.object_type,
-                                b.opt_type,
-                                b.opt_name, 
-                                b.opt_code
-                            from 
-                                t_permission a 
-                                join 
-                                t_operation b on a.operation_id=b.id 
-                            where 
-                                a.status=1 
-                                and b.status=1
-                        )t2 on (t1.user_id=t2.object_id or t1.role_id=t2.object_id);"""
-            sql = sql_tmp % user_id
-            ret = db.query(sql)
-            print(ret)
-            opt_list = []
-            for item in ret:
-                opt_list.append(item.get('opt_code'))
+            print('pre')
+            opt_list = get_user_permission(user_id)
             if operation in opt_list:
                 output = func(*args, **kw)
             else:
