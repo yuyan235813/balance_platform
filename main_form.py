@@ -38,9 +38,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
     """
-    def __init__(self, user_name=''):
+    def __init__(self, user_id=''):
         super(MainForm, self).__init__()
-        self.user_name = user_name
+        self.user_id = user_id if user_id else 'admin'
         self.setupUi(self)
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
@@ -79,7 +79,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.balance_status = 0
 
 
-    @normal_utils.has_permission('admin', 'system_params_form1')
+    # @normal_utils.has_permission('admin', 'system_params_form1')
     def system_params_form_show(self):
         self.system_params_form.show()
 
@@ -91,6 +91,30 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super().show()
         self.set_table_view()
         self.update_combobox()
+        self.__init_permission()
+
+    def __init_permission(self):
+        """
+        初始化权限
+        :return:
+        """
+        perminsion_dict = {
+            'system_params_form': self.actionSystemParameterSetup,
+            'setup_form': self.actionBalanceFormSetup,
+            'permission_form': self.actionUserPermission,
+            'params_form': self.actionParameterSetup,
+            'car_form': self.actionCarInfo,
+            'Supply_form': self.actionSupplier,
+            'receiver_form': self.actionReceiving,
+            'cargo_form': self.actionGoodsName,
+            'poll_form': self.actionBalanceQuery,
+        }
+        for k, v in perminsion_dict.items():
+            v.setEnabled(False)
+        user_permission = normal_utils.get_user_permission(self.user_id)
+        for item in user_permission:
+            if item in perminsion_dict.keys():
+                perminsion_dict.get(item).setEnabled(True)
 
     def init_data(self):
         u"""
@@ -159,7 +183,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                QtWidgets.QMessageBox.No)
         if reply == QtWidgets.QMessageBox.Yes:
-            sys.exit(app.exec_())
+            # sys.exit(app.exec_())
+            self.close()
         else:
             event.ignore()
 

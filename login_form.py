@@ -47,14 +47,20 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         if not pwd:
             QtWidgets.QMessageBox.warning(self, '本程序', "密码不能为空！", QtWidgets.QMessageBox.Ok)
             return
-        sql = "select user_name, password from t_user where user_name = '%s'" % user_name
+        sql = "select user_name, user_id, password from t_user where user_name = '%s'" % user_name
         ret = self.db.query(sql)
-        password = ret[0].get('password')
-        if pwd == password:
-            self.mainWidget = MainForm(user_name)
-            self.mainWidget.show()
+        if ret:
+            password = ret[0].get('password')
+            user_id = ret[0].get('user_id')
+            if pwd == password:
+                self.mainWidget = MainForm(user_id)
+                self.mainWidget.show()
+                self.close()
+            else:
+                QtWidgets.QMessageBox.warning(self, '本程序', "密码错误！", QtWidgets.QMessageBox.Ok)
+                return
         else:
-            QtWidgets.QMessageBox.warning(self, '本程序', "密码错误！", QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.warning(self, '本程序', "错误！", QtWidgets.QMessageBox.Ok)
             return
 
 

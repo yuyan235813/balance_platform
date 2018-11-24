@@ -1174,7 +1174,7 @@
   </action>
   <action name="actionBalanceQuery">
    <property name="text">
-    <string>程中查询</string>
+    <string>称重查询</string>
    </property>
   </action>
   <action name="actionHelp">
