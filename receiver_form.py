@@ -91,21 +91,21 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
         receiver_count = self.ReceiverCountLineEdit.text()
         receiver_duty = self.ReceiverDutyLineEdit.text()
         if receiver_name:
-            insert_sql = 'insert into t_receiver(receiver_name,receiver_,tel,receiver_address,receiver_bank,receiver_account,receiver_duty) values (?,?,?,?,?,?,?)'
+            insert_sql = 'insert into t_receiver(receiver_name,receiver_contact,receiver_tel,receiver_address,receiver_bank,receiver_account,receiver_duty) values (?,?,?,?,?,?,?)'
             ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
                                               receiver_bank, receiver_count, receiver_duty])
             if ret:
-               QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+                self.set_table_view()
+                self.ReceiverNameLineEdit.clear()
+                self.ReceiverContactLineEdit.clear()
+                self.ReceiverPhoneLineEdit.clear()
+                self.ReceiverAddressLineEdit.clear()
+                self.ReceiverCountLineEdit.clear()
+                self.ReceiverBankLineEdit.clear()
+                self.ReceiverDutyLineEdit.clear()
             else:
-               QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
-               self.set_table_view()
-               self.ReceiverNameLineEdit.clear()
-               self.ReceiverContactLineEdit.clear()
-               self.ReceiverPhoneLineEdit.clear()
-               self.ReceiverAddressLineEdit.clear()
-               self.ReceiverCountLineEdit.clear()
-               self.ReceiverBankLineEdit.clear()
-               self.ReceiverDutyLineEdit.clear()
+                QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:
             QtWidgets.QMessageBox.question(self,
                                            '本程序',
@@ -166,13 +166,13 @@ class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):
         insert_sql = 'update  t_receiver set receiver_name=?,receiver_contact=?,receiver_tel=?,receiver_address=?,receiver_bank=?,receiver_account=?,receiver_duty=? ' \
                      'where  receiver_id = ?'
         ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
-                                              receiver_bank, receiver_count, receiver_duty,int(receiver_id)])
+                                              receiver_bank, receiver_count, receiver_duty, int(receiver_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     def cancel_receiver(self):
         """
@@ -190,11 +190,11 @@ class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):
         delete_sql = 'delete from t_receiver where  receiver_id = ?'
         ret = self.db.update(delete_sql, [int(receiver_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
 
 if __name__ == '__main__':
     import sys

@@ -52,7 +52,6 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         begin_date = self.begindateEdit.text()+' 00:00:00'
         begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
         begin_date_zero =str(begin_date_zero)
-        print(begin_date_zero)
         end_date = self.enddateEdit.text()+' 23:59:59'
         end_date_24 = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
         end_date_24 = str(end_date_24)
@@ -62,10 +61,8 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         supply_name = self.SupplyNameLineEdit.text()
         balance_Id = self.balanceNoLineEdit.text()
         condition = ' where'
-        print(condition)
         condition = condition + ' balance_time1 >= "' + begin_date_zero + '"  and  balance_time1' \
                                                                           ' <= "' + end_date_24 + '"  and'
-        print(condition)
         if carNo:
             condition = condition + ' car_no = "'+carNo+'"  and'
         if balance_Id:
@@ -249,7 +246,6 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         actualweight = 0.0
         for row in range(row_no):
             values = list(column[row].values())
-            print( int(str(values[2])))
             totalweight = float(totalweight) + float(str(values[2]))
             leatherweight = float(leatherweight) + float(str(values[3]))
             actualweight = float(actualweight) + float(str(values[4]))
@@ -265,7 +261,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
 
     def display_data(self, data):
         if data:
-            id=int(data.get('balance_id', '1'))
+            id = int(data.get('balance_id', '1'))
             # self.balance_detail.my_signal.connect(self.set_table_view)
             self.balance_detail.show(id)
         else:
@@ -300,7 +296,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         :return:
         """
         super(Balance_detailDialog, self).show()
-
+        self.receiverComboBox.clear()
+        self.supplierComboBox.clear()
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance  ' \
                     'where balance_id = %s' % (column)
@@ -308,6 +305,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         supply_query_sql = 'select supplier_name from t_supplier'
         supply_list = self.db.query(supply_query_sql)
         supply_row_no = len(supply_list)
+        print(supply_row_no)
         for row in range(supply_row_no):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
@@ -331,7 +329,6 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[9]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
 
-
     def save_detail(self, warning=True):
         """
         保存item
@@ -341,16 +338,19 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         totalWeight = self.totalWeightLineEdit.text()
         leatherWeight = self.leatherWeightLineEdit.text()
         goodnNmes = self.cargoNameLineEdit.text()
-        receiverName = self.receiverComboBox.text()
-        supplyName = self.supplierComboBox.text()
+        receiverName = self.receiverComboBox.currentText()
+        supplyName = self.supplierComboBox.currentText()
         operator = self.operatorLineEdit_4.text()
         balance_No = self.balanceNoLineEdit.text()
         insert_sql = 'update  t_balance set car_no=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,' \
                      'supplier=?,operator=? '  'where  balance_id = ?'
+        print(insert_sql)
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+            self.receiverComboBox.clear()
+            self.supplierComboBox.clear()
             self.close()
             self.my_signal.emit(self.table)
         else:
@@ -361,6 +361,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         取消更改
         :return:
         """
+        self.receiverComboBox.clear()
+        self.supplierComboBox.clear()
         self.close()
 
     def delete_detail(self):
@@ -375,6 +377,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
             QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
         else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
+            self.receiverComboBox.clear()
+            self.supplierComboBox.clear()
             self.close()
             self.my_signal.emit(self.table)
 
@@ -387,8 +391,10 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.save_detail(warning=False)
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
+
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         print(cmd_str)
         logger.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)

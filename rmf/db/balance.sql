@@ -33,8 +33,8 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-INSERT INTO t_balance VALUES(1,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(2,12345567,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(6,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:31:08','2018-11-25','2018-11-25 10:31:08','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(8,12345567,'鲁J00012',200,10,190,'金条','浙江绿城集团','大纲定',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:40:26','2018-11-25','2018-11-25 10:40:26','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
@@ -126,7 +126,7 @@ CREATE TABLE `t_supplier` (
 );
 INSERT INTO t_supplier VALUES(1,'浙江绿城集团','武松','15689478952','浙江省杭州市','中国建设银行','4234234324324324','34234324234324234',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(2,'江苏苏宁集团','张卫东','156895748569','江苏南京','','','',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','山东泰安','12345789','','',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(4,'山东金石集团','王国','18605324587','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_receiver` (
   `receiver_id` integer primary key AUTOINCREMENT, -- 'ID',
@@ -143,6 +143,7 @@ CREATE TABLE `t_receiver` (
   `receiver_reserve3` text,
   `receiver_reserve4` text
 );
+INSERT INTO t_receiver VALUES(5,'发顺丰','','','','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_cargo` (
   `cargo_id` integer primary key AUTOINCREMENT, -- 'ID',
   `name`text not null default '货物名称',
@@ -178,6 +179,7 @@ CREATE TABLE `t_user` (
   `status` int not null default 1 -- 1:有效；0：删除
 );
 INSERT INTO t_user VALUES(1,'admin','系统管理员','321',1,1);
+INSERT INTO t_user VALUES(2,'user1','操作员1','123',2,1);
 INSERT INTO t_user VALUES(14,'user2','操作员2','123',10,1);
 CREATE TABLE `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
@@ -188,6 +190,13 @@ CREATE TABLE `t_operation`(
 );
 INSERT INTO t_operation VALUES(1,1,'系统参数设置','system_params_form',1);
 INSERT INTO t_operation VALUES(2,1,'磅单设置','setup_form',1);
+INSERT INTO t_operation VALUES(3,1,'用户和权限设置','permission_form',1);
+INSERT INTO t_operation VALUES(4,1,'参数设置','params_form',1);
+INSERT INTO t_operation VALUES(5,1,'车辆设置','car_form',1);
+INSERT INTO t_operation VALUES(6,1,'供货单位','Supply_form',1);
+INSERT INTO t_operation VALUES(7,1,'收货单位','receiver_form',1);
+INSERT INTO t_operation VALUES(8,1,'货物名称','cargo_form',1);
+INSERT INTO t_operation VALUES(9,1,'程中查询','poll_form',1);
 CREATE TABLE `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
@@ -195,10 +204,42 @@ CREATE TABLE `t_permission`(
   `operation_id` int not null default 0, --操作ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
+INSERT INTO t_permission VALUES(1,1,'1',1,1);
+INSERT INTO t_permission VALUES(2,1,'1',2,1);
 INSERT INTO t_permission VALUES(3,1,'1',1,1);
 INSERT INTO t_permission VALUES(4,1,'1',2,1);
 INSERT INTO t_permission VALUES(5,2,'user2',1,1);
 INSERT INTO t_permission VALUES(6,2,'user2',2,1);
+INSERT INTO t_permission VALUES(7,1,'1',7,1);
+INSERT INTO t_permission VALUES(8,1,'1',8,1);
+INSERT INTO t_permission VALUES(9,1,'1',9,1);
+INSERT INTO t_permission VALUES(10,2,'admin',1,0);
+INSERT INTO t_permission VALUES(11,2,'admin',2,0);
+INSERT INTO t_permission VALUES(12,2,'admin',3,0);
+INSERT INTO t_permission VALUES(13,2,'admin',4,0);
+INSERT INTO t_permission VALUES(14,2,'admin',5,0);
+INSERT INTO t_permission VALUES(15,2,'admin',6,0);
+INSERT INTO t_permission VALUES(16,2,'admin',7,0);
+INSERT INTO t_permission VALUES(17,2,'admin',8,0);
+INSERT INTO t_permission VALUES(18,2,'admin',9,0);
+INSERT INTO t_permission VALUES(19,1,'2',1,1);
+INSERT INTO t_permission VALUES(20,1,'2',2,1);
+INSERT INTO t_permission VALUES(21,1,'2',3,0);
+INSERT INTO t_permission VALUES(22,1,'2',4,0);
+INSERT INTO t_permission VALUES(23,1,'2',5,1);
+INSERT INTO t_permission VALUES(24,1,'2',6,1);
+INSERT INTO t_permission VALUES(25,1,'2',7,1);
+INSERT INTO t_permission VALUES(26,1,'2',8,0);
+INSERT INTO t_permission VALUES(27,1,'2',9,0);
+INSERT INTO t_permission VALUES(28,2,'user1',1,1);
+INSERT INTO t_permission VALUES(29,2,'user1',2,1);
+INSERT INTO t_permission VALUES(30,2,'user1',3,0);
+INSERT INTO t_permission VALUES(31,2,'user1',4,0);
+INSERT INTO t_permission VALUES(32,2,'user1',5,1);
+INSERT INTO t_permission VALUES(33,2,'user1',6,1);
+INSERT INTO t_permission VALUES(34,2,'user1',7,1);
+INSERT INTO t_permission VALUES(35,2,'user1',8,0);
+INSERT INTO t_permission VALUES(36,2,'user1',9,0);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_balance',2);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
@@ -207,8 +248,8 @@ INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
 INSERT INTO sqlite_sequence VALUES('t_supplier',4);
 INSERT INTO sqlite_sequence VALUES('t_cargo',1);
 INSERT INTO sqlite_sequence VALUES('t_car',5);
-INSERT INTO sqlite_sequence VALUES('t_role',10);
-INSERT INTO sqlite_sequence VALUES('t_user',14);
-INSERT INTO sqlite_sequence VALUES('t_operation',2);
-INSERT INTO sqlite_sequence VALUES('t_permission',6);
+INSERT INTO sqlite_sequence VALUES('t_operation',9);
+INSERT INTO sqlite_sequence VALUES('t_role',2);
+INSERT INTO sqlite_sequence VALUES('t_permission',36);
+INSERT INTO sqlite_sequence VALUES('t_user',2);
 COMMIT;

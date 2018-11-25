@@ -57,20 +57,10 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
                 model.setItem(row, col, item)
         self.tableView.setModel(model)
         self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
-        # self.tableView.doubleClicked.connect(partial(self.supply_dialog_show, 't_supplier'))
-
-    def supply_dialog_show(self, table):
-        """
-        参数配置对话框
-        :return:
-        """
-        # self.balanceNoBlael.setText(str(data.get('balance_id', '0')))
-        query_sql = 'select %s from %s where supplier_id = %s' % ("", table, )
-        self.supply_dialog.my_signal.connect(self.set_data)
-        self.params_dialog.show(table)
 
     def display_data(self, data):
         if data:
+            print(data)
             id=int(data.get('supplier_id', '0'))
             self.supply_dialog.my_signal.connect(self.set_table_view)
             self.supply_dialog.show(id)
@@ -95,17 +85,21 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
             ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
                                           supply_count, supply_duty])
             if ret:
-               QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+                self.set_table_view()
+                QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+                #
+                super(SupplyForm, self).show()
+
+                self.SupplyNameLineEdit.clear()
+                self.SupplyContactLineEdit.clear()
+                self.SupplyPhoneLineEdit.clear()
+                self.SupplyAddressLineEdit.clear()
+                self.SupplyBankLineEdit.clear()
+                self.SupplyCountLineEdit.clear()
+                self.SupplyDutyLineEdit.clear()
+
             else:
-               QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
-               self.set_table_view()
-               self.SupplyNameLineEdit.clear()
-               self.SupplyContactLineEdit.clear()
-               self.SupplyPhoneLineEdit.clear()
-               self.SupplyAddressLineEdit.clear()
-               self.SupplyBankLineEdit.clear()
-               self.SupplyCountLineEdit.clear()
-               self.SupplyDutyLineEdit.clear()
+                QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:
             QtWidgets.QMessageBox.question(self,
                                            '本程序',
@@ -168,11 +162,12 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
         ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
                                           supply_count, supply_duty,int(supply_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+
 
     def cancel_supply(self):
         """
@@ -190,11 +185,12 @@ class SupplyDialog(QtWidgets.QDialog, Ui_Supply_Dialog):
         delete_sql = 'delete from t_supplier where  supplier_id = ?'
         ret = self.db.update(delete_sql, [int(supply_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
+
 
 if __name__ == '__main__':
     import sys

@@ -78,7 +78,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(120)
         self.balance_status = 0
 
-
     # @normal_utils.has_permission('admin', 'system_params_form1')
     def system_params_form_show(self):
         self.system_params_form.show()
@@ -92,6 +91,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.set_table_view()
         self.update_combobox()
         self.__init_permission()
+
+    def show_supplier(self):
+        supply_query_sql = 'select supplier_name from t_supplier'
+        supply_list = self.db.query(supply_query_sql)
+        supply_row_no = len(supply_list)
+        for row in range(supply_row_no):
+            values = list(supply_list[row].values())[0]
+            self.supplierComboBox.addItem(values)
+        self.supplierComboBox.clearEditText()
 
     def __init_permission(self):
         """
@@ -374,8 +382,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         logger.debug(cmd_str)
+        print(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 
     def choose_weight(self):
