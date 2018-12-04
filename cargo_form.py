@@ -78,12 +78,13 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
             insert_sql = 'insert into t_cargo(name,price) values (?,?)'
             ret = self.db.update(insert_sql, [cargo_name, cargo_price])
             if ret:
-               QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+                self.set_table_view()
+                self.CargoNameLineEdit.clear()
+                self.CargopriceLineEdit.clear()
             else:
-               QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
-               self.set_table_view()
-               self.CargoNameLineEdit.clear()
-               self.CargopriceLineEdit.clear()
+                QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+
         else:
             QtWidgets.QMessageBox.question(self,
                                            '本程序',
@@ -135,11 +136,11 @@ class CargoDialog(QtWidgets.QDialog, Ui_Cargo_Dialog):
                      'where  cargo_id = ?'
         ret = self.db.update(insert_sql, [cargo_name, cargo_price, int(cargo_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     def cancel_cargo(self):
         """
@@ -157,11 +158,12 @@ class CargoDialog(QtWidgets.QDialog, Ui_Cargo_Dialog):
         delete_sql = 'delete from t_cargo where  cargo_id = ?'
         ret = self.db.update(delete_sql, [int(cargo_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
+
 
 if __name__ == '__main__':
     import sys

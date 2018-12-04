@@ -317,7 +317,9 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
             values = list(receiver_list[row].values())[0]
             self.receiverComboBox.addItem(values)
         self.receiverComboBox.clearEditText()
+        self.balanceNoLineEdit.setMaxLength(16)
         self.balanceNoLineEdit.setText(str(list(data_list[0].values())[0]))
+        print(self.balanceNoLineEdit.text())
         self.carNoLineEdit.setText(str(list(data_list[0].values())[1]))
         self.totalWeightLineEdit.setText(str(list(data_list[0].values())[2]))
         self.leatherWeightLineEdit.setText(str(list(data_list[0].values())[3]))
@@ -391,6 +393,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.save_detail(warning=False)
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
+        print(self.balanceNoLineEdit.text())
 
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
         cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)

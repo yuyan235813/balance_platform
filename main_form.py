@@ -32,6 +32,8 @@ import sys
 import serial
 import time
 import os
+import logging
+from PyQt5.QtWidgets import QComboBox
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):

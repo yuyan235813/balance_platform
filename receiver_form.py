@@ -1,4 +1,7 @@
 from PyQt5 import QtWidgets
+
+
+
 from ui.receiver_manage import Ui_receiverManageForm
 from ui.receiver_dialog import Ui_Receiver_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
@@ -23,6 +26,7 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
         self.savePushButton.clicked.connect(self.save_data)
         self.cancelPushButton.clicked.connect(self.cancel_ReceiveForm)
         self.receiver_dialog = ReceiverDialog(self)
+        self.autoMe = 0
 
     def show(self):
         """
@@ -56,8 +60,8 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
         self.tableView.setModel(model)
-        self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
-        # self.tableView.doubleClicked.connect(partial(self.supply_dialog_show, 't_supplier'))
+        print(self.autoMe)
+        self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[x.row()-self.autoMe]) if x.row()-self.autoMe>0 else self.display_data0(data_list[x.row()]))
 
     def supply_dialog_show(self, table):
         """
@@ -70,13 +74,26 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
         self.params_dialog.show(table)
 
     def display_data(self, data):
+
         if data:
-            id=int(data.get('receiver_id', '0'))
+            query_sql = 'select * from t_receiver'
+            data_list = self.db.query(query_sql)
+            for i in range(len(data_list)):
+                if data.get('receiver_id', '0') == data_list[i].get('receiver_id', '0'):
+                    data_find = data_list[i+self.autoMe]
+                    break
             self.receiver_dialog.my_signal.connect(self.set_table_view)
-            self.receiver_dialog.show(id)
+            self.receiver_dialog.show(int(data_find.get('receiver_id', '0')))
         else:
-            QtWidgets.QMessageBox.question(self,
-                                           '本程序')
+            QtWidgets.QMessageBox.question(self,'本程序')
+
+    def display_data0(self, data):
+
+        if data:
+            self.receiver_dialog.my_signal.connect(self.set_table_view)
+            self.receiver_dialog.show(int(data.get('receiver_id', '0')))
+        else:
+            QtWidgets.QMessageBox.question(self,'本程序')
 
     def save_data(self):
         """
@@ -94,6 +111,8 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
             insert_sql = 'insert into t_receiver(receiver_name,receiver_contact,receiver_tel,receiver_address,receiver_bank,receiver_account,receiver_duty) values (?,?,?,?,?,?,?)'
             ret = self.db.update(insert_sql, [receiver_name, receiver_contact, receiver_phone, receiver_address,
                                               receiver_bank, receiver_count, receiver_duty])
+            self.autoMe = self.autoMe + 1
+
             if ret:
                 QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
                 self.set_table_view()
@@ -104,6 +123,10 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
                 self.ReceiverCountLineEdit.clear()
                 self.ReceiverBankLineEdit.clear()
                 self.ReceiverDutyLineEdit.clear()
+
+
+
+
             else:
                 QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:

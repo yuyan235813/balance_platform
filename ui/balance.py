@@ -7,6 +7,121 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import serial
+import serial.tools.list_ports
+import logging
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtCore import pyqtSignal
+from utils.sqllite_util import EasySqlite
+
+
+class CustomComboBox(QComboBox):
+    popupAboutToBeShown = pyqtSignal()
+
+    def __init__(self, parent = None):
+        super(CustomComboBox,self).__init__(parent)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+
+    # 重写showPopup函数
+    def showPopup(self):
+        # 先清空原有的选项
+        self.clear()
+        self.insertItem(0, "请选择收货单位")
+        index = 1
+        # 获取接入的所有串口信息，插入combobox的选项中
+        portlist = self.get_port_list(self)
+        if portlist is not None:
+            for i in portlist:
+                self.insertItem(index, i)
+                index += 1
+        QComboBox.showPopup(self)   # 弹出选项框
+
+    @staticmethod
+    # 获取接入的所有串口号
+    def get_port_list(self):
+        try:
+            port_list = list(serial.tools.list_ports.comports())
+            supply_query_sql = 'select receiver_name from t_receiver'
+            supply_list = self.db.query(supply_query_sql)
+            supply_row_no = len(supply_list)
+            for row in range(supply_row_no):
+                values = list(supply_list[row].values())[0]
+                yield str(values)
+        except Exception as e:
+            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+
+
+class CustomSupplyComboBox(QComboBox):
+    popupAboutToBeShown = pyqtSignal()
+
+    def __init__(self, parent = None):
+        super(CustomSupplyComboBox,self).__init__(parent)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+
+    # 重写showPopup函数
+    def showPopup(self):
+        # 先清空原有的选项
+        self.clear()
+        self.insertItem(0, "请选择收货单位")
+        index = 1
+        # 获取接入的所有串口信息，插入combobox的选项中
+        portlist = self.get_port_list(self)
+        if portlist is not None:
+            for i in portlist:
+                self.insertItem(index, i)
+                index += 1
+        QComboBox.showPopup(self)   # 弹出选项框
+
+    @staticmethod
+    # 获取接入的所有串口号
+    def get_port_list(self):
+        try:
+            port_list = list(serial.tools.list_ports.comports())
+            supply_query_sql = 'select supplier_name from t_supplier'
+            supply_list = self.db.query(supply_query_sql)
+            supply_row_no = len(supply_list)
+            for row in range(supply_row_no):
+                values = list(supply_list[row].values())[0]
+                yield str(values)
+        except Exception as e:
+            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+
+
+class CustomCargoComboBox(QComboBox):
+    popupAboutToBeShown = pyqtSignal()
+
+    def __init__(self, parent = None):
+        super(CustomCargoComboBox,self).__init__(parent)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+
+    # 重写showPopup函数
+    def showPopup(self):
+        # 先清空原有的选项
+        self.clear()
+        self.insertItem(0, "请选择收货单位")
+        index = 1
+        # 获取接入的所有串口信息，插入combobox的选项中
+        portlist = self.get_port_list(self)
+        if portlist is not None:
+            for i in portlist:
+                self.insertItem(index, i)
+                index += 1
+        QComboBox.showPopup(self)   # 弹出选项框
+
+    @staticmethod
+    # 获取接入的所有串口号
+    def get_port_list(self):
+        try:
+            port_list = list(serial.tools.list_ports.comports())
+            supply_query_sql = 'select name from t_cargo'
+            supply_list = self.db.query(supply_query_sql)
+            supply_row_no = len(supply_list)
+            for row in range(supply_row_no):
+                values = list(supply_list[row].values())[0]
+                yield str(values)
+        except Exception as e:
+            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+
 
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
@@ -288,11 +403,13 @@ class Ui_mainWindow(object):
         self.label_11.setIndent(0)
         self.label_11.setObjectName("label_11")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_11)
-        self.supplierComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        # self.supplierComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        self.supplierComboBox = CustomSupplyComboBox(self.centralWidget)
         self.supplierComboBox.setEditable(True)
         self.supplierComboBox.setObjectName("supplierComboBox")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.supplierComboBox)
-        self.receiverComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        # self.receiverComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        self.receiverComboBox =  CustomComboBox(self.centralWidget)
         self.receiverComboBox.setEditable(True)
         self.receiverComboBox.setObjectName("receiverComboBox")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.receiverComboBox)
@@ -308,7 +425,8 @@ class Ui_mainWindow(object):
         self.label_14.setIndent(0)
         self.label_14.setObjectName("label_14")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_14)
-        self.goodsComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        # self.goodsComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        self.goodsComboBox = CustomCargoComboBox(self.centralWidget)
         self.goodsComboBox.setEditable(True)
         self.goodsComboBox.setObjectName("goodsComboBox")
         self.formLayout_2.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.goodsComboBox)
