@@ -175,6 +175,22 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="ReceiverCountLineEdit"/>
         </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="ReceiverIDLineEdit"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>序   号：</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -190,7 +206,34 @@
      <height>41</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="6,0,0,0">
+   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,6,0,0,0,0,0,0">
+    <item>
+     <widget class="QPushButton" name="savePushButton_3">
+      <property name="text">
+       <string>删除</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_8">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="savePushButton_4">
+      <property name="text">
+       <string>修改</string>
+      </property>
+     </widget>
+    </item>
     <item>
      <spacer name="horizontalSpacer_6">
       <property name="orientation">
@@ -205,7 +248,20 @@
      </spacer>
     </item>
     <item>
-     <widget class="QPushButton" name="savePushButton">
+     <spacer name="horizontalSpacer_9">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="savePushButton_2">
       <property name="text">
        <string>保存</string>
       </property>
@@ -228,6 +284,26 @@
      <widget class="QPushButton" name="cancelPushButton">
       <property name="text">
        <string>取消</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_7">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="savePushButton">
+      <property name="text">
+       <string>清空</string>
       </property>
      </widget>
     </item>

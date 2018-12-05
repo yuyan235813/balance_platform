@@ -22,6 +22,9 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.save_data)
         self.cancelPushButton.clicked.connect(self.cancel_cargoForm)
+        self.deletePushButton.clicked.connect(self.delete_cargo)
+        self.clearPushButton.clicked.connect(self.clear_cargo)
+        self.updatePushButton.clicked.connect(self.update_cargo)
         self.cargo_dialog = CargoDialog(self)
 
     def show(self):
@@ -32,12 +35,66 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
         super(cargoForm, self).show()
         self.set_table_view()
 
+    def delete_cargo(self):
+        """
+        删除item
+        :return:
+        """
+        cargo_id = self.CargoIdLineEdit.text()
+        if len(cargo_id.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的记录！", QtWidgets.QMessageBox.Ok)
+            return
+        delete_sql = 'delete from t_cargo where  cargo_id = ?'
+        ret = self.db.update(delete_sql, [int(cargo_id)])
+        if ret:
+            QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
+            self.set_table_view()
+            self.clear_cargo()
+            # self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
+
+    def update_cargo(self):
+        """
+        保存item
+        :return:
+        """
+        cargo_name = self.CargoNameLineEdit.text()
+        cargo_price = self.CargopriceLineEdit.text()
+        cargo_id = self.CargoIdLineEdit.text()
+        if len(cargo_id.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要修改的记录！", QtWidgets.QMessageBox.Ok)
+            return
+        if len(cargo_name.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "名称不能为空！", QtWidgets.QMessageBox.Ok)
+            return
+        insert_sql = 'update  t_supplier set supplier_name=?,supplier_contact=?,supplier_tel=?,supplier_address=?,supplier_bank=?,supplier_account=?,supplier_duty=? ' \
+                     'where  supplier_id = ?'
+        insert_sql = 'update  t_cargo set name=?,price=? ' \
+                     'where  cargo_id = ?'
+        ret = self.db.update(insert_sql, [cargo_name, cargo_price, int(cargo_id)])
+        if ret:
+            QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+            self.set_table_view()
+            self.clear_cargo()
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+
     def cancel_cargoForm(self):
         """
         显示ui
         :return:
         """
         self.close()
+
+    def clear_cargo(self):
+        """
+        显示ui
+        :return:
+        """
+        self.CargoNameLineEdit.clear()
+        self.CargopriceLineEdit.clear()
+        self.CargoIdLineEdit.clear()
 
     def set_table_view(self):
         """
@@ -55,8 +112,19 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
         self.tableView.setModel(model)
-        self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
+        self.tableView.doubleClicked.connect(self.__display_data)
+        # self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
         # self.tableView.doubleClicked.connect(partial(self.supply_dialog_show, 't_supplier'))
+
+    def __display_data(self, index):
+        """
+               返显数据
+               :param index:
+               :return:
+               """
+        self.CargoNameLineEdit.setText(str(self.tableView.model().index(index.row(), 1).data()))
+        self.CargopriceLineEdit.setText( self.tableView.model().index(index.row(), 2).data())
+        self.CargoIdLineEdit.setText(self.tableView.model().index(index.row(), 0).data())
 
     def display_data(self, data):
         if data:
@@ -69,11 +137,22 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
 
     def save_data(self):
         """
-
         :return:
         """
         cargo_name = self.CargoNameLineEdit.text()
         cargo_price = self.CargopriceLineEdit.text()
+        if len(cargo_name.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "名称不能为空！", QtWidgets.QMessageBox.Ok)
+            return
+        repeat = False
+        row_count = self.tableView.model().rowCount()
+        for i in range(row_count):
+            if cargo_name == self.tableView.model().index(i, 1).data():
+                repeat = True
+                break
+        if repeat:
+            QtWidgets.QMessageBox.warning(self, '本程序', "货物已经存在！", QtWidgets.QMessageBox.Ok)
+            return
         if cargo_name:
             insert_sql = 'insert into t_cargo(name,price) values (?,?)'
             ret = self.db.update(insert_sql, [cargo_name, cargo_price])
@@ -82,6 +161,7 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
                 self.set_table_view()
                 self.CargoNameLineEdit.clear()
                 self.CargopriceLineEdit.clear()
+                self.CargoIdLineEdit.clear()
             else:
                 QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 

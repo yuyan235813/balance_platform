@@ -127,6 +127,7 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
                  QStandardItem(cur_time))
         self.tableView.model().insertRow(0, items)
 
+
     def __delete_data(self):
         """
         删除数据
@@ -134,7 +135,6 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         """
         current_row = self.tableView.currentIndex().row()
         status = self.tableView.model().removeRow(current_row)
-        print(self.tableView.model().rowCount())
         if not status:
             QtWidgets.QMessageBox.warning(self, '本程序', "删除失败！", QtWidgets.QMessageBox.Ok)
             return

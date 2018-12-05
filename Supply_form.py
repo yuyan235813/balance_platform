@@ -41,6 +41,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         保存item
         :return:
         """
+
         supply_name = self.SupplyNameLineEdit.text()
         supply_contact = self.SupplyContactLineEdit.text()
         supply_phone = self.SupplyPhoneLineEdit.text()
@@ -49,6 +50,12 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         supply_count = self.SupplyCountLineEdit.text()
         supply_duty = self.SupplyDutyLineEdit.text()
         supply_id = self.SupplyIDLineEdit.text()
+        if len(supply_id.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要修改的记录！", QtWidgets.QMessageBox.Ok)
+            return
+        if len(supply_name.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "名称不能为空！", QtWidgets.QMessageBox.Ok)
+            return
         insert_sql = 'update  t_supplier set supplier_name=?,supplier_contact=?,supplier_tel=?,supplier_address=?,supplier_bank=?,supplier_account=?,supplier_duty=? ' \
                      'where  supplier_id = ?'
         ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
@@ -66,9 +73,12 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         :return:
         """
         supply_id = self.SupplyIDLineEdit.text()
+        if len(supply_id.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的记录！", QtWidgets.QMessageBox.Ok)
+            return
         delete_sql = 'delete from t_supplier where  supplier_id = ?'
         ret = self.db.update(delete_sql, [int(supply_id)])
-        # self.autoMe = self.autoMe - 1
+        # self.autoMe = self.autoMe + 1
         if ret:
             QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
             self.show()
@@ -114,11 +124,26 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
         self.tableView.setModel(model)
-        # self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
-        print(self.tableView.currentIndex().row())
-        self.tableView.clicked.connect(lambda x: self.display_data0(data_list[int(self.tableView.currentIndex().row())]))
+        # self.tableView.clicked.connect(lambda x: self.display_data0(data_list[int(x.row())]))
+        self.tableView.doubleClicked.connect(self.__display_data)
+        # self.tableView.clicked.connect(lambda x: self.display_data0(data_list[int(self.tableView.currentIndex().row())]))
         # self.tableView.doubleClicked.connect(lambda x: self.display_data(
-          #  data_list[x.row() - self.autoMe]) if x.row() - self.autoMe > 0 else self.display_data0(data_list[x.row()]))
+        #    data_list[x.row() - self.autoMe]) if x.row() - self.autoMe > 0 else self.display_data0(data_list[x.row()]))
+
+    def __display_data(self, index):
+        """
+               返显数据
+               :param index:
+               :return:
+               """
+        self.SupplyNameLineEdit.setText(str(self.tableView.model().index(index.row(), 1).data()))
+        self.SupplyContactLineEdit.setText( self.tableView.model().index(index.row(), 2).data())
+        self.SupplyPhoneLineEdit.setText( self.tableView.model().index(index.row(), 3).data())
+        self.SupplyAddressLineEdit.setText( self.tableView.model().index(index.row(), 4).data())
+        self.SupplyBankLineEdit.setText(self.tableView.model().index(index.row(), 5).data())
+        self.SupplyCountLineEdit.setText( self.tableView.model().index(index.row(), 6).data())
+        self.SupplyDutyLineEdit.setText( self.tableView.model().index(index.row(), 7).data())
+        self.SupplyIDLineEdit.setText(str( self.tableView.model().index(index.row(), 0).data()))
 
     def supply_dialog_show(self, table):
         """
@@ -138,7 +163,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
             for i in range(len(data_list)):
                 if data.get('supplier_id', '0') == data_list[i].get('supplier_id', '0'):
                     data_find = data_list[i + self.autoMe]
-                    break
+
             self.SupplyIDLineEdit.setText(str(data_find.get('supplier_id', '0')))
             self.SupplyNameLineEdit.setText(str(data_find.get('supplier_name', '0')))
             self.SupplyContactLineEdit.setText(data_find.get('supplier_contact', 0))
@@ -146,7 +171,6 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
             self.SupplyAddressLineEdit.setText(data_find.get('supplier_address', 0))
             self.SupplyCountLineEdit.setText(data_find.get('supplier_account', 0.))
             self.SupplyBankLineEdit.setText(data_find.get('supplier_bank', 0.))
-            self.SupplyDutyLineEdit.setText(data_find.get('supplier_duty', ''))
 
     def display_data0(self, data):
         if data:
@@ -171,11 +195,25 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         supply_bank = self.SupplyBankLineEdit.text()
         supply_count = self.SupplyCountLineEdit.text()
         supply_duty = self.SupplyDutyLineEdit.text()
+        if len(supply_name.strip()) == 0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "名称不能为空！", QtWidgets.QMessageBox.Ok)
+            return
+        repeat = False
+        row_count = self.tableView.model().rowCount()
+        for i in range(row_count):
+            if supply_name == self.tableView.model().index(i, 1).data():
+                repeat = True
+                break
+        if repeat:
+            QtWidgets.QMessageBox.warning(self, '本程序', "单位已经存在！", QtWidgets.QMessageBox.Ok)
+            return
+
         if supply_name:
             insert_sql = 'insert into t_supplier(supplier_name,supplier_contact,supplier_tel,supplier_address,supplier_bank,supplier_account,supplier_duty) values (?,?,?,?,?,?,?)'
             ret = self.db.update(insert_sql, [supply_name, supply_contact, supply_phone, supply_address, supply_bank,
                                           supply_count, supply_duty])
-            self.autoMe = self.autoMe + 1
+            #self.autoMe = self.autoMe + 1
+            # self.tableView.model().insertRow(row_count, items)
             if ret:
                 QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
                 self.set_table_view()
