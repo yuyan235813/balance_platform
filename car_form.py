@@ -24,13 +24,13 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         super(CarManageForm, self).__init__()
         self.setupUi(self)
         self.db = EasySqlite(r'rmf/db/balance.db')
-        self.pushButton.clicked.connect(self.__show_dialog)
+        #self.pushButton.clicked.connect(self.__show_dialog)
         self.cancelPushButton.clicked.connect(self.close)
-        self.addPushButton.clicked.connect(self.__add_data)
+        # self.addPushButton.clicked.connect(self.__add_data)
         self.deletePushButton.clicked.connect(self.__delete_data)
         self.savePushButton.clicked.connect(self.__save_data)
         self.dialog = CarNoDialogForm()
-        self.dialog.my_signal.connect(self.carNoLineEdit.setText)
+        # self.dialog.my_signal.connect(self.carNoLineEdit.setText)
         self.car_dialog = CarManageChangeForm(self)
 
     def __init_data(self):
@@ -126,6 +126,8 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
                  QStandardItem(str(round(leather_weight, 2))),
                  QStandardItem(cur_time))
         self.tableView.model().insertRow(0, items)
+        self.carNoLineEdit.clear()
+        self.doubleSpinBox.clear()
 
 
     def __delete_data(self):

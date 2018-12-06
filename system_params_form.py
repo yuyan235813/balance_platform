@@ -53,7 +53,7 @@ class SystemParamsForm(QtWidgets.QWidget, Ui_systemParamsSetupForm):
         precision = self.roundComboBox.currentText()
         update_sql = 'replace into t_system_params_conf(id,unit, company, auto_save, price, `precision`)' \
                      ' values(1, ?, ?, ?, ?, ?)'
-        ret = self.db.update(update_sql, [unit, company, auto_save, price, precision])
+        ret = self.db.query(update_sql, [unit, company, auto_save, price, precision])
         if ret:
             QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:

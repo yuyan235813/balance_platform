@@ -37,6 +37,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         self.QueryPushButton.clicked.connect(self.poll_data)
         self.cancelPushButton.clicked.connect(self.cancel_pollForm)
         self.pollresult = PollResultForm(self)
+        self.update_combobox()
 
     def cancel_pollForm(self):
         """
@@ -44,6 +45,33 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         :return:
         """
         self.close()
+
+    def update_combobox(self):
+        """
+        下拉列表数据
+        :return:
+        """
+        cargo_query_sql = 'select name from t_cargo'
+        cargo_list = self.db.query(cargo_query_sql)
+        cargo_row_no = len(cargo_list)
+        for row in range(cargo_row_no):
+            values = list(cargo_list[row].values())[0]
+            self.CargoNamecomboBox.addItem(values)
+        self.CargoNamecomboBox.clearEditText()
+        supply_query_sql = 'select supplier_name from t_supplier'
+        supply_list = self.db.query(supply_query_sql)
+        supply_row_no = len(supply_list)
+        for row in range(supply_row_no):
+            values = list(supply_list[row].values())[0]
+            self.SupplyNamecomboBox.addItem(values)
+        self.SupplyNamecomboBox.clearEditText()
+        receiver_query_sql = 'select receiver_name from t_receiver'
+        receiver_list = self.db.query(receiver_query_sql)
+        receiver_row_no = len(receiver_list)
+        for row in range(receiver_row_no):
+            values = list(receiver_list[row].values())[0]
+            self.ReceiverNamecomboBox.addItem(values)
+        self.ReceiverNamecomboBox.clearEditText()
 
     def poll_data(self):
         """
@@ -56,9 +84,9 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         end_date_24 = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
         end_date_24 = str(end_date_24)
         carNo = self.CarNoLineEdit.text()
-        receiver_name = self.ReceiverNameLineEdit.text()
-        cargo_name = self.CargoNameLineEdit.text()
-        supply_name = self.SupplyNameLineEdit.text()
+        receiver_name = self.ReceiverNamecomboBox.currentText()
+        cargo_name = self.CargoNamecomboBox.currentText()
+        supply_name = self.SupplyNamecomboBox.currentText()
         balance_Id = self.balanceNoLineEdit.text()
         condition = ' where'
         condition = condition + ' balance_time1 >= "' + begin_date_zero + '"  and  balance_time1' \

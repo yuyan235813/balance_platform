@@ -250,7 +250,28 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col-1, item)
         self.tableView.setModel(model)
-        self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
+        # self.tableView.doubleClicked.connect(lambda x: self.display_data(data_list[int(x.row())]))
+        self.tableView.doubleClicked.connect(self.__display_data)
+
+    def __display_data(self, index):
+        if index:
+            self.balanceNoBlael.setText(str(self.tableView.model().index(index.row(), 0).data()))
+            print("dsadas ")
+            self.totalWeightLcdNumber.display(self.tableView.model().index(index.row(), 2).data())
+            self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
+            self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
+
+            self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
+            print("dsadas11111 ")
+            self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
+
+            self.CarComboBox.setCurrentText(self.tableView.model().index(index.row(), 1).data())
+            self.supplierComboBox.setCurrentText(self.tableView.model().index(index.row(), 6).data())
+            self.receiverComboBox.setCurrentText(self.tableView.model().index(index.row(), 7).data())
+            self.goodsComboBox.setCurrentText(self.tableView.model().index(index.row(), 5).data())
+            self.operatorComboBox.setCurrentText(str(self.tableView.model().index(index.row(), 23).data()))
+        else:
+            self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
 
     def display_data(self, data):
         if data:
@@ -277,6 +298,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if len(car_no) != 7:
             self.leatherWeightLcdNumber.display(0)
             return
+        if self.balanceNoBlael.text():
+            return
         self.balanceNoBlael.setText('')
         self.totalWeightLcdNumber.display(0)
         self.leatherWeightLcdNumber.display(0)
@@ -298,6 +321,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         保存数据
         :return:
         """
+        if not self.balanceNoBlael.text():
+            QtWidgets.QMessageBox.warning(self, '本程序', "单号不能为空！", QtWidgets.QMessageBox.Ok)
+            return
         balance_id = int(self.balanceNoBlael.text())
         total_weight = float(self.totalWeightLcdNumber.value())
         leather_weight = float(self.leatherWeightLcdNumber.value())
@@ -351,6 +377,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         去皮
         :return:
         """
+
         car_no = self.CarComboBox.currentText()
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车号不能为空！", QtWidgets.QMessageBox.Ok)
@@ -360,13 +387,18 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if ret:
             QtWidgets.QMessageBox.warning(self, '本程序', "车号：%s 已有存皮！" % car_no, QtWidgets.QMessageBox.Ok)
             return
-        leather_weight = self.leatherWeightLcdNumber.value()
-        if leather_weight <= 0:
-            QtWidgets.QMessageBox.warning(self, '本程序', "皮重只能是正数！" % car_no, QtWidgets.QMessageBox.Ok)
+        total_weight = self.totalWeightLcdNumber.value()
+        if float(total_weight) <= 0.0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "皮重必须是正数！", QtWidgets.QMessageBox.Ok)
             return
+        leather_weight = self.leatherWeightLcdNumber.value()
+        if float(leather_weight) > 0.0:
+            QtWidgets.QMessageBox.warning(self, '本程序', "皮重将会被覆盖！", QtWidgets.QMessageBox.Ok)
+            return
+
         car_update = """insert into t_car(car_no, leather_weight) values(?,?)"""
-        print((car_no, leather_weight))
-        self.db.update(car_update, args=(car_no, leather_weight))
+        print((car_no, float(total_weight)))
+        self.db.update(car_update, args=(car_no, total_weight))
 
     def print_data(self):
         """

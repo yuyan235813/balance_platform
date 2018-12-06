@@ -28,7 +28,7 @@ class CustomComboBox(QComboBox):
         self.clear()
         self.insertItem(0, "请选择收货单位")
         index = 1
-        # 获取接入的所有串口信息，插入combobox的选项中
+        # 获取所有收货单位名称，插入combobox的选项中
         portlist = self.get_port_list(self)
         if portlist is not None:
             for i in portlist:
@@ -37,7 +37,7 @@ class CustomComboBox(QComboBox):
         QComboBox.showPopup(self)   # 弹出选项框
 
     @staticmethod
-    # 获取接入的所有串口号
+    # 获取所有收货方信息
     def get_port_list(self):
         try:
             port_list = list(serial.tools.list_ports.comports())
@@ -48,7 +48,7 @@ class CustomComboBox(QComboBox):
                 values = list(supply_list[row].values())[0]
                 yield str(values)
         except Exception as e:
-            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+            logging.error("获取收货方信息出错！\n错误信息："+str(e))
 
 
 class CustomSupplyComboBox(QComboBox):
@@ -62,9 +62,9 @@ class CustomSupplyComboBox(QComboBox):
     def showPopup(self):
         # 先清空原有的选项
         self.clear()
-        self.insertItem(0, "请选择收货单位")
+        self.insertItem(0, "请选择供货单位")
         index = 1
-        # 获取接入的所有串口信息，插入combobox的选项中
+        # 获取所有供应商信息，插入combobox的选项中
         portlist = self.get_port_list(self)
         if portlist is not None:
             for i in portlist:
@@ -73,7 +73,7 @@ class CustomSupplyComboBox(QComboBox):
         QComboBox.showPopup(self)   # 弹出选项框
 
     @staticmethod
-    # 获取接入的所有串口号
+    # 获取供应商列表
     def get_port_list(self):
         try:
             port_list = list(serial.tools.list_ports.comports())
@@ -84,7 +84,7 @@ class CustomSupplyComboBox(QComboBox):
                 values = list(supply_list[row].values())[0]
                 yield str(values)
         except Exception as e:
-            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+            logging.error("获取供应单位信息出错！\n错误信息："+str(e))
 
 
 class CustomCargoComboBox(QComboBox):
@@ -98,9 +98,9 @@ class CustomCargoComboBox(QComboBox):
     def showPopup(self):
         # 先清空原有的选项
         self.clear()
-        self.insertItem(0, "请选择收货单位")
+        self.insertItem(0, "请选择货物名称")
         index = 1
-        # 获取接入的所有串口信息，插入combobox的选项中
+        # 获取所有货物名称信息，插入combobox的选项中
         portlist = self.get_port_list(self)
         if portlist is not None:
             for i in portlist:
@@ -109,7 +109,7 @@ class CustomCargoComboBox(QComboBox):
         QComboBox.showPopup(self)   # 弹出选项框
 
     @staticmethod
-    # 获取接入的所有串口号
+    # 获取所有货物名称
     def get_port_list(self):
         try:
             port_list = list(serial.tools.list_ports.comports())
@@ -120,7 +120,43 @@ class CustomCargoComboBox(QComboBox):
                 values = list(supply_list[row].values())[0]
                 yield str(values)
         except Exception as e:
-            logging.error("获取接入的所有串口设备出错！\n错误信息："+str(e))
+            logging.error("获取所有货物名称出错！\n错误信息："+str(e))
+
+
+class CustomCarComboBox(QComboBox):
+    popupAboutToBeShown = pyqtSignal()
+
+    def __init__(self, parent = None):
+        super(CustomCarComboBox,self).__init__(parent)
+        self.db = EasySqlite(r'rmf/db/balance.db')
+
+    # 重写showPopup函数
+    def showPopup(self):
+        # 先清空原有的选项
+        self.clear()
+        self.insertItem(0, "请选择货物名称")
+        index = 1
+        # 获取所有车辆信息，插入combobox的选项中
+        portlist = self.get_port_list(self)
+        if portlist is not None:
+            for i in portlist:
+                self.insertItem(index, i)
+                index += 1
+        QComboBox.showPopup(self)   # 弹出选项框
+
+    @staticmethod
+    # 获取所有车辆信息
+    def get_port_list(self):
+        try:
+            port_list = list(serial.tools.list_ports.comports())
+            car_query_sql = 'select car_no from t_car'
+            car_list = self.db.query(car_query_sql)
+            car_row_no = len(car_list)
+            for row in range(car_row_no):
+                values = list(car_list[row].values())[0]
+                yield str(values)
+        except Exception as e:
+            logging.error("获取所有车辆信息出错！\n错误信息："+str(e))
 
 
 class Ui_mainWindow(object):
@@ -224,7 +260,7 @@ class Ui_mainWindow(object):
         font.setBold(False)
         font.setWeight(50)
         self.balanceNoBlael.setFont(font)
-        self.balanceNoBlael.setText("")
+        #self.balanceNoBlael.setText("")
         self.balanceNoBlael.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self.balanceNoBlael.setObjectName("balanceNoBlael")
         self.horizontalLayout_2.addWidget(self.balanceNoBlael)
@@ -474,7 +510,8 @@ class Ui_mainWindow(object):
         self.formLayout_2.setItem(9, QtWidgets.QFormLayout.FieldRole, spacerItem18)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.CarComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        # self.CarComboBox = QtWidgets.QComboBox(self.groupBox_2)
+        self.CarComboBox = CustomCarComboBox(self.centralWidget)
         self.CarComboBox.setEditable(True)
         self.CarComboBox.setObjectName("CarComboBox")
         self.horizontalLayout_5.addWidget(self.CarComboBox)
@@ -538,7 +575,7 @@ class Ui_mainWindow(object):
         self.tableView.setStyleSheet("QTableView QHeaderView::section { background-color:#dadada}")
         self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        #self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableView.setSortingEnabled(True)
         self.tableView.setObjectName("tableView")
