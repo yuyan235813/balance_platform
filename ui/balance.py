@@ -420,7 +420,7 @@ class Ui_mainWindow(object):
         self.tableView.setStyleSheet("QTableView QHeaderView::section { background-color:#dadada}")
         self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableView.setSortingEnabled(True)
         self.tableView.setObjectName("tableView")
