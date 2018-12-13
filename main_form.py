@@ -34,6 +34,8 @@ import time
 import os
 import logging
 from PyQt5.QtWidgets import QComboBox
+from winreg import *
+import winreg
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -79,6 +81,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(120)
         self.balance_status = 0
+        self.isexist = 0
 
     # @normal_utils.has_permission('admin', 'system_params_form1')
     def system_params_form_show(self):
