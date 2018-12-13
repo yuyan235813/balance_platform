@@ -147,19 +147,15 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="SupplyNameLineEdit">
-          <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QDateEdit" name="begindateEdit">
           <property name="calendarPopup">
            <bool>true</bool>
           </property>
          </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="SupplyNamecomboBox"/>
         </item>
        </layout>
       </item>
@@ -204,9 +200,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="CargoNameLineEdit"/>
-        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_11">
           <property name="font">
@@ -219,9 +212,6 @@
            <string>收货单位：</string>
           </property>
          </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="ReceiverNameLineEdit"/>
         </item>
         <item row="0" column="1">
          <widget class="QDateEdit" name="enddateEdit">
@@ -253,6 +243,12 @@
            <string>全部</string>
           </property>
          </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="ReceiverNamecomboBox"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="CargoNamecomboBox"/>
         </item>
        </layout>
       </item>

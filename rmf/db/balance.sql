@@ -33,8 +33,8 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-INSERT INTO t_balance VALUES(1,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(2,12345567,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-10-18 23:04:34','2018-10-18','2018-10-18 23:04:34',NULL,0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(6,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:31:08','2018-11-25','2018-11-25 10:31:08','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(8,12345567,'鲁J00012',200,10,190,'金条','浙江绿城集团','大纲定',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:40:26','2018-11-25','2018-11-25 10:40:26','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
@@ -56,19 +56,19 @@ CREATE TABLE `t_com` (
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com VALUES(1,'默认设备',1,'COM3',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
+INSERT INTO t_com VALUES(1,'默认设备',1,'COM5',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_com_conf` (
   `com_no` text unique NOT NULL DEFAULT 'COM1'-- '串口号'
 );
 INSERT INTO t_com_conf VALUES('COM1');
 INSERT INTO t_com_conf VALUES('COM2');
 INSERT INTO t_com_conf VALUES('COM4');
-INSERT INTO t_com_conf VALUES('COM5');
 INSERT INTO t_com_conf VALUES('COM6');
 INSERT INTO t_com_conf VALUES('COM7');
 INSERT INTO t_com_conf VALUES('COM8');
 INSERT INTO t_com_conf VALUES('COM9');
 INSERT INTO t_com_conf VALUES('COM3');
+INSERT INTO t_com_conf VALUES('COM5');
 CREATE TABLE `t_baud_rate_conf` (
   `baud_rate` int unique NOT NULL DEFAULT '9600'-- '波特率'
 );
@@ -89,6 +89,8 @@ CREATE TABLE `t_data_bit_conf` (
 );
 INSERT INTO t_data_bit_conf VALUES(6);
 INSERT INTO t_data_bit_conf VALUES(8);
+INSERT INTO t_data_bit_conf VALUES(-1);
+INSERT INTO t_data_bit_conf VALUES(-2);
 CREATE TABLE `t_verification_bit_conf` (
   `verification_bit` int unique NOT NULL DEFAULT '1'-- '校验位'
 );
@@ -124,7 +126,7 @@ CREATE TABLE `t_supplier` (
 );
 INSERT INTO t_supplier VALUES(1,'浙江绿城集团','武松','15689478952','浙江省杭州市','中国建设银行','4234234324324324','34234324234324234',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(2,'江苏苏宁集团','张卫东','156895748569','江苏南京','','','',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_supplier VALUES(3,'山东鲁能集团','李霄鹏','13805317845','山东泰安','12345789','','',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO t_supplier VALUES(4,'山东金石集团','王国','18605324587','山东济南','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_receiver` (
   `receiver_id` integer primary key AUTOINCREMENT, -- 'ID',
@@ -141,6 +143,7 @@ CREATE TABLE `t_receiver` (
   `receiver_reserve3` text,
   `receiver_reserve4` text
 );
+INSERT INTO t_receiver VALUES(5,'发顺丰','','','','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_cargo` (
   `cargo_id` integer primary key AUTOINCREMENT, -- 'ID',
   `name`text not null default '货物名称',
@@ -166,7 +169,7 @@ CREATE TABLE `t_role` (
   `status` int not null default 1 -- 1:有效；0：删除
 );
 INSERT INTO t_role VALUES(1,'系统管理员',1);
-INSERT INTO t_role VALUES(2,'操作员',1);
+INSERT INTO t_role VALUES(10,'操作员',1);
 CREATE TABLE `t_user` (
   `id` integer primary key AUTOINCREMENT, -- ID
   `user_id` text unique not null default '', -- 用户ID
@@ -175,8 +178,9 @@ CREATE TABLE `t_user` (
   `role_id` int not null default 1, -- 角色ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
-INSERT INTO t_user VALUES(1,'admin','管理员','123',1,1);
+INSERT INTO t_user VALUES(1,'admin','系统管理员','321',1,1);
 INSERT INTO t_user VALUES(2,'user1','操作员1','123',2,1);
+INSERT INTO t_user VALUES(14,'user2','操作员2','123',10,1);
 CREATE TABLE `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `opt_type` int not null default 1, --操作类型，1：功能，2：权限
@@ -202,10 +206,10 @@ CREATE TABLE `t_permission`(
 );
 INSERT INTO t_permission VALUES(1,1,'1',1,1);
 INSERT INTO t_permission VALUES(2,1,'1',2,1);
-INSERT INTO t_permission VALUES(3,1,'1',3,1);
-INSERT INTO t_permission VALUES(4,1,'1',4,1);
-INSERT INTO t_permission VALUES(5,1,'1',5,1);
-INSERT INTO t_permission VALUES(6,1,'1',6,1);
+INSERT INTO t_permission VALUES(3,1,'1',1,1);
+INSERT INTO t_permission VALUES(4,1,'1',2,1);
+INSERT INTO t_permission VALUES(5,2,'user2',1,1);
+INSERT INTO t_permission VALUES(6,2,'user2',2,1);
 INSERT INTO t_permission VALUES(7,1,'1',7,1);
 INSERT INTO t_permission VALUES(8,1,'1',8,1);
 INSERT INTO t_permission VALUES(9,1,'1',9,1);
