@@ -224,6 +224,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
                 self.SupplyBankLineEdit.clear()
                 self.SupplyCountLineEdit.clear()
                 self.SupplyDutyLineEdit.clear()
+                self.SupplyIDLineEdit.clear()
 
             else:
                 QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)

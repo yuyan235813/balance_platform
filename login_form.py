@@ -39,7 +39,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         ##这个用于判断系统中是否存在着加密锁。不需要是指定的加密锁,
         ret = Psyunew3.FindPort(0, DevicePath)
         if (ret != 0):
-           key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Microsoft")
+           key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "")
            # 删除键
            # #winreg.DeleteKey(key, "Advanced")
            # 删除键值
@@ -57,7 +57,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                print(WindowsError)
            if self.isexist:
                keys = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                     r"Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Microsoft\MyNewkey")
+                                     "MyNewkey")
                usetime = winreg.QueryValue(keys, "ValueName")
                if int(usetime) > 0:
                    QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)

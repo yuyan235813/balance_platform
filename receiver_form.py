@@ -216,6 +216,7 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
                 self.ReceiverCountLineEdit.clear()
                 self.ReceiverBankLineEdit.clear()
                 self.ReceiverDutyLineEdit.clear()
+                self.ReceiverIDLineEdit.clear()
             else:
                 QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
         else:

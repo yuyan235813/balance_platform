@@ -78,9 +78,11 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         :return:
         """
         begin_date = self.begindateEdit.text()+' 00:00:00'
+        begin_date = begin_date.replace("/" , "-")
         begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
         begin_date_zero =str(begin_date_zero)
         end_date = self.enddateEdit.text()+' 23:59:59'
+        end_date = end_date.replace("/","-")
         end_date_24 = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
         end_date_24 = str(end_date_24)
         carNo = self.CarNoLineEdit.text()
@@ -104,6 +106,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         condition = condition[:-3]
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
+        print(query_sql)
         data_list = self.db.query(query_sql)
         self.pollresult.show(data_list)
 
