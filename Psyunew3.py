@@ -4,8 +4,7 @@ from ctypes import *
 import random
 import os,sys
 
-path = os.path.abspath(os.path.dirname(__file__))
-print(path)
+path = os.getcwd()
 bit64 = ('64bit', 'WindowsPE')
 bit32 = ('32bit', 'WindowsPE')
 if 'Windows' in platform.system():
