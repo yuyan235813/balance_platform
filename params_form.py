@@ -9,12 +9,9 @@ from PyQt5 import QtWidgets
 from ui.params_setup import Ui_paramsSetupForm
 from ui.params_dialog import Ui_dialog
 from PyQt5.QtCore import *
-from utils import normal_utils
 from utils.sqllite_util import EasySqlite
 from functools import partial
-import os
-import subprocess
-from utils.log_utils import Logger as logger
+import logging
 
 
 class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
@@ -50,7 +47,7 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         :param table:
         :return:
         """
-        logger.info(table)
+        logging.info(table)
         # com 端口
         self.set_com()
         # 波特率
@@ -129,16 +126,16 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         ret_data_bit = self.update_conf('t_data_bit_conf', 'data_bit', data_bit)
         stop_bit = self.stopComboBox.currentText()
         ret_stop_bit = self.update_conf('t_stop_bit_conf', 'stop_bit', stop_bit)
-        print(ret_com_no)
-        print(ret_baud_rate)
-        print(ret_verification_bit)
-        print(ret_data_bit)
-        print(ret_stop_bit)
+        logging.debug(ret_com_no)
+        logging.debug(ret_baud_rate)
+        logging.debug(ret_verification_bit)
+        logging.debug(ret_data_bit)
+        logging.debug(ret_stop_bit)
         ret = 0
         if (ret_com_no or ret_baud_rate or ret_verification_bit or ret_data_bit or ret_stop_bit):
             update_sql = '''update t_com set com_no="%s",baud_rate=%s,verification_bit=%s,data_bit=%s,stop_bit=%s
              where is_default=1''' % (com_no, baud_rate, verification_bit, data_bit, stop_bit)
-            print(update_sql)
+            logging.debug(update_sql)
             ret = self.db.update(update_sql)
         if ret:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
@@ -299,7 +296,7 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         """
         self.db.update('delete from %s' % table, commit=False)
         update_sql = 'replace into %s(%s) values(?)' % (table, column)
-        print(value)
+        logging.debug(value)
         ret = self.db.update(update_sql, args=value)
         return ret
 

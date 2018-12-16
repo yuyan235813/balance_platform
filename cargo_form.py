@@ -3,12 +3,8 @@ from ui.cargo_manage import Ui_cargo_ManageForm
 from ui.cargo_dialog import Ui_Cargo_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import *
-from utils import normal_utils
 from utils.sqllite_util import EasySqlite
-from functools import partial
-import os
-import subprocess
-from utils.log_utils import Logger as logger
+import logging
 
 
 class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):

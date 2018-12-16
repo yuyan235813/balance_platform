@@ -7,7 +7,7 @@
 """
 import sqlite3
 import traceback
-from utils.log_utils import Logger as logger
+import logging
 
 
 class EasySqlite:
@@ -22,7 +22,7 @@ class EasySqlite:
         try:
             self._connection = sqlite3.connect(database,check_same_thread=False)
         except Exception as e:
-            logger.error('%s 数据库连接失败！' % database)
+            logging.error('%s 数据库连接失败！' % database)
 
     def __dict_factory(self, cursor, row):
         d = {}
@@ -59,7 +59,7 @@ class EasySqlite:
                 self._connection.commit()
             data = _cursor.fetchall()
         except Exception as e:
-            logger.error(traceback.format_exc())
+            logging.error(traceback.format_exc())
         finally:
             _cursor.close()
         return data
@@ -82,9 +82,9 @@ class EasySqlite:
         :param result_dict:
         :return:
         """
-        print(sql, args)
+        logging.debug(sql, args)
         ret = self.__execute(sql, args, result_dict)
-        print(ret)
+        logging.debug(ret)
         if ret or ret is None:
             return 0
         else:

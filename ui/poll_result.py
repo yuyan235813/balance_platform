@@ -10,10 +10,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_PollResultForm(object):
     def setupUi(self, PollResultForm):
-        PollResultForm.setObjectName("Form")
+        PollResultForm.setObjectName("PollResultForm")
         PollResultForm.resize(827, 459)
         self.tableView = QtWidgets.QTableView(PollResultForm)
         self.tableView.setGeometry(QtCore.QRect(70, 80, 721, 192))
+        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableView.setObjectName("tableView")
         self.printPushButton = QtWidgets.QPushButton(PollResultForm)
         self.printPushButton.setGeometry(QtCore.QRect(450, 300, 75, 23))

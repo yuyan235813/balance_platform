@@ -1,17 +1,10 @@
 from PyQt5 import QtWidgets
-
-
-
 from ui.receiver_manage import Ui_receiverManageForm
 from ui.receiver_dialog import Ui_Receiver_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import *
-from utils import normal_utils
 from utils.sqllite_util import EasySqlite
-from functools import partial
-import os
-import subprocess
-from utils.log_utils import Logger as logger
+import logging
 
 
 class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):

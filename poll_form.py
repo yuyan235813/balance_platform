@@ -4,23 +4,16 @@ from ui.poll_result import Ui_PollResultForm
 from ui.balance_detail import Ui_balance_detailDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtCore import *
-from utils import normal_utils
 from utils.sqllite_util import EasySqlite
-from functools import partial
-import os
 import xlwt
 import subprocess
-from utils.log_utils import Logger as logger
 import datetime
-from PyQt5.QtPrintSupport import QPrinter,QPrintDialog
-from PyQt5.QtWidgets import (QApplication,QDialog,
-        QHBoxLayout,QPushButton, QTableWidget, QTableWidgetItem,QVBoxLayout)
-import html
-from PyQt5.QtGui import (QFont,QFontMetrics,QPainter,QTextCharFormat,
-                         QTextCursor, QTextDocument, QTextFormat,
-                         QTextOption, QTextTableFormat,
-                         QPixmap,QTextBlockFormat)
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt5.QtWidgets import QTableWidget
+from PyQt5.QtGui import QTextDocument
 from xlwt import *
+import logging
+import os
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -106,7 +99,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         condition = condition[:-3]
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
-        print(query_sql)
+        logging.debug(query_sql)
         data_list = self.db.query(query_sql)
         self.pollresult.show(data_list)
 
@@ -336,7 +329,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         supply_query_sql = 'select supplier_name from t_supplier'
         supply_list = self.db.query(supply_query_sql)
         supply_row_no = len(supply_list)
-        print(supply_row_no)
+        logging.debug(supply_row_no)
         for row in range(supply_row_no):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
@@ -350,7 +343,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.receiverComboBox.clearEditText()
         self.balanceNoLineEdit.setMaxLength(16)
         self.balanceNoLineEdit.setText(str(list(data_list[0].values())[0]))
-        print(self.balanceNoLineEdit.text())
+        logging.debug(self.balanceNoLineEdit.text())
         self.carNoLineEdit.setText(str(list(data_list[0].values())[1]))
         self.totalWeightLineEdit.setText(str(list(data_list[0].values())[2]))
         self.leatherWeightLineEdit.setText(str(list(data_list[0].values())[3]))
@@ -377,7 +370,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         balance_No = self.balanceNoLineEdit.text()
         insert_sql = 'update  t_balance set car_no=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,' \
                      'supplier=?,operator=? '  'where  balance_id = ?'
-        print(insert_sql)
+        logging.debug(insert_sql)
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
@@ -424,13 +417,13 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.save_detail(warning=False)
         sql = 'select default_rmf from t_rmf'
         ret = self.db.query(sql)
-        print(self.balanceNoLineEdit.text())
+        logging.debug(self.balanceNoLineEdit.text())
 
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
         cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
-        print(cmd_str)
-        logger.debug(cmd_str)
+        logging.debug(cmd_str)
+        logging.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 
 

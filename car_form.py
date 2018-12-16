@@ -13,7 +13,7 @@ from ui.car_manage_change import Ui_dialog
 from car_no_dialog_form import CarNoDialogForm
 from utils.sqllite_util import EasySqlite
 from utils.normal_utils import get_cur_time
-from utils.log_utils import Logger as logger
+import logging
 
 
 class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
@@ -69,7 +69,7 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         :return:
         """
         if len(data) == 3:
-            print(data)
+            logging.debug(data)
             car_no = data[0]
             leather_weight = data[1]
             index = data[2]
@@ -161,12 +161,12 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         db_car_no = list(list(zip(*query_ret))[0])
         del_car_no = [car_no for car_no in db_car_no if car_no not in cur_car_no]
         if del_car_no:
-            logger.info(del_car_no)
+            logging.info(del_car_no)
             del_sql = 'delete from t_car where car_no=?'
             ret1 = self.db.update(del_sql, args=del_car_no)
             ret = ret and ret1
         if cur_car_no:
-            logger.info(cur_car_no)
+            logging.info(cur_car_no)
             update_sql = 'replace into t_car(car_no, leather_weight, add_time) values (?,?,?)'
             ret2 = self.db.update(update_sql, data)
             ret = ret and ret2

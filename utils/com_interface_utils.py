@@ -9,7 +9,7 @@ import serial
 from time import sleep
 from conf.constant import ErrorCode, NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
-from utils.log_utils import Logger as logger
+import logging
 
 
 def read_com_interface(my_serial):
@@ -27,7 +27,7 @@ def read_com_interface(my_serial):
         if 0 == verify:
             break
         else:
-            logger.error(verify)
+            logging.error(verify)
             continue
         sleep(NormalParam.COM_READ_DURATION / 2 /1000)
     return format_data(data)
@@ -39,8 +39,8 @@ def print_data(data):
     :param data:
     :return:
     """
-    logger.info('read data 16h: %s' % ' '.join(hex(x) for x in data))
-    logger.info('read data 10d: %s' % ' '.join(str(x) for x in data))
+    logging.info('read data 16h: %s' % ' '.join(hex(x) for x in data))
+    logging.info('read data 10d: %s' % ' '.join(str(x) for x in data))
 
 
 def verify_data(data):

@@ -12,8 +12,9 @@ from ui.permission_setup import Ui_permissionSetupForm
 from ui.user_manage import Ui_Form
 from ui.role_manage import Ui_roleForm
 from utils.sqllite_util import EasySqlite
-from utils.log_utils import Logger as logger
 from functools import partial
+import logging
+import os
 
 
 class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
@@ -325,7 +326,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
             role_list = list(list(zip(*ret))[0])
             self.roleComboBox.clear()
             self.roleComboBox.addItems(role_list)
-            print(user_name)
+            logging.debug(user_name)
             if user_name == 0:
                 self.userIDLineEdit.clear()
                 self.userIDLineEdit.setEnabled(True)

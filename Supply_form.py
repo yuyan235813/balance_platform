@@ -3,12 +3,8 @@ from ui.Supply_manage import Ui_supplyManageForm
 from ui.supply_dialog import Ui_Supply_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import *
-from utils import normal_utils
 from utils.sqllite_util import EasySqlite
-from functools import partial
-import os
-import subprocess
-from utils.log_utils import Logger as logger
+import logging
 
 
 class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
@@ -160,7 +156,7 @@ class SupplyForm(QtWidgets.QWidget, Ui_supplyManageForm):
         if data:
             query_sql = 'select * from t_supplier'
             data_list = self.db.query(query_sql)
-            print(str(data.get('supplier_id', '0')))
+            logging.debug(str(data.get('supplier_id', '0')))
             for i in range(len(data_list)):
                 if data.get('supplier_id', '0') == data_list[i].get('supplier_id', '0'):
                     data_find = data_list[i + self.autoMe]

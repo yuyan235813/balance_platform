@@ -6,17 +6,17 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.login import Ui_loginDialog
 from main_form import MainForm
 from utils.sqllite_util import EasySqlite
-from utils.normal_utils import get_cur_time
-from utils.log_utils import Logger as logger
 from winreg import *
 import winreg
 import Psyunew3
 from ctypes import *
+import logging.config
+import os
+logging.config.fileConfig('rmf/log/logging.conf')
+logger = logging.getLogger(os.path.basename(__file__))
 
 
 class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
@@ -55,7 +55,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                         break
                     i += 1
             except WindowsError as e:
-                print(u"操作注册表异常：", e)
+                logger.error(u"操作注册表异常：", e)
             if self.isexist:
                 keys = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                                       r"MyNewkey")
@@ -107,6 +107,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
             password = ret[0].get('password')
             user_id = ret[0].get('user_id')
             if pwd == password:
+                logger.info(user_name)
                 self.mainWidget = MainForm(user_id)
                 self.mainWidget.show()
                 self.close()

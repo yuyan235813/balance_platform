@@ -6,16 +6,13 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlQueryModel
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
-from utils import com_interface_utils, normal_utils
-from utils.log_utils import Logger as logger
+from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
 from conf.constant import NormalParam
-# from conf.config import (COM_BAUD_RATE, COM_INTERFACE, DEBUG)
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
@@ -31,11 +28,8 @@ import subprocess
 import sys
 import serial
 import time
-import os
 import logging
-from PyQt5.QtWidgets import QComboBox
-from winreg import *
-import winreg
+import os
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -58,7 +52,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.setup_form = SetupForm()
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
-        self.actionSystemParameterSetup.triggered.connect(self.system_params_form_show)
+        self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
         self.car_form = CarManageForm()
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.Supply_form = SupplyForm(self)
@@ -82,10 +76,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(120)
         self.balance_status = 0
         self.isexist = 0
-
-    # @normal_utils.has_permission('admin', 'system_params_form1')
-    def system_params_form_show(self):
-        self.system_params_form.show()
 
     def show(self):
         """
@@ -262,13 +252,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     def __display_data(self, index):
         if index:
             self.balanceNoBlael.setText(str(self.tableView.model().index(index.row(), 0).data()))
-            print("dsadas ")
             self.totalWeightLcdNumber.display(self.tableView.model().index(index.row(), 2).data())
             self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
 
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
-            print("dsadas11111 ")
             self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
 
             self.CarComboBox.setCurrentText(self.tableView.model().index(index.row(), 1).data())
@@ -403,7 +391,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             return
 
         car_update = """insert into t_car(car_no, leather_weight) values(?,?)"""
-        print((car_no, float(total_weight)))
+        logging.info((car_no, float(total_weight)))
         self.db.update(car_update, args=(car_no, total_weight))
 
     def print_data(self):
@@ -424,8 +412,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
         cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
-        logger.debug(cmd_str)
-        print(cmd_str)
+        logging.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 
     def choose_weight(self):
@@ -524,7 +511,6 @@ class COMThread(QThread):
         super().__init__()
         self.db = EasySqlite(r'rmf/db/balance.db')
 
-
     def init_serial(self):
         u"""
         :return:
@@ -535,10 +521,9 @@ class COMThread(QThread):
         COM_BAUD_RATE = ret['baud_rate']
         self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
         if self._serial.isOpen():
-            logger.info("open success")
-            print("open success")
+            logging.info("open success")
         else:
-            logger.error("open failed")
+            logging.error("open failed")
             raise Exception(u'%s 串口打开失败！' % 'COM5')
 
     def run(self):
@@ -562,11 +547,11 @@ class COMThread(QThread):
                     self.init_serial()
                     self._is_conn = True
                 except serial.serialutil.SerialException as e:
-                    logger.error(e)
-                    logger.info(u'%s 接口未连接！' % COM_INTERFACE)
+                    logging.error(e)
+                    logging.info(u'%s 接口未连接！' % COM_INTERFACE)
                     time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
                 except Exception as e:
-                    logger.error(e)
+                    logging.error(e)
                     time.sleep(NormalParam.COM_OPEN_DURATION)
             while True:
                 is_open = 1

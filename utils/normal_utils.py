@@ -9,6 +9,7 @@ import os
 import datetime
 from utils.sqllite_util import EasySqlite
 from PyQt5.QtWidgets import QMessageBox
+import logging
 
 
 def stdev(sequence):
@@ -105,7 +106,7 @@ def get_user_permission(user_id):
             )t2 on (t1.user_id=t2.object_id or t1.role_id=t2.object_id);"""
     sql = sql_tmp % user_id
     ret = db.query(sql)
-    print(ret)
+    logging.debug(ret)
     opt_list = []
     for item in ret:
         opt_list.append(item.get('opt_code'))

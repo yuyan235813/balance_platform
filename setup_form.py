@@ -9,10 +9,10 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from ui.balance_setup import Ui_balanceSetup
 from utils import normal_utils
-import os
 import subprocess
-from utils.log_utils import Logger as logger
 from utils.sqllite_util import EasySqlite
+import logging
+import os
 
 
 class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
@@ -60,7 +60,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
     def set_default_rmf(self):
         db = EasySqlite(r'rmf/db/balance.db')
         insert_sql = 'replace into t_rmf values(1, "%s")' % self.selectedLineEdit.text()
-        logger.debug(insert_sql)
+        logging.debug(insert_sql)
         ret = db.update(insert_sql)
         if ret:
             QtWidgets.QMessageBox.information(self, '本程序', "设置成功", QtWidgets.QMessageBox.Ok)
@@ -74,7 +74,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         """
         cmd_str = self.report_file + u' -d "balance.db" -s "db1:select date(\'now\')" -r "%s" -a 0' % \
                   self.selectedLineEdit.text()
-        logger.debug(cmd_str)
+        logging.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 
     def setup_rmf(self):
@@ -84,7 +84,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         """
         cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where t_balance.supplier = t_supplier.supplier_name" -r "%s" -a 2' % \
                   self.selectedLineEdit.text()
-        logger.debug(cmd_str)
+        logging.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
 
     def closeEvent(self, event):

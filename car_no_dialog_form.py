@@ -9,6 +9,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from functools import partial
 from ui.car_no_dialog import Ui_DockWidget
+import logging
 
 
 class CarNoDialogForm(QtWidgets.QDockWidget, Ui_DockWidget):

@@ -9,6 +9,7 @@ from PyQt5 import QtWidgets
 from ui.system_params_setup import Ui_systemParamsSetupForm
 from PyQt5.QtCore import *
 from utils.sqllite_util import EasySqlite
+import logging
 
 
 class SystemParamsForm(QtWidgets.QWidget, Ui_systemParamsSetupForm):
