@@ -134,20 +134,17 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         print(ret_verification_bit)
         print(ret_data_bit)
         print(ret_stop_bit)
-        success = 0
-        if  (ret_com_no or ret_baud_rate or ret_verification_bit or ret_data_bit or ret_stop_bit):
+        ret = 0
+        if (ret_com_no or ret_baud_rate or ret_verification_bit or ret_data_bit or ret_stop_bit):
             update_sql = '''update t_com set com_no="%s",baud_rate=%s,verification_bit=%s,data_bit=%s,stop_bit=%s
              where is_default=1''' % (com_no, baud_rate, verification_bit, data_bit, stop_bit)
             print(update_sql)
             ret = self.db.update(update_sql)
-            success = 0 if ret else 1
-        else:
-            success = 0
-        if success:
-            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
-        else:
+        if ret:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 
 
     def get_conf_list(self, table, column):
@@ -159,8 +156,11 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         """
         query_sql = 'select %s from %s order by %s' % (column, table, column)
         ret = self.db.query(query_sql, result_dict=False)
-        data_list = map(str, list(zip(*ret))[0])
-        return data_list
+        if ret:
+            data_list = map(str, list(zip(*ret))[0])
+            return data_list
+        else:
+            return list()
 
     def update_conf(self, table, column, value):
         """
@@ -248,6 +248,9 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         删除item
         :return:
         """
+        if not self.listWidget.currentItem():
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的参数！", QtWidgets.QMessageBox.Ok)
+            return
         if self.listWidget.count():
             if self.listWidget.selectedItems():
                 remove_items = self.listWidget.selectedItems()
@@ -262,10 +265,10 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         list_value = [item.text() for item in items]
         ret = self.update_conf(self.table, self.column, list(zip(list_value)))
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
             self.my_signal.emit(self.table)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     def cancel_item(self):
         """
@@ -294,16 +297,11 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         :param value:
         :return:
         """
-        ret1 = self.db.update('delete from %s' % table)
-        if ret1:
-            return ret1
+        self.db.update('delete from %s' % table, commit=False)
         update_sql = 'replace into %s(%s) values(?)' % (table, column)
         print(value)
-        ret2 = self.db.update(update_sql, args=value)
-        if ret2:
-            return ret2
-        else:
-            return ret1 and ret2
+        ret = self.db.update(update_sql, args=value)
+        return ret
 
 
 if __name__ == '__main__':

@@ -7,157 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import serial
-import serial.tools.list_ports
-import logging
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtCore import pyqtSignal
-from utils.sqllite_util import EasySqlite
-
-
-class CustomComboBox(QComboBox):
-    popupAboutToBeShown = pyqtSignal()
-
-    def __init__(self, parent = None):
-        super(CustomComboBox,self).__init__(parent)
-        self.db = EasySqlite(r'rmf/db/balance.db')
-
-    # 重写showPopup函数
-    def showPopup(self):
-        # 先清空原有的选项
-        self.clear()
-        self.insertItem(0, "请选择收货单位")
-        index = 1
-        # 获取所有收货单位名称，插入combobox的选项中
-        portlist = self.get_port_list(self)
-        if portlist is not None:
-            for i in portlist:
-                self.insertItem(index, i)
-                index += 1
-        QComboBox.showPopup(self)   # 弹出选项框
-
-    @staticmethod
-    # 获取所有收货方信息
-    def get_port_list(self):
-        try:
-            port_list = list(serial.tools.list_ports.comports())
-            supply_query_sql = 'select receiver_name from t_receiver'
-            supply_list = self.db.query(supply_query_sql)
-            supply_row_no = len(supply_list)
-            for row in range(supply_row_no):
-                values = list(supply_list[row].values())[0]
-                yield str(values)
-        except Exception as e:
-            logging.error("获取收货方信息出错！\n错误信息："+str(e))
-
-
-class CustomSupplyComboBox(QComboBox):
-    popupAboutToBeShown = pyqtSignal()
-
-    def __init__(self, parent = None):
-        super(CustomSupplyComboBox,self).__init__(parent)
-        self.db = EasySqlite(r'rmf/db/balance.db')
-
-    # 重写showPopup函数
-    def showPopup(self):
-        # 先清空原有的选项
-        self.clear()
-        self.insertItem(0, "请选择供货单位")
-        index = 1
-        # 获取所有供应商信息，插入combobox的选项中
-        portlist = self.get_port_list(self)
-        if portlist is not None:
-            for i in portlist:
-                self.insertItem(index, i)
-                index += 1
-        QComboBox.showPopup(self)   # 弹出选项框
-
-    @staticmethod
-    # 获取供应商列表
-    def get_port_list(self):
-        try:
-            port_list = list(serial.tools.list_ports.comports())
-            supply_query_sql = 'select supplier_name from t_supplier'
-            supply_list = self.db.query(supply_query_sql)
-            supply_row_no = len(supply_list)
-            for row in range(supply_row_no):
-                values = list(supply_list[row].values())[0]
-                yield str(values)
-        except Exception as e:
-            logging.error("获取供应单位信息出错！\n错误信息："+str(e))
-
-
-class CustomCargoComboBox(QComboBox):
-    popupAboutToBeShown = pyqtSignal()
-
-    def __init__(self, parent = None):
-        super(CustomCargoComboBox,self).__init__(parent)
-        self.db = EasySqlite(r'rmf/db/balance.db')
-
-    # 重写showPopup函数
-    def showPopup(self):
-        # 先清空原有的选项
-        self.clear()
-        self.insertItem(0, "请选择货物名称")
-        index = 1
-        # 获取所有货物名称信息，插入combobox的选项中
-        portlist = self.get_port_list(self)
-        if portlist is not None:
-            for i in portlist:
-                self.insertItem(index, i)
-                index += 1
-        QComboBox.showPopup(self)   # 弹出选项框
-
-    @staticmethod
-    # 获取所有货物名称
-    def get_port_list(self):
-        try:
-            port_list = list(serial.tools.list_ports.comports())
-            supply_query_sql = 'select name from t_cargo'
-            supply_list = self.db.query(supply_query_sql)
-            supply_row_no = len(supply_list)
-            for row in range(supply_row_no):
-                values = list(supply_list[row].values())[0]
-                yield str(values)
-        except Exception as e:
-            logging.error("获取所有货物名称出错！\n错误信息："+str(e))
-
-
-class CustomCarComboBox(QComboBox):
-    popupAboutToBeShown = pyqtSignal()
-
-    def __init__(self, parent = None):
-        super(CustomCarComboBox,self).__init__(parent)
-        self.db = EasySqlite(r'rmf/db/balance.db')
-
-    # 重写showPopup函数
-    def showPopup(self):
-        # 先清空原有的选项
-        self.clear()
-        self.insertItem(0, "请选择货物名称")
-        index = 1
-        # 获取所有车辆信息，插入combobox的选项中
-        portlist = self.get_port_list(self)
-        if portlist is not None:
-            for i in portlist:
-                self.insertItem(index, i)
-                index += 1
-        QComboBox.showPopup(self)   # 弹出选项框
-
-    @staticmethod
-    # 获取所有车辆信息
-    def get_port_list(self):
-        try:
-            port_list = list(serial.tools.list_ports.comports())
-            car_query_sql = 'select car_no from t_car'
-            car_list = self.db.query(car_query_sql)
-            car_row_no = len(car_list)
-            for row in range(car_row_no):
-                values = list(car_list[row].values())[0]
-                yield str(values)
-        except Exception as e:
-            logging.error("获取所有车辆信息出错！\n错误信息："+str(e))
-
 
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
@@ -260,7 +109,7 @@ class Ui_mainWindow(object):
         font.setBold(False)
         font.setWeight(50)
         self.balanceNoBlael.setFont(font)
-        #self.balanceNoBlael.setText("")
+        self.balanceNoBlael.setText("")
         self.balanceNoBlael.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self.balanceNoBlael.setObjectName("balanceNoBlael")
         self.horizontalLayout_2.addWidget(self.balanceNoBlael)
@@ -439,13 +288,11 @@ class Ui_mainWindow(object):
         self.label_11.setIndent(0)
         self.label_11.setObjectName("label_11")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_11)
-        # self.supplierComboBox = QtWidgets.QComboBox(self.groupBox_2)
-        self.supplierComboBox = CustomSupplyComboBox(self.centralWidget)
+        self.supplierComboBox = QtWidgets.QComboBox(self.groupBox_2)
         self.supplierComboBox.setEditable(True)
         self.supplierComboBox.setObjectName("supplierComboBox")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.supplierComboBox)
-        # self.receiverComboBox = QtWidgets.QComboBox(self.groupBox_2)
-        self.receiverComboBox =  CustomComboBox(self.centralWidget)
+        self.receiverComboBox = QtWidgets.QComboBox(self.groupBox_2)
         self.receiverComboBox.setEditable(True)
         self.receiverComboBox.setObjectName("receiverComboBox")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.receiverComboBox)
@@ -461,8 +308,7 @@ class Ui_mainWindow(object):
         self.label_14.setIndent(0)
         self.label_14.setObjectName("label_14")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_14)
-        # self.goodsComboBox = QtWidgets.QComboBox(self.groupBox_2)
-        self.goodsComboBox = CustomCargoComboBox(self.centralWidget)
+        self.goodsComboBox = QtWidgets.QComboBox(self.groupBox_2)
         self.goodsComboBox.setEditable(True)
         self.goodsComboBox.setObjectName("goodsComboBox")
         self.formLayout_2.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.goodsComboBox)
@@ -510,8 +356,7 @@ class Ui_mainWindow(object):
         self.formLayout_2.setItem(9, QtWidgets.QFormLayout.FieldRole, spacerItem18)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        # self.CarComboBox = QtWidgets.QComboBox(self.groupBox_2)
-        self.CarComboBox = CustomCarComboBox(self.centralWidget)
+        self.CarComboBox = QtWidgets.QComboBox(self.groupBox_2)
         self.CarComboBox.setEditable(True)
         self.CarComboBox.setObjectName("CarComboBox")
         self.horizontalLayout_5.addWidget(self.CarComboBox)
@@ -575,7 +420,7 @@ class Ui_mainWindow(object):
         self.tableView.setStyleSheet("QTableView QHeaderView::section { background-color:#dadada}")
         self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setAlternatingRowColors(True)
-        #self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableView.setSortingEnabled(True)
         self.tableView.setObjectName("tableView")

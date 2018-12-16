@@ -18,9 +18,10 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
     """
     参数设置
     """
-    def __init__(self):
+    def __init__(self, parent):
         super(receiverForm, self).__init__()
         self.setupUi(self)
+        self.parent = parent
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.clear_data)
@@ -131,18 +132,18 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
 
     def __display_data(self, index):
         """
-               返显数据
-               :param index:
-               :return:
-               """
+        返显数据
+        :param index:
+        :return:
+        """
         self.ReceiverNameLineEdit.setText(str(self.tableView.model().index(index.row(), 1).data()))
-        self.ReceiverContactLineEdit.setText( self.tableView.model().index(index.row(), 2).data())
-        self.ReceiverPhoneLineEdit.setText( self.tableView.model().index(index.row(), 3).data())
-        self.ReceiverAddressLineEdit.setText( self.tableView.model().index(index.row(), 4).data())
-        self.ReceiverBankLineEdit.setText( self.tableView.model().index(index.row(), 5).data())
-        self.ReceiverCountLineEdit.setText( self.tableView.model().index(index.row(), 6).data())
-        self.ReceiverDutyLineEdit.setText( self.tableView.model().index(index.row(), 7).data())
-        self.ReceiverIDLineEdit.setText(str( self.tableView.model().index(index.row(), 0).data()))
+        self.ReceiverContactLineEdit.setText(self.tableView.model().index(index.row(), 2).data())
+        self.ReceiverPhoneLineEdit.setText(self.tableView.model().index(index.row(), 3).data())
+        self.ReceiverAddressLineEdit.setText(self.tableView.model().index(index.row(), 4).data())
+        self.ReceiverBankLineEdit.setText(self.tableView.model().index(index.row(), 5).data())
+        self.ReceiverCountLineEdit.setText(self.tableView.model().index(index.row(), 6).data())
+        self.ReceiverDutyLineEdit.setText(self.tableView.model().index(index.row(), 7).data())
+        self.ReceiverIDLineEdit.setText(str(self.tableView.model().index(index.row(), 0).data()))
 
     def supply_dialog_show(self, table):
         """
@@ -224,6 +225,15 @@ class receiverForm(QtWidgets.QWidget, Ui_receiverManageForm):
                                            '本程序',
                                             "单位名称不能为空",
                                            QtWidgets.QMessageBox.Yes)
+
+    def closeEvent(self, event):
+        """
+        关闭事件
+        :param event:
+        :return:
+        """
+        self.parent.update_combobox()
+        self.close()
 
 
 class ReceiverDialog(QtWidgets.QDialog, Ui_Receiver_Dialog):

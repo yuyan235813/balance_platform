@@ -325,8 +325,13 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
             role_list = list(list(zip(*ret))[0])
             self.roleComboBox.clear()
             self.roleComboBox.addItems(role_list)
+            print(user_name)
             if user_name == 0:
-                pass
+                self.userIDLineEdit.clear()
+                self.userIDLineEdit.setEnabled(True)
+                self.userNameLineEdit.clear()
+                self.passwordLineEdit1.clear()
+                self.passwordLineEdit2.clear()
             else:
                 sql = "select a.user_id, a.user_name, a.password, b.role_name from t_user a join t_role b on a.role_id = b.id where a.user_name = '%s'" % user_name
                 ret = self.db.query(sql)
@@ -411,7 +416,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
 
 class RoleManageForm(QtWidgets.QWidget, Ui_roleForm):
     """
-    用户管理
+    角色管理
     """
     my_signal = pyqtSignal(str)
 
@@ -421,6 +426,14 @@ class RoleManageForm(QtWidgets.QWidget, Ui_roleForm):
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
+
+    def show(self):
+        """
+        显示界面
+        :return:
+        """
+        super().show()
+        self.roleLineEdit.clear()
 
     def __save_data(self):
         """
