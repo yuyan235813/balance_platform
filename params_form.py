@@ -141,10 +141,10 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
             print(update_sql)
             ret = self.db.update(update_sql)
         if ret:
-            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 
 
     def get_conf_list(self, table, column):
