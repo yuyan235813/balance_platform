@@ -15,9 +15,10 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
     """
     参数设置
     """
-    def __init__(self):
+    def __init__(self, parent):
         super(cargoForm, self).__init__()
         self.setupUi(self)
+        self.parent = parent
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.save_data)
@@ -85,6 +86,15 @@ class cargoForm(QtWidgets.QWidget, Ui_cargo_ManageForm):
         显示ui
         :return:
         """
+        self.close()
+
+    def closeEvent(self, event):
+        """
+        点击X号退出事件
+        :param event:
+        :return:
+        """
+        self.parent.update_combobox()
         self.close()
 
     def clear_cargo(self):

@@ -78,6 +78,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         :return:
         """
         begin_date = self.begindateEdit.text()+' 00:00:00'
+        print(begin_date)
         begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
         begin_date_zero =str(begin_date_zero)
         end_date = self.enddateEdit.text()+' 23:59:59'

@@ -61,11 +61,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form_show)
         self.car_form = CarManageForm()
         self.actionCarInfo.triggered.connect(self.car_form.show)
-        self.Supply_form = SupplyForm()
+        self.Supply_form = SupplyForm(self)
         self.actionSupplier.triggered.connect(self.Supply_form.show)
-        self.receiver_form = receiverForm()
+        self.receiver_form = receiverForm(self)
         self.actionReceiving.triggered.connect(self.receiver_form.show)
-        self.cargo_form = cargoForm()
+        self.cargo_form = cargoForm(self)
         self.actionGoodsName.triggered.connect(self.cargo_form.show)
         self.poll_form = pollmainForm()
         self.actionBalanceQuery.triggered.connect(self.poll_form.show)
@@ -209,6 +209,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         cargo_query_sql = 'select name from t_cargo'
         cargo_list = self.db.query(cargo_query_sql)
         cargo_row_no = len(cargo_list)
+        self.goodsComboBox.clear()
         for row in range(cargo_row_no):
             values = list(cargo_list[row].values())[0]
             self.goodsComboBox.addItem(values)
@@ -216,6 +217,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         supply_query_sql = 'select supplier_name from t_supplier'
         supply_list = self.db.query(supply_query_sql)
         supply_row_no = len(supply_list)
+        self.supplierComboBox.clear()
         for row in range(supply_row_no):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
@@ -223,6 +225,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         receiver_query_sql = 'select receiver_name from t_receiver'
         receiver_list = self.db.query(receiver_query_sql)
         receiver_row_no = len(receiver_list)
+        self.receiverComboBox.clear()
         for row in range(receiver_row_no):
             values = list(receiver_list[row].values())[0]
             self.receiverComboBox.addItem(values)
