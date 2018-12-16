@@ -33,8 +33,13 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-INSERT INTO t_balance VALUES(6,12345566,'鲁J00012',200,10,190,'金条','啦啦啦','666',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:31:08','2018-11-25','2018-11-25 10:31:08','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(8,12345567,'鲁J00012',200,10,190,'金条','浙江绿城集团','大纲定',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-11-25 10:40:26','2018-11-25','2018-11-25 10:40:26','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(16,2018120614003403,'鲁J12345',100,40,60,'','山东鲁能集团','干旱河谷',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:01:06','2018-12-06','2018-12-06 14:01:06','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(18,2018120614352203,'鲁F12345',100,60,40,'水泥','江苏苏宁集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:39:16','2018-12-06','2018-12-06 14:39:16','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(19,12345567,'鲁J00012',200,10,190,'水泥','山东金石集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:43:33','2018-12-06','2018-12-06 14:43:33','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(21,2018120614535803,'鲁J45678',120,80,40,'水泥','浙江绿城集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:56:39','2018-12-06','2018-12-06 14:56:39','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(22,2018120615020003,'鲁H12345',220,100,120,'水泥','浙江绿城集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 15:02:20','2018-12-06','2018-12-06 15:02:20','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(23,2018120615033303,'鲁G12345',260,0,0,'','','',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 15:03:48','2018-12-06','2018-12-06 15:03:48','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(24,12345566,'鲁J00012',200,10,190,'金条','江苏苏宁集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-15 16:13:03','2018-12-15','2018-12-15 16:13:03','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
@@ -62,11 +67,11 @@ CREATE TABLE `t_com_conf` (
 );
 INSERT INTO t_com_conf VALUES('COM1');
 INSERT INTO t_com_conf VALUES('COM2');
-INSERT INTO t_com_conf VALUES('COM4');
 INSERT INTO t_com_conf VALUES('COM6');
 INSERT INTO t_com_conf VALUES('COM7');
 INSERT INTO t_com_conf VALUES('COM8');
 INSERT INTO t_com_conf VALUES('COM9');
+INSERT INTO t_com_conf VALUES('COM4');
 INSERT INTO t_com_conf VALUES('COM3');
 INSERT INTO t_com_conf VALUES('COM5');
 CREATE TABLE `t_baud_rate_conf` (
@@ -88,9 +93,9 @@ CREATE TABLE `t_data_bit_conf` (
   `data_bit` int unique NOT NULL DEFAULT '6'-- '数据位'
 );
 INSERT INTO t_data_bit_conf VALUES(6);
-INSERT INTO t_data_bit_conf VALUES(8);
 INSERT INTO t_data_bit_conf VALUES(-1);
 INSERT INTO t_data_bit_conf VALUES(-2);
+INSERT INTO t_data_bit_conf VALUES(8);
 CREATE TABLE `t_verification_bit_conf` (
   `verification_bit` int unique NOT NULL DEFAULT '1'-- '校验位'
 );
@@ -108,7 +113,7 @@ CREATE TABLE `t_system_params_conf` (
   `price` decimal(10,2) not null default 0.0, -- 单价
   `precision` text not null default '元' -- 精度
 );
-INSERT INTO t_system_params_conf VALUES(1,'吨','xxx有限责任公司',1,6,'元');
+INSERT INTO t_system_params_conf VALUES(1,'吨','泰安大志有限责任公司',1,6,'元');
 CREATE TABLE `t_supplier` (
   `supplier_id` integer primary key AUTOINCREMENT, -- 'ID',
   `supplier_name`text not null default '单位名称',
@@ -143,7 +148,9 @@ CREATE TABLE `t_receiver` (
   `receiver_reserve3` text,
   `receiver_reserve4` text
 );
-INSERT INTO t_receiver VALUES(5,'发顺丰','','','','','','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_receiver VALUES(1,'山东瑞星电子有限公司','恶趣味','','','','','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_receiver VALUES(2,'泰安军火库','','','','','','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_receiver VALUES(4,'规划风格化','恶趣味','18854885684','','','','',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_cargo` (
   `cargo_id` integer primary key AUTOINCREMENT, -- 'ID',
   `name`text not null default '货物名称',
@@ -161,8 +168,9 @@ CREATE TABLE `t_car` (
   `add_time` datetime not null default (datetime('now', 'localtime')), -- 添加时间
   `status` int not null default 1 -- 1:有效；0：删除
 );
-INSERT INTO t_car VALUES(4,'京B24320',14,'2018-10-09 22:07:26',1);
-INSERT INTO t_car VALUES(5,'鲁J00012',10.199999999999999289,'2018-10-09 22:07:02',1);
+INSERT INTO t_car VALUES(8,'鲁H12345',100,'2018-12-06 15:00:28',1);
+INSERT INTO t_car VALUES(9,'京B24320',14,'2018-10-09 22:07:26',1);
+INSERT INTO t_car VALUES(10,'鲁J00012',10.199999999999999289,'2018-10-09 22:07:02',1);
 CREATE TABLE `t_role` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `role_name` text unique not null default '系统管理员', -- 车牌号
@@ -216,8 +224,8 @@ INSERT INTO t_permission VALUES(9,1,'1',9,1);
 INSERT INTO t_permission VALUES(10,2,'admin',1,0);
 INSERT INTO t_permission VALUES(11,2,'admin',2,0);
 INSERT INTO t_permission VALUES(12,2,'admin',3,0);
-INSERT INTO t_permission VALUES(13,2,'admin',4,0);
-INSERT INTO t_permission VALUES(14,2,'admin',5,0);
+INSERT INTO t_permission VALUES(13,2,'admin',4,1);
+INSERT INTO t_permission VALUES(14,2,'admin',5,1);
 INSERT INTO t_permission VALUES(15,2,'admin',6,0);
 INSERT INTO t_permission VALUES(16,2,'admin',7,0);
 INSERT INTO t_permission VALUES(17,2,'admin',8,0);
@@ -241,15 +249,16 @@ INSERT INTO t_permission VALUES(34,2,'user1',7,1);
 INSERT INTO t_permission VALUES(35,2,'user1',8,0);
 INSERT INTO t_permission VALUES(36,2,'user1',9,0);
 DELETE FROM sqlite_sequence;
-INSERT INTO sqlite_sequence VALUES('t_balance',2);
+INSERT INTO sqlite_sequence VALUES('t_balance',24);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
 INSERT INTO sqlite_sequence VALUES('t_com',1);
 INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
 INSERT INTO sqlite_sequence VALUES('t_supplier',4);
 INSERT INTO sqlite_sequence VALUES('t_cargo',1);
-INSERT INTO sqlite_sequence VALUES('t_car',5);
+INSERT INTO sqlite_sequence VALUES('t_car',10);
 INSERT INTO sqlite_sequence VALUES('t_operation',9);
 INSERT INTO sqlite_sequence VALUES('t_role',2);
 INSERT INTO sqlite_sequence VALUES('t_permission',36);
 INSERT INTO sqlite_sequence VALUES('t_user',2);
+INSERT INTO sqlite_sequence VALUES('t_receiver',4);
 COMMIT;
