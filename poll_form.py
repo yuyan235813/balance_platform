@@ -281,9 +281,29 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         model.setItem(int(row_no), 3, QStandardItem(str(leatherweight)))
         model.setItem(int(row_no), 4, QStandardItem(str(actualweight)))
         self.tableView.setModel(model)
-        self.tableView.doubleClicked.connect(lambda x: self.display_data(column[int(x.row())]))
+        # self.tableView.doubleClicked.connect(lambda x: self.display_data(column[int(x.row())]))
+        self.tableView.doubleClicked.connect(self.__display_data)
+
+    def __display_data(self, index):
+        """
+               返显数据
+               :param index:
+               :return:
+               """
+        if index:
+            if self.tableView.model().index(index.row(), 0).data()!="总计":
+                id = int(self.tableView.model().index(index.row(), 0).data())
+                # self.balance_detail.my_signal.connect(self.set_table_view)
+                self.balance_detail.show(id)
+
+        else:
+            QtWidgets.QMessageBox.question(self,
+                                           '本程序')
+
+
 
     def display_data(self, data):
+        print("121212")
         if data:
             id = int(data.get('balance_id', '1'))
             # self.balance_detail.my_signal.connect(self.set_table_view)
