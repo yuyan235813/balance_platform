@@ -14,6 +14,7 @@ class Ui_PollResultForm(object):
         PollResultForm.resize(827, 459)
         self.tableView = QtWidgets.QTableView(PollResultForm)
         self.tableView.setGeometry(QtCore.QRect(70, 80, 721, 192))
+        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableView.setObjectName("tableView")
