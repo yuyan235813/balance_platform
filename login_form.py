@@ -23,12 +23,13 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
     """
     车辆管理
     """
+
     def __init__(self):
         super(LoginForm, self).__init__()
         self.setupUi(self)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.cancelPushButton.clicked.connect(self.close)
-        self.isexist=0
+        self.isexist = 0
         DevicePath = create_string_buffer(b'\0' * 260)
         ret = c_int()
         # 从加密锁中读取字符串,使用默认的读密码:ffffffff', 'ffffffff', 从加密锁的第0个地址开始读
@@ -39,33 +40,37 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         ##这个用于判断系统中是否存在着加密锁。不需要是指定的加密锁,
         ret = Psyunew3.FindPort(0, DevicePath)
         if (ret != 0):
-           key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"")
-           # 删除键
-           # #winreg.DeleteKey(key, "Advanced")
-           # 删除键值
-           #winreg.DeleteValue(key, "IconUnderline")
-           # 如果知道键的名称，也可以直接取值
-           try:
-               i = 0
-               while 1:
-                  name= winreg.EnumKey(key, i)
-                  if name == "MyNewkey":
-                       self.isexist = 1
-                       break
-                  i += 1
-           except WindowsError:
-               print(WindowsError)
-           if self.isexist:
-               keys = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                     r"")
-               usetime = winreg.QueryValue(keys, "ValueName")
-               if int(usetime) > 0:
-                   QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)
-                   newtime = int(usetime) - 1;
-                   winreg.SetValue(keys, "ValueName", REG_SZ, str(newtime))
-               else:
-                  QtWidgets.QMessageBox.warning(self, '本程序', "继续使用，请购买本软件！", QtWidgets.QMessageBox.Ok)
-           else:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"")
+            # 删除键
+            # #winreg.DeleteKey(key, "Advanced")
+            # 删除键值
+            # winreg.DeleteValue(key, "IconUnderline")
+            # 如果知道键的名称，也可以直接取值
+            try:
+                i = 0
+                while 1:
+                    name = winreg.EnumKey(key, i)
+                    if name == "MyNewkey":
+                        self.isexist = 1
+                        break
+                    i += 1
+            except WindowsError as e:
+                print(u"操作注册表异常：", e)
+            if self.isexist:
+                keys = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                                      r"MyNewkey")
+                usetime = winreg.QueryValue(keys, "ValueName")
+                if int(usetime) > 0:
+                    if int(usetime) > 100:
+                        QtWidgets.QMessageBox.warning(self, '本程序', "无效使用次数！", QtWidgets.QMessageBox.Ok)
+                        exit()
+                    QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)
+                    newtime = int(usetime) - 1;
+                    winreg.SetValue(keys, "ValueName", REG_SZ, str(newtime))
+                else:
+                    QtWidgets.QMessageBox.warning(self, '本程序', "继续使用，请购买本软件！", QtWidgets.QMessageBox.Ok)
+                    exit()
+            else:
                 newKey = winreg.CreateKey(key, "MyNewkey")
                 winreg.SetValue(newKey, "ValueName", REG_SZ, "98")
                 QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件99次！", QtWidgets.QMessageBox.Ok)
@@ -113,9 +118,9 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
             return
 
 
-
 if __name__ == '__main__':
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     myshow = LoginForm()
     myshow.show()
