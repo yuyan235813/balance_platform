@@ -15,6 +15,9 @@ import Psyunew3
 from ctypes import *
 import logging.config
 import os
+
+if not os.path.exists('log'):
+    os.mkdir('log')
 logging.config.fileConfig('rmf/log/logging.conf')
 logger = logging.getLogger(os.path.basename(__file__))
 
