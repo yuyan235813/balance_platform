@@ -4,7 +4,7 @@
 import sys
 import time
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import pyqtSignal,QThread
+from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QApplication
 import cv2

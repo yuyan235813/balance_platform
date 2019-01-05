@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'balance.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(1356, 699)
+        mainWindow.resize(1356, 691)
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(10)
@@ -89,6 +89,7 @@ class Ui_mainWindow(object):
         self.horizontalLayout.addItem(spacerItem1)
         self.verticalLayout.addWidget(self.groupBox)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralWidget)
+        self.groupBox_2.setMaximumSize(QtCore.QSize(16777215, 360))
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.groupBox_2)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
