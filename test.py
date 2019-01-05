@@ -51,7 +51,7 @@ class VideoForm(QtWidgets.QWidget, Ui_videoTest):
         super(VideoForm, self).resizeEvent(a0)
         width = self.label_1.size().width()
         height = self.label_1.size().height()
-        self.thread.set_size(width, height)
+        # self.thread.set_size(width, height)
 
 
 class VideoThread(QThread):
@@ -66,6 +66,8 @@ class VideoThread(QThread):
         self.url = url
         self.mutex = QtCore.QMutex()
         self.shot_flag = False
+        self.video_width = 360
+        self.video_height = 270
 
     def run(self):
         with QtCore.QMutexLocker(self.mutex):

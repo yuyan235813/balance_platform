@@ -132,15 +132,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         ret = self.db.query(sql)
         if ret:
             for item in ret:
-                url = url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
+                url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
                 camera_no = item['camera_no']
-                self.thread_dict[camera_no] = VideoThread(camera_no, url)
+                self.thread_dict[str(camera_no)] = VideoThread(camera_no, url)
                 # 注册信号处理函数
-                self.thread_dict[camera_no].breakSignal.connect(self.showCamer)
+                self.thread_dict[str(camera_no)].breakSignal.connect(self.show_camera)
                 # 启动线程
                 self.shotPushButton.clicked.connect(self.shot_change)
-                self.thread_dict[camera_no].shortImage.connect(self.shot_info)
-                self.thread_dict[camera_no].start()
+                self.thread_dict[str(camera_no)].shortImage.connect(self.shot_info)
+                self.thread_dict[str(camera_no)].start()
 
     def shot_info(self, flag):
         """
@@ -158,19 +158,19 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         self.thread_dict['1'].shot_image()
 
-    def showCamer(self, camera_no, qpixmap):
+    def show_camera(self, camera_no, qpixmap):
         """
         读取摄像头
         :param qpixmap:
         :return:
         """
-        if camera_no == 1:
+        if camera_no == '1':
             self.video_label_1.setPixmap(qpixmap)
-        if camera_no == 2:
+        elif camera_no == '2':
             self.video_label_2.setPixmap(qpixmap)
-        if camera_no == 3:
+        elif camera_no == '3':
             self.video_label_3.setPixmap(qpixmap)
-        if camera_no == 4:
+        elif camera_no == '4':
             self.video_label_4.setPixmap(qpixmap)
 
     def init_data(self):
@@ -626,13 +626,13 @@ class VideoThread(QThread):
     # 定义参数为str类型
     shortImage = pyqtSignal(str)
 
-    def __init__(self, url, camera_no):
+    def __init__(self, camera_no, url):
         super().__init__()
         self.stoped = False
         self.camera_no = camera_no
         self.url = url
-        self.video_width = 0
-        self.video_height = 0
+        self.video_width = 360
+        self.video_height = 270
         self.mutex = QMutex()
         self.shot_flag = False
 
@@ -652,7 +652,7 @@ class VideoThread(QThread):
             # 变换彩色空间顺序
             cv2.cvtColor(frame, cv2.COLOR_BGR2RGB, frame_mini)
             image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            self.breakSignal.emit(self.camera_no, QPixmap.fromImage(image))
+            self.breakSignal.emit(str(self.camera_no), QPixmap.fromImage(image))
             if self.shot_flag:
                 logging.info('shot')
                 # todo 截图地址
