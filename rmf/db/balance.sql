@@ -92,9 +92,9 @@ INSERT INTO t_baud_rate_conf VALUES(9600);
 CREATE TABLE `t_data_bit_conf` (
   `data_bit` int unique NOT NULL DEFAULT '6'-- '数据位'
 );
-INSERT INTO t_data_bit_conf VALUES(6);
 INSERT INTO t_data_bit_conf VALUES(-1);
 INSERT INTO t_data_bit_conf VALUES(-2);
+INSERT INTO t_data_bit_conf VALUES(6);
 INSERT INTO t_data_bit_conf VALUES(8);
 CREATE TABLE `t_verification_bit_conf` (
   `verification_bit` int unique NOT NULL DEFAULT '1'-- '校验位'
@@ -248,6 +248,19 @@ INSERT INTO t_permission VALUES(33,2,'user1',6,1);
 INSERT INTO t_permission VALUES(34,2,'user1',7,1);
 INSERT INTO t_permission VALUES(35,2,'user1',8,0);
 INSERT INTO t_permission VALUES(36,2,'user1',9,0);
+CREATE TABLE `t_camera` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `camera_name` text unique not null default '默认设备', -- 称重仪名称
+  `is_active` int not null default 0, -- 是否默认
+  `ip_addr` text not null default '', -- '串口号'
+  `user_id` text not null DEFAULT '', -- '比特率'
+  `password` text not null DEFAULT '', -- '数据位'
+  `camera_no` int unique not null DEFAULT 1 -- '校验位'
+);
+INSERT INTO t_camera VALUES(19,'摄像头1',1,'192.168.31.64','admin','qwer6961',1);
+INSERT INTO t_camera VALUES(20,'摄像头2',0,'192.168.31.64','admin','qwer6961',2);
+INSERT INTO t_camera VALUES(21,'摄像头3',0,'192.168.31.64','admin','qwer6961',3);
+INSERT INTO t_camera VALUES(22,'摄像头4',1,'192.168.31.64','admin','qwer6961',4);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_balance',24);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
@@ -261,4 +274,5 @@ INSERT INTO sqlite_sequence VALUES('t_role',2);
 INSERT INTO sqlite_sequence VALUES('t_permission',36);
 INSERT INTO sqlite_sequence VALUES('t_user',2);
 INSERT INTO sqlite_sequence VALUES('t_receiver',4);
+INSERT INTO sqlite_sequence VALUES('t_camera',22);
 COMMIT;

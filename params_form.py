@@ -31,6 +31,10 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         self.verifyPushButton.clicked.connect(partial(self.params_dialog_show, 't_verification_bit_conf', 'verification_bit'))
         self.dataPushButton.clicked.connect(partial(self.params_dialog_show, 't_data_bit_conf', 'data_bit'))
         self.stopPushButton.clicked.connect(partial(self.params_dialog_show, 't_stop_bit_conf', 'stop_bit'))
+        self.testPushButton1.clicked.connect(self.test_camera1)
+        self.testPushButton2.clicked.connect(self.test_camera2)
+        self.testPushButton3.clicked.connect(self.test_camera3)
+        self.testPushButton4.clicked.connect(self.test_camera4)
         self.set_data()
 
     def params_dialog_show(self, table, column):
@@ -61,11 +65,41 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         # 设置默认值
         query_sql = 'select * from t_com where is_default = 1'
         ret = self.db.query(query_sql)[0]
-        self.portComboBox.setCurrentText(ret['com_no'])
-        self.baudComboBox.setCurrentText(str(ret['baud_rate']))
-        self.verifyComboBox.setCurrentText(str(ret['verification_bit']))
-        self.dataComboBox.setCurrentText(str(ret['data_bit']))
-        self.stopComboBox.setCurrentText(str(ret['stop_bit']))
+        if ret:
+            self.portComboBox.setCurrentText(ret['com_no'])
+            self.baudComboBox.setCurrentText(str(ret['baud_rate']))
+            self.verifyComboBox.setCurrentText(str(ret['verification_bit']))
+            self.dataComboBox.setCurrentText(str(ret['data_bit']))
+            self.stopComboBox.setCurrentText(str(ret['stop_bit']))
+        # 设置摄像头
+        query_sql = """select * from t_camera where camera_no <= 4"""
+        ret = self.db.query(query_sql)
+        if ret:
+            for item in ret:
+                if item['camera_no'] == 1:
+                    self.ip1LineEdit.setText(item['ip_addr'])
+                    self.user1LineEdit.setText(item['user_id'])
+                    self.pwd1LineEdit.setText(item['password'])
+                    if item['is_active']:
+                        self.camera1CheckBox.setChecked(True)
+                elif item['camera_no'] == 2:
+                    self.ip2LineEdit.setText(item['ip_addr'])
+                    self.user2LineEdit.setText(item['user_id'])
+                    self.pwd2LineEdit.setText(item['password'])
+                    if item['is_active']:
+                        self.camera2CheckBox.setChecked(True)
+                elif item['camera_no'] == 3:
+                    self.ip3LineEdit.setText(item['ip_addr'])
+                    self.user3LineEdit.setText(item['user_id'])
+                    self.pwd3LineEdit.setText(item['password'])
+                    if item['is_active']:
+                        self.camera3CheckBox.setChecked(True)
+                elif item['camera_no'] == 4:
+                    self.ip4LineEdit.setText(item['ip_addr'])
+                    self.user4LineEdit.setText(item['user_id'])
+                    self.pwd4LineEdit.setText(item['password'])
+                    if item['is_active']:
+                        self.camera4CheckBox.setChecked(True)
 
     def set_com(self):
         """
@@ -136,12 +170,26 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
             update_sql = '''update t_com set com_no="%s",baud_rate=%s,verification_bit=%s,data_bit=%s,stop_bit=%s
              where is_default=1''' % (com_no, baud_rate, verification_bit, data_bit, stop_bit)
             logging.debug(update_sql)
-            ret = self.db.update(update_sql)
-        if ret:
+            ret = self.db.update(update_sql, commit=False)
+        ret1 = self.save_camera()
+        if ret and ret1:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+
+    def save_camera(self):
+        """
+        保存摄像头设置
+        :return:
+        """
+        sql_tmp = """replace into t_camera(ip_addr, user_id, password, camera_name, is_active, camera_no) values(?, ?, ?, ?, ?, ?)"""
+        camera1 = (self.ip1LineEdit.text(), self.user1LineEdit.text(), self.pwd1LineEdit.text(), '摄像头1', 1 if self.camera1CheckBox.isChecked() else 0, 1)
+        camera2 = (self.ip2LineEdit.text(), self.user2LineEdit.text(), self.pwd2LineEdit.text(), '摄像头2', 1 if self.camera2CheckBox.isChecked() else 0, 2)
+        camera3 = (self.ip3LineEdit.text(), self.user3LineEdit.text(), self.pwd3LineEdit.text(), '摄像头3', 1 if self.camera3CheckBox.isChecked() else 0, 3)
+        camera4 = (self.ip4LineEdit.text(), self.user4LineEdit.text(), self.pwd4LineEdit.text(), '摄像头4', 1 if self.camera4CheckBox.isChecked() else 0, 4)
+        ret = self.db.update(sql_tmp, args=[camera1, camera2, camera3, camera4])
+        return ret
 
 
     def get_conf_list(self, table, column):
@@ -170,6 +218,72 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         update_sql = 'replace into %s(%s) values("%s")' % (table, column, value)
         ret = self.db.update(update_sql)
         return ret
+
+    def test_camera1(self):
+        """
+        测试摄像头1
+        :return:
+        """
+        ip_addr = self.ip1LineEdit.text()
+        user_id = self.user1LineEdit.text()
+        password = self.pwd1LineEdit.text()
+        self.test_camera(ip_addr, user_id, password)
+
+    def test_camera2(self):
+        """
+        测试摄像头2
+        :return:
+        """
+        ip_addr = self.ip2LineEdit.text()
+        user_id = self.user2LineEdit.text()
+        password = self.pwd2LineEdit.text()
+        self.test_camera(ip_addr, user_id, password)
+
+    def test_camera3(self):
+        """
+        测试摄像头3
+        :return:
+        """
+        ip_addr = self.ip3LineEdit.text()
+        user_id = self.user3LineEdit.text()
+        password = self.pwd3LineEdit.text()
+        self.test_camera(ip_addr, user_id, password)
+
+    def test_camera4(self):
+        """
+        测试摄像头4
+        :return:
+        """
+        ip_addr = self.ip4LineEdit.text()
+        user_id = self.user4LineEdit.text()
+        password = self.pwd4LineEdit.text()
+        self.test_camera(ip_addr, user_id, password)
+
+    def test_camera(self, ip_addr, user_id, password):
+        """
+        测试摄像头
+        :return:
+        """
+        if not ip_addr:
+            QtWidgets.QMessageBox.warning(self, '本程序', 'ip不能为空！')
+            return
+        if not user_id:
+            QtWidgets.QMessageBox.warning(self, '本程序', '用户名不能为空！')
+            return
+        if not password:
+            QtWidgets.QMessageBox.warning(self, '本程序', '密码不能为空！')
+            return
+        url = "rtsp://%s:%s@%s" % (user_id, password, ip_addr)
+        test_thread = CameraTestThread(url)
+        test_thread.start()
+        import time
+        time.sleep(2)
+        if test_thread.get_result():
+            logging.info('camera open success.')
+            QtWidgets.QMessageBox.information(self, '本程序', '连接成功！')
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', '连接失败！')
+        test_thread.terminate()
 
 
 class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
@@ -299,6 +413,27 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         logging.debug(value)
         ret = self.db.update(update_sql, args=value)
         return ret
+
+
+class CameraTestThread(QThread):
+    """
+    测试摄像头连通性
+    """
+    def __init__(self, url):
+        super(CameraTestThread, self).__init__()
+        self.url = url
+        self.result = 0
+
+    def run(self):
+        import cv2
+        try:
+            cap = cv2.VideoCapture(self.url)
+        except Exception as e:
+            print(e)
+        self.result = 1 if cap.isOpened() else 0
+
+    def get_result(self):
+        return self.result
 
 
 if __name__ == '__main__':
