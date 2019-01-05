@@ -78,6 +78,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(120)
         self.balance_status = 0
         self.isexist = 0
+        self.thread_dict = dict()
         self.active_video()
 
     def show(self):
@@ -127,13 +128,19 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         开启摄像头
         :return:
         """
-        self.thread = VideoThread('rtsp://admin:qwer6961@192.168.31.64')
-        # 注册信号处理函数
-        self.thread.breakSignal.connect(self.showCamer)
-        # 启动线程
-        self.shotPushButton.clicked.connect(self.shot_change)
-        self.thread.shortImage.connect(self.shot_info)
-        self.thread.start()
+        sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
+        ret = self.db.query(sql)
+        if ret:
+            for item in ret:
+                url = url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
+                camera_no = item['camera_no']
+                self.thread_dict[camera_no] = VideoThread(camera_no, url)
+                # 注册信号处理函数
+                self.thread_dict[camera_no].breakSignal.connect(self.showCamer)
+                # 启动线程
+                self.shotPushButton.clicked.connect(self.shot_change)
+                self.thread_dict[camera_no].shortImage.connect(self.shot_info)
+                self.thread_dict[camera_no].start()
 
     def shot_info(self, flag):
         """
@@ -149,15 +156,22 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         截图
         :return:
         """
-        self.thread.shot_image()
+        self.thread_dict['1'].shot_image()
 
-    def showCamer(self, qpixmap):
+    def showCamer(self, camera_no, qpixmap):
         """
         读取摄像头
         :param qpixmap:
         :return:
         """
-        self.video_label_1.setPixmap(qpixmap)
+        if camera_no == 1:
+            self.video_label_1.setPixmap(qpixmap)
+        if camera_no == 2:
+            self.video_label_2.setPixmap(qpixmap)
+        if camera_no == 3:
+            self.video_label_3.setPixmap(qpixmap)
+        if camera_no == 4:
+            self.video_label_4.setPixmap(qpixmap)
 
     def init_data(self):
         u"""
@@ -540,7 +554,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             return
         width = self.video_label_1.size().width()
         height = self.video_label_1.size().height()
-        self.thread.set_size(width, height)
+        # self.thread_dict[].set_size(width, height)
 
 
 class COMThread(QThread):
@@ -608,13 +622,14 @@ class VideoThread(QThread):
     读取摄像头
     """
     # 定义信号
-    breakSignal = pyqtSignal(QPixmap)
+    breakSignal = pyqtSignal(str, QPixmap)
     # 定义参数为str类型
     shortImage = pyqtSignal(str)
 
-    def __init__(self, url):
+    def __init__(self, url, camera_no):
         super().__init__()
         self.stoped = False
+        self.camera_no = camera_no
         self.url = url
         self.video_width = 0
         self.video_height = 0
@@ -626,7 +641,7 @@ class VideoThread(QThread):
             self.stoped= False
         cap = cv2.VideoCapture(self.url)
         if cap.isOpened():
-            print('camera open success.')
+            logging.info('camera open success.')
         while cap.isOpened():
             if self.stoped:
                 return
@@ -637,9 +652,9 @@ class VideoThread(QThread):
             # 变换彩色空间顺序
             cv2.cvtColor(frame, cv2.COLOR_BGR2RGB, frame_mini)
             image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            self.breakSignal.emit(QPixmap.fromImage(image))
+            self.breakSignal.emit(self.camera_no, QPixmap.fromImage(image))
             if self.shot_flag:
-                print('shot')
+                logging.info('shot')
                 # todo 截图地址
                 cv2.imwrite('ddd.png', frame)
                 self.shot_flag = False
@@ -654,7 +669,6 @@ class VideoThread(QThread):
         :param height:
         :return:
         """
-        print(width, height)
         self.video_width = width
         self.video_height = height
 
@@ -670,7 +684,7 @@ class VideoThread(QThread):
             self.stoped= True
 
     def isStoped(self):
-        with QtCore.QMutexLocker(self.mutex):
+        with QMutexLocker(self.mutex):
             return self.stoped
 
 
