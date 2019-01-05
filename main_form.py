@@ -9,6 +9,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
@@ -30,6 +31,7 @@ import serial
 import time
 import logging
 import os
+import cv2
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -76,6 +78,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(120)
         self.balance_status = 0
         self.isexist = 0
+        self.active_video()
 
     def show(self):
         """
@@ -118,6 +121,43 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         for item in user_permission:
             if item in perminsion_dict.keys():
                 perminsion_dict.get(item).setEnabled(True)
+
+    def active_video(self):
+        """
+        开启摄像头
+        :return:
+        """
+        self.thread = VideoThread('rtsp://admin:qwer6961@192.168.31.64')
+        # 注册信号处理函数
+        self.thread.breakSignal.connect(self.showCamer)
+        # 启动线程
+        self.shotPushButton.clicked.connect(self.shot_change)
+        self.thread.shortImage.connect(self.shot_info)
+        self.thread.start()
+
+    def shot_info(self, flag):
+        """
+        接收截图信息
+        :param flag:
+        :return:
+        """
+        if flag:
+            QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
+
+    def shot_change(self):
+        """
+        截图
+        :return:
+        """
+        self.thread.shot_image()
+
+    def showCamer(self, qpixmap):
+        """
+        读取摄像头
+        :param qpixmap:
+        :return:
+        """
+        self.video_label_1.setPixmap(qpixmap)
 
     def init_data(self):
         u"""
@@ -498,6 +538,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.dialog.isVisible():
             self.dialog.setVisible(False)
             return
+        width = self.video_label_1.size().width()
+        height = self.video_label_1.size().height()
+        self.thread.set_size(width, height)
 
 
 class COMThread(QThread):
@@ -558,6 +601,77 @@ class COMThread(QThread):
                 weight = com_interface_utils.read_com_interface(self._serial)
                 self.trigger.emit(is_open, weight)
                 time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+
+
+class VideoThread(QThread):
+    """
+    读取摄像头
+    """
+    # 定义信号
+    breakSignal = pyqtSignal(QPixmap)
+    # 定义参数为str类型
+    shortImage = pyqtSignal(str)
+
+    def __init__(self, url):
+        super().__init__()
+        self.stoped = False
+        self.url = url
+        self.video_width = 0
+        self.video_height = 0
+        self.mutex = QMutex()
+        self.shot_flag = False
+
+    def run(self):
+        with QMutexLocker(self.mutex):
+            self.stoped= False
+        cap = cv2.VideoCapture(self.url)
+        if cap.isOpened():
+            print('camera open success.')
+        while cap.isOpened():
+            if self.stoped:
+                return
+            ret, frame = cap.read()
+            frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
+            height, width, bytesPerComponent = frame_mini.shape
+            bytesPerLine = bytesPerComponent * width
+            # 变换彩色空间顺序
+            cv2.cvtColor(frame, cv2.COLOR_BGR2RGB, frame_mini)
+            image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            self.breakSignal.emit(QPixmap.fromImage(image))
+            if self.shot_flag:
+                print('shot')
+                # todo 截图地址
+                cv2.imwrite('ddd.png', frame)
+                self.shot_flag = False
+                self.shortImage.emit('1')
+            # 40毫秒发送一次信号
+            time.sleep(0.04)
+
+    def set_size(self, width, height):
+        """
+        设置视频大小
+        :param width:
+        :param height:
+        :return:
+        """
+        print(width, height)
+        self.video_width = width
+        self.video_height = height
+
+    def shot_image(self):
+        """
+        截图操作
+        :return:
+        """
+        self.shot_flag = True
+
+    def stop(self):
+        with QMutexLocker(self.mutex):
+            self.stoped= True
+
+    def isStoped(self):
+        with QtCore.QMutexLocker(self.mutex):
+            return self.stoped
 
 
 if __name__ == '__main__':
