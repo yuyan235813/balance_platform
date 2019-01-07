@@ -5,6 +5,8 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
+import datetime
+
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
@@ -49,7 +51,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
         self.dialog.my_signal.connect(self.CarComboBox.setCurrentText)
-        self.params_form = ParamsForm()
+        self.params_form = ParamsForm(self)
         self.actionParameterSetup.triggered.connect(self.params_form.show)
         self.setup_form = SetupForm()
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
@@ -131,6 +133,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
         ret = self.db.query(sql)
         if ret:
+            for k in self.thread_dict.keys():
+                self.thread_dict[k].stop()
+            self.video_label_1.clear()
+            self.video_label_2.clear()
+            self.video_label_3.clear()
+            self.video_label_4.clear()
             for item in ret:
                 url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
                 camera_no = item['camera_no']
@@ -138,7 +146,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 # 注册信号处理函数
                 self.thread_dict[str(camera_no)].breakSignal.connect(self.show_camera)
                 # 启动线程
-                self.shotPushButton.clicked.connect(self.shot_change)
+                # self.shotPushButton.clicked.connect(self.shot_change)
                 self.thread_dict[str(camera_no)].shortImage.connect(self.shot_info)
                 self.thread_dict[str(camera_no)].start()
 
@@ -386,6 +394,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
         operator = u'系统管理员'
+        self.shot_change()
         insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                      extra, price, amount, car_no, supplier, receiver, goods_name, operator, status) 
                      values(?,?,?,?,?,?,?,?,?,?,?,?,?)'''
@@ -635,6 +644,8 @@ class VideoThread(QThread):
         self.video_height = 270
         self.mutex = QMutex()
         self.shot_flag = False
+        self.thread_dict = dict()
+        self.db = EasySqlite(r'rmf/db/balance.db')
 
     def run(self):
         with QMutexLocker(self.mutex):
@@ -656,9 +667,17 @@ class VideoThread(QThread):
             if self.shot_flag:
                 logging.info('shot')
                 # todo 截图地址
-                cv2.imwrite('ddd.png', frame)
+                path = os.path.abspath('.')+'\shot'
+                today_month = datetime.datetime.now().strftime("%Y%m")
+                path = path+'\\'+str(today_month)
+                folder = os.path.exists(path)
+                if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+                    os.makedirs(path)
+                today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                path = path + '\\'+str(today_date)+'01.png'
+                cv2.imwrite(path, frame)
                 self.shot_flag = False
-                self.shortImage.emit('1')
+                self.shortImage.emit(path)
             # 40毫秒发送一次信号
             time.sleep(0.04)
 
@@ -677,7 +696,35 @@ class VideoThread(QThread):
         截图操作
         :return:
         """
-        self.shot_flag = True
+        #self.shot_flag = True
+        sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
+        ret = self.db.query(sql)
+        if ret:
+            for k in self.thread_dict.keys():
+                self.thread_dict[k].stop()
+            for item in ret:
+                url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
+                camera_no = item['camera_no']
+                cap = cv2.VideoCapture(url)
+                if cap.isOpened():
+                    logging.info('camera open success.')
+                while cap.isOpened():
+                    if self.stoped:
+                        return
+                    ret, frame = cap.read()
+                    logging.info('shot')
+                    # todo 截图地址
+                    path = os.path.abspath('.') + '\shot'
+                    today_month = datetime.datetime.now().strftime("%Y%m")
+                    path = path + '\\' + str(today_month)
+                    folder = os.path.exists(path)
+                    if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+                        os.makedirs(path)
+                    today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                    path = path + '\\' + str(today_date) + str(camera_no)+'.png'
+                    cv2.imwrite(path, frame)
+                    break
+            self.shortImage.emit(path)
 
     def stop(self):
         with QMutexLocker(self.mutex):
