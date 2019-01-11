@@ -435,6 +435,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.shot_change(path)
         data = ''
         balance_time=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if self.balance_status:
             if self.ischange:
