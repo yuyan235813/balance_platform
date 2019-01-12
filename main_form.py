@@ -344,6 +344,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.balanceNoBlael.setText(str(self.tableView.model().index(index.row(), 0).data()))
             self.totalWeightLcdNumber.display(self.tableView.model().index(index.row(), 2).data())
             self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
+            print(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
 
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
@@ -376,12 +377,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
 
     def update_weight(self, car_no):
         """
-        更行重量
+        更新重量
         :return:
         """
-        if len(car_no) != 7:
-            self.leatherWeightLcdNumber.display(0)
-            return
+        # if len(car_no) != 7:
+        #     self.leatherWeightLcdNumber.display(0)
+        #     return
         if self.balanceNoBlael.text():
             return
         self.balanceNoBlael.setText('')
