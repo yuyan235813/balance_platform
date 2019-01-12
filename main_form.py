@@ -80,6 +80,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.isexist = 0
         self.thread_dict = dict()
         self.active_video()
+        self.video_label_3.doubleClicked.connect(print)
 
     def show(self):
         """

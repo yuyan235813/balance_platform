@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'balance.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(1356, 691)
+        mainWindow.resize(1356, 693)
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(10)
@@ -439,32 +439,6 @@ class Ui_mainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         spacerItem23 = QtWidgets.QSpacerItem(20, 500, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem23, 2, 0, 1, 1)
-        self.video_label_1 = QtWidgets.QLabel(self.centralWidget)
-        self.video_label_1.setMinimumSize(QtCore.QSize(360, 270))
-        self.video_label_1.setMaximumSize(QtCore.QSize(1280, 720))
-        self.video_label_1.setAutoFillBackground(False)
-        self.video_label_1.setText("")
-        self.video_label_1.setObjectName("video_label_1")
-        self.gridLayout.addWidget(self.video_label_1, 0, 0, 1, 1)
-        self.video_label_3 = QtWidgets.QLabel(self.centralWidget)
-        self.video_label_3.setMinimumSize(QtCore.QSize(360, 270))
-        self.video_label_3.setMaximumSize(QtCore.QSize(1280, 720))
-        self.video_label_3.setText("")
-        self.video_label_3.setObjectName("video_label_3")
-        self.gridLayout.addWidget(self.video_label_3, 1, 0, 1, 1)
-        self.video_label2 = QtWidgets.QLabel(self.centralWidget)
-        self.video_label2.setMinimumSize(QtCore.QSize(360, 270))
-        self.video_label2.setMaximumSize(QtCore.QSize(1280, 720))
-        self.video_label2.setAutoFillBackground(False)
-        self.video_label2.setText("")
-        self.video_label2.setObjectName("video_label2")
-        self.gridLayout.addWidget(self.video_label2, 0, 1, 1, 1)
-        self.video_label_4 = QtWidgets.QLabel(self.centralWidget)
-        self.video_label_4.setMinimumSize(QtCore.QSize(360, 270))
-        self.video_label_4.setMaximumSize(QtCore.QSize(1280, 720))
-        self.video_label_4.setText("")
-        self.video_label_4.setObjectName("video_label_4")
-        self.gridLayout.addWidget(self.video_label_4, 1, 1, 1, 1)
         self.shotPushButton = QtWidgets.QPushButton(self.centralWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -474,6 +448,32 @@ class Ui_mainWindow(object):
         self.shotPushButton.setMaximumSize(QtCore.QSize(100, 16777215))
         self.shotPushButton.setObjectName("shotPushButton")
         self.gridLayout.addWidget(self.shotPushButton, 2, 1, 1, 1)
+        self.video_label_3 = QImageLabel(self.centralWidget)
+        self.video_label_3.setMinimumSize(QtCore.QSize(360, 270))
+        self.video_label_3.setMaximumSize(QtCore.QSize(1280, 720))
+        self.video_label_3.setText("")
+        self.video_label_3.setObjectName("video_label_3")
+        self.gridLayout.addWidget(self.video_label_3, 1, 0, 1, 1)
+        self.video_label_4 = QImageLabel(self.centralWidget)
+        self.video_label_4.setMinimumSize(QtCore.QSize(360, 270))
+        self.video_label_4.setMaximumSize(QtCore.QSize(1280, 720))
+        self.video_label_4.setText("")
+        self.video_label_4.setObjectName("video_label_4")
+        self.gridLayout.addWidget(self.video_label_4, 1, 1, 1, 1)
+        self.video_label_1 = QImageLabel(self.centralWidget)
+        self.video_label_1.setMinimumSize(QtCore.QSize(360, 270))
+        self.video_label_1.setMaximumSize(QtCore.QSize(1280, 720))
+        self.video_label_1.setAutoFillBackground(False)
+        self.video_label_1.setText("")
+        self.video_label_1.setObjectName("video_label_1")
+        self.gridLayout.addWidget(self.video_label_1, 0, 0, 1, 1)
+        self.video_label_2 = QImageLabel(self.centralWidget)
+        self.video_label_2.setMinimumSize(QtCore.QSize(360, 270))
+        self.video_label_2.setMaximumSize(QtCore.QSize(1280, 720))
+        self.video_label_2.setAutoFillBackground(False)
+        self.video_label_2.setText("")
+        self.video_label_2.setObjectName("video_label_2")
+        self.gridLayout.addWidget(self.video_label_2, 0, 1, 1, 1)
         self.horizontalLayout_6.addLayout(self.gridLayout)
         self.horizontalLayout_7.addLayout(self.horizontalLayout_6)
         mainWindow.setCentralWidget(self.centralWidget)
@@ -578,3 +578,4 @@ class Ui_mainWindow(object):
         self.actionHelp.setText(_translate("mainWindow", "帮助信息"))
         self.actionAbout.setText(_translate("mainWindow", "关于"))
 
+from qimage_label import QImageLabel
