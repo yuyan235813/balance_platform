@@ -33,13 +33,11 @@ CREATE TABLE t_balance(
   ext3 text, -- '备用3'
   ext4 text -- '备用4'
 );
-INSERT INTO t_balance VALUES(16,2018120614003403,'鲁J12345',100,40,60,'','山东鲁能集团','干旱河谷',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:01:06','2018-12-06','2018-12-06 14:01:06','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(18,2018120614352203,'鲁F12345',100,60,40,'水泥','江苏苏宁集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:39:16','2018-12-06','2018-12-06 14:39:16','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(19,12345567,'鲁J00012',200,10,190,'水泥','山东金石集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:43:33','2018-12-06','2018-12-06 14:43:33','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(21,2018120614535803,'鲁J45678',120,80,40,'水泥','浙江绿城集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 14:56:39','2018-12-06','2018-12-06 14:56:39','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(22,2018120615020003,'鲁H12345',220,100,120,'水泥','浙江绿城集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 15:02:20','2018-12-06','2018-12-06 15:02:20','系统管理员',1,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(23,2018120615033303,'鲁G12345',260,0,0,'','','',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-06 15:03:48','2018-12-06','2018-12-06 15:03:48','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO t_balance VALUES(24,12345566,'鲁J00012',200,10,190,'金条','江苏苏宁集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2018-12-15 16:13:03','2018-12-15','2018-12-15 16:13:03','系统管理员',0,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(87,2019010813142001,'鲁1234',120,120,0,'','山东鲁能集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 13:16:00','2019-01-08','2019-01-08 13:16:00','系统管理员',1,NULL,'C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_131600',NULL,NULL,NULL);
+INSERT INTO t_balance VALUES(89,2019010813163001,'鲁789',120,120,0,'','山东鲁能集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 13:33:14','2019-01-08','2019-01-08 13:33:14','系统管理员',1,NULL,NULL,'C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_133314',NULL,NULL);
+INSERT INTO t_balance VALUES(90,2019010814210501,'鲁456',120,120,0,'','','',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 14:21:08','2019-01-08','2019-01-08 14:21:08','系统管理员',1,NULL,'C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_142108','C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_142544',NULL,NULL);
+INSERT INTO t_balance VALUES(91,2019010818083801,'1234',440,120,320,'水泥','江苏苏宁集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 18:12:20','2019-01-08','2019-01-08 18:08:41','系统管理员',1,NULL,'C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_180841','C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_181220',NULL,NULL);
+INSERT INTO t_balance VALUES(92,2019010818131301,'125',120,80,40,'水泥','浙江绿城集团','规划风格化',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 18:13:31','2019-01-08','2019-01-08 18:13:22','系统管理员',1,NULL,'C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_181322','C:\Users\Mloong\Desktop\balance_platform\shot\201901\20190108_181331',NULL,NULL);
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf
@@ -61,7 +59,7 @@ CREATE TABLE `t_com` (
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com VALUES(1,'默认设备',1,'COM5',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
+INSERT INTO t_com VALUES(1,'默认设备',1,'COM4',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_com_conf` (
   `com_no` text unique NOT NULL DEFAULT 'COM1'-- '串口号'
 );
@@ -71,9 +69,9 @@ INSERT INTO t_com_conf VALUES('COM6');
 INSERT INTO t_com_conf VALUES('COM7');
 INSERT INTO t_com_conf VALUES('COM8');
 INSERT INTO t_com_conf VALUES('COM9');
-INSERT INTO t_com_conf VALUES('COM4');
 INSERT INTO t_com_conf VALUES('COM3');
 INSERT INTO t_com_conf VALUES('COM5');
+INSERT INTO t_com_conf VALUES('COM4');
 CREATE TABLE `t_baud_rate_conf` (
   `baud_rate` int unique NOT NULL DEFAULT '9600'-- '波特率'
 );
@@ -223,10 +221,10 @@ INSERT INTO t_permission VALUES(8,1,'1',8,1);
 INSERT INTO t_permission VALUES(9,1,'1',9,1);
 INSERT INTO t_permission VALUES(10,2,'admin',1,0);
 INSERT INTO t_permission VALUES(11,2,'admin',2,0);
-INSERT INTO t_permission VALUES(12,2,'admin',3,0);
+INSERT INTO t_permission VALUES(12,2,'admin',3,1);
 INSERT INTO t_permission VALUES(13,2,'admin',4,1);
 INSERT INTO t_permission VALUES(14,2,'admin',5,1);
-INSERT INTO t_permission VALUES(15,2,'admin',6,0);
+INSERT INTO t_permission VALUES(15,2,'admin',6,1);
 INSERT INTO t_permission VALUES(16,2,'admin',7,0);
 INSERT INTO t_permission VALUES(17,2,'admin',8,0);
 INSERT INTO t_permission VALUES(18,2,'admin',9,0);
@@ -247,7 +245,7 @@ INSERT INTO t_permission VALUES(32,2,'user1',5,1);
 INSERT INTO t_permission VALUES(33,2,'user1',6,1);
 INSERT INTO t_permission VALUES(34,2,'user1',7,1);
 INSERT INTO t_permission VALUES(35,2,'user1',8,0);
-INSERT INTO t_permission VALUES(36,2,'user1',9,0);
+INSERT INTO t_permission VALUES(36,2,'user1',9,1);
 CREATE TABLE `t_camera` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `camera_name` text unique not null default '默认设备', -- 称重仪名称
@@ -257,12 +255,12 @@ CREATE TABLE `t_camera` (
   `password` text not null DEFAULT '', -- '数据位'
   `camera_no` int unique not null DEFAULT 1 -- '校验位'
 );
-INSERT INTO t_camera VALUES(19,'摄像头1',1,'192.168.31.64','admin','qwer6961',1);
-INSERT INTO t_camera VALUES(20,'摄像头2',0,'192.168.31.64','admin','qwer6961',2);
-INSERT INTO t_camera VALUES(21,'摄像头3',0,'192.168.31.64','admin','qwer6961',3);
-INSERT INTO t_camera VALUES(22,'摄像头4',1,'192.168.31.64','admin','qwer6961',4);
+INSERT INTO t_camera VALUES(163,'摄像头1',0,'192.168.31.64','admin','qwer6961',1);
+INSERT INTO t_camera VALUES(164,'摄像头2',1,'192.168.31.64','admin','qwer6961',2);
+INSERT INTO t_camera VALUES(165,'摄像头3',1,'192.168.31.64','admin','qwer6961',3);
+INSERT INTO t_camera VALUES(166,'摄像头4',0,'192.168.31.64','admin','qwer6961',4);
 DELETE FROM sqlite_sequence;
-INSERT INTO sqlite_sequence VALUES('t_balance',24);
+INSERT INTO sqlite_sequence VALUES('t_balance',92);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
 INSERT INTO sqlite_sequence VALUES('t_com',1);
 INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
@@ -274,5 +272,5 @@ INSERT INTO sqlite_sequence VALUES('t_role',2);
 INSERT INTO sqlite_sequence VALUES('t_permission',36);
 INSERT INTO sqlite_sequence VALUES('t_user',2);
 INSERT INTO sqlite_sequence VALUES('t_receiver',4);
-INSERT INTO sqlite_sequence VALUES('t_camera',22);
+INSERT INTO sqlite_sequence VALUES('t_camera',166);
 COMMIT;
