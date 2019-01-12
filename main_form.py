@@ -432,7 +432,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         folder = os.path.exists(path)
         if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
             os.makedirs(path)
-        path = path + '\\' + str(today_date)
+        path = path + '\\' + str(balance_id)+str(today_date)
         self.shot_change(path)
         data = ''
         balance_time=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
