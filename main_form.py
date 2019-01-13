@@ -5,6 +5,8 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
+import datetime
+
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
@@ -49,7 +51,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
         self.dialog.my_signal.connect(self.CarComboBox.setCurrentText)
-        self.params_form = ParamsForm()
+        self.params_form = ParamsForm(self)
         self.actionParameterSetup.triggered.connect(self.params_form.show)
         self.setup_form = SetupForm()
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
@@ -77,10 +79,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(120)
         self.balance_status = 0
+        self.ischange = 0
         self.isexist = 0
         self.thread_dict = dict()
         self.active_video()
-        self.video_label_3.doubleClicked.connect(print)
+
+    def getUserName(self):
+        sql = "select user_name from t_user where user_id = '%s'" % self.user_id
+        ret = self.db.query(sql)
+        return ret[0].get('user_name')
 
     def show(self):
         """
@@ -132,6 +139,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
         ret = self.db.query(sql)
         if ret:
+            for k in self.thread_dict.keys():
+                self.thread_dict[k].stop()
+            self.video_label_1.clear()
+            self.video_label_2.clear()
+            self.video_label_3.clear()
+            self.video_label_4.clear()
             for item in ret:
                 url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
                 camera_no = item['camera_no']
@@ -139,7 +152,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 # 注册信号处理函数
                 self.thread_dict[str(camera_no)].breakSignal.connect(self.show_camera)
                 # 启动线程
-                self.shotPushButton.clicked.connect(self.shot_change)
+                # self.shotPushButton.clicked.connect(self.shot_change)
                 self.thread_dict[str(camera_no)].shortImage.connect(self.shot_info)
                 self.thread_dict[str(camera_no)].start()
 
@@ -149,15 +162,36 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :param flag:
         :return:
         """
-        if flag:
-            QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
+        # if flag:
+        #     QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
+        return flag
 
-    def shot_change(self):
+    def shot_change(self,path):
         """
         截图
         :return:
         """
-        self.thread_dict['1'].shot_image()
+
+        sql = """select  camera_no from t_camera where is_active = 1"""
+        ret = self.db.query(sql)
+        for item in ret:
+            camera_no = item['camera_no']
+            if camera_no == 1:
+                path1 = path+'01.png'
+                self.thread_dict['1'].shot_image(path1)
+                continue
+            if camera_no == 2:
+                path2 = path + '02.png'
+                self.thread_dict['2'].shot_image(path2)
+                continue
+            if camera_no == 3:
+                path3 = path + '03.png'
+                self.thread_dict['3'].shot_image(path3)
+                continue
+            if camera_no == 4:
+                path4 = path + '04.png'
+                self.thread_dict['4'].shot_image(path4)
+                continue
 
     def show_camera(self, camera_no, qpixmap):
         """
@@ -282,6 +316,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(car_list[row].values())[0]
             self.CarComboBox.addItem(values)
         self.CarComboBox.clearEditText()
+        self.operatorComboBox.setCurrentText(self.getUserName())
 
     def set_table_view(self):
         """
@@ -386,13 +421,43 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         supplier = self.supplierComboBox.currentText()
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
-        operator = u'系统管理员'
-        insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
-                     extra, price, amount, car_no, supplier, receiver, goods_name, operator, status) 
-                     values(?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-
-        data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                supplier, receiver, goods_name, operator, self.balance_status)
+        operator = self.getUserName()
+        print(operator)
+        # operator = u'系统管理员'
+        today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.abspath('.') + '\shot'
+        today_month = datetime.datetime.now().strftime("%Y%m")
+        path = path + '\\' + str(today_month)
+        folder = os.path.exists(path)
+        if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+            os.makedirs(path)
+        path = path + '\\' + str(today_date)
+        self.shot_change(path)
+        data = ''
+        balance_time=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if self.balance_status:
+            if self.ischange:
+                insert_sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                                     extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
+                                     goods_name = ?, balance_time1=?,operator = ?, status= ?,ext2=? 
+                                     where balance_id = ?'''
+                data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                        supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+            else:
+                insert_sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                                     extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
+                                     goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ? 
+                                     where balance_id = ? '''
+                data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                        supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+        else:
+            insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
+                                extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
+                                balance_time2, operator, status,ext1) 
+                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+            data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
         ret = self.db.update(insert_sql, args=data)
         if warning:
             if ret:
@@ -481,6 +546,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             QtWidgets.QMessageBox.warning(self, '本程序', "请先设置车号！", QtWidgets.QMessageBox.Ok)
             return
         balance_query = """select * from t_balance where car_no = '%s' and status=0""" % car_no
+        print(balance_query)
         ret = self.db.query(balance_query)
         if ret:
             QtWidgets.QMessageBox.warning(self, '本程序', "此车 %s 有未完成的磅单，正在进行完成操作!" % car_no, QtWidgets.QMessageBox.Ok)
@@ -489,6 +555,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             total_weight_db = data_db.get('total_weight', 0)
             actual_weight = abs(current_weight - total_weight_db)
             leather_weight = current_weight if total_weight_db > current_weight else total_weight_db
+            if current_weight - total_weight_db > 0:
+                self.ischange = 1
             total_weight = leather_weight + actual_weight
             self.totalWeightLcdNumber.display(total_weight)
             self.leatherWeightLcdNumber.display(leather_weight)
@@ -643,6 +711,8 @@ class VideoThread(QThread):
         cap = cv2.VideoCapture(self.url)
         if cap.isOpened():
             logging.info('camera open success.')
+        else:
+            return
         while cap.isOpened():
             if self.stoped:
                 return
@@ -657,9 +727,9 @@ class VideoThread(QThread):
             if self.shot_flag:
                 logging.info('shot')
                 # todo 截图地址
-                cv2.imwrite('ddd.png', frame)
+                cv2.imwrite(self.path, frame)
                 self.shot_flag = False
-                self.shortImage.emit('1')
+                self.shortImage.emit(self.path)
             # 40毫秒发送一次信号
             time.sleep(0.04)
 
@@ -673,12 +743,13 @@ class VideoThread(QThread):
         self.video_width = width
         self.video_height = height
 
-    def shot_image(self):
+    def shot_image(self,path):
         """
         截图操作
         :return:
         """
         self.shot_flag = True
+        self.path =path
 
     def stop(self):
         with QMutexLocker(self.mutex):

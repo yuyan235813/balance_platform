@@ -177,7 +177,7 @@ CREATE TABLE `t_role` (
   `status` int not null default 1 -- 1:有效；0：删除
 );
 INSERT INTO t_role VALUES(1,'系统管理员',1);
-INSERT INTO t_role VALUES(10,'操作员',1);
+INSERT INTO t_role VALUES(2,'操作员',1);
 CREATE TABLE `t_user` (
   `id` integer primary key AUTOINCREMENT, -- ID
   `user_id` text unique not null default '', -- 用户ID
@@ -188,7 +188,7 @@ CREATE TABLE `t_user` (
 );
 INSERT INTO t_user VALUES(1,'admin','系统管理员','321',1,1);
 INSERT INTO t_user VALUES(2,'user1','操作员1','123',2,1);
-INSERT INTO t_user VALUES(14,'user2','操作员2','123',10,1);
+INSERT INTO t_user VALUES(3,'user2','操作员2','123',2,1);
 CREATE TABLE `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `opt_type` int not null default 1, --操作类型，1：功能，2：权限
@@ -214,31 +214,31 @@ CREATE TABLE `t_permission`(
 );
 INSERT INTO t_permission VALUES(1,1,'1',1,1);
 INSERT INTO t_permission VALUES(2,1,'1',2,1);
-INSERT INTO t_permission VALUES(3,1,'1',1,1);
-INSERT INTO t_permission VALUES(4,1,'1',2,1);
-INSERT INTO t_permission VALUES(5,2,'user2',1,1);
-INSERT INTO t_permission VALUES(6,2,'user2',2,1);
+INSERT INTO t_permission VALUES(3,1,'1',3,0);
+INSERT INTO t_permission VALUES(4,1,'1',4,1);
+INSERT INTO t_permission VALUES(5,1,'1',5,1);
+INSERT INTO t_permission VALUES(6,1,'1',6,1);
 INSERT INTO t_permission VALUES(7,1,'1',7,1);
 INSERT INTO t_permission VALUES(8,1,'1',8,1);
 INSERT INTO t_permission VALUES(9,1,'1',9,1);
-INSERT INTO t_permission VALUES(10,2,'admin',1,0);
-INSERT INTO t_permission VALUES(11,2,'admin',2,0);
-INSERT INTO t_permission VALUES(12,2,'admin',3,0);
+INSERT INTO t_permission VALUES(10,2,'admin',1,1);
+INSERT INTO t_permission VALUES(11,2,'admin',2,1);
+INSERT INTO t_permission VALUES(12,2,'admin',3,1);
 INSERT INTO t_permission VALUES(13,2,'admin',4,1);
 INSERT INTO t_permission VALUES(14,2,'admin',5,1);
-INSERT INTO t_permission VALUES(15,2,'admin',6,0);
-INSERT INTO t_permission VALUES(16,2,'admin',7,0);
-INSERT INTO t_permission VALUES(17,2,'admin',8,0);
-INSERT INTO t_permission VALUES(18,2,'admin',9,0);
+INSERT INTO t_permission VALUES(15,2,'admin',6,1);
+INSERT INTO t_permission VALUES(16,2,'admin',7,1);
+INSERT INTO t_permission VALUES(17,2,'admin',8,1);
+INSERT INTO t_permission VALUES(18,2,'admin',9,1);
 INSERT INTO t_permission VALUES(19,1,'2',1,1);
 INSERT INTO t_permission VALUES(20,1,'2',2,1);
-INSERT INTO t_permission VALUES(21,1,'2',3,0);
-INSERT INTO t_permission VALUES(22,1,'2',4,0);
+INSERT INTO t_permission VALUES(21,1,'2',3,1);
+INSERT INTO t_permission VALUES(22,1,'2',4,1);
 INSERT INTO t_permission VALUES(23,1,'2',5,1);
 INSERT INTO t_permission VALUES(24,1,'2',6,1);
 INSERT INTO t_permission VALUES(25,1,'2',7,1);
-INSERT INTO t_permission VALUES(26,1,'2',8,0);
-INSERT INTO t_permission VALUES(27,1,'2',9,0);
+INSERT INTO t_permission VALUES(26,1,'2',8,1);
+INSERT INTO t_permission VALUES(27,1,'2',9,1);
 INSERT INTO t_permission VALUES(28,2,'user1',1,1);
 INSERT INTO t_permission VALUES(29,2,'user1',2,1);
 INSERT INTO t_permission VALUES(30,2,'user1',3,0);
@@ -248,6 +248,15 @@ INSERT INTO t_permission VALUES(33,2,'user1',6,1);
 INSERT INTO t_permission VALUES(34,2,'user1',7,1);
 INSERT INTO t_permission VALUES(35,2,'user1',8,0);
 INSERT INTO t_permission VALUES(36,2,'user1',9,0);
+INSERT INTO t_permission VALUES(37,2,'user2',1,1);
+INSERT INTO t_permission VALUES(38,2,'user2',2,1);
+INSERT INTO t_permission VALUES(39,2,'user2',3,0);
+INSERT INTO t_permission VALUES(40,2,'user2',4,0);
+INSERT INTO t_permission VALUES(41,2,'user2',5,1);
+INSERT INTO t_permission VALUES(42,2,'user2',6,1);
+INSERT INTO t_permission VALUES(43,2,'user2',7,1);
+INSERT INTO t_permission VALUES(44,2,'user2',8,0);
+INSERT INTO t_permission VALUES(45,2,'user2',9,0);
 CREATE TABLE `t_camera` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `camera_name` text unique not null default '默认设备', -- 称重仪名称
@@ -260,7 +269,7 @@ CREATE TABLE `t_camera` (
 INSERT INTO t_camera VALUES(19,'摄像头1',1,'192.168.31.64','admin','qwer6961',1);
 INSERT INTO t_camera VALUES(20,'摄像头2',0,'192.168.31.64','admin','qwer6961',2);
 INSERT INTO t_camera VALUES(21,'摄像头3',0,'192.168.31.64','admin','qwer6961',3);
-INSERT INTO t_camera VALUES(22,'摄像头4',1,'192.168.31.64','admin','qwer6961',4);
+INSERT INTO t_camera VALUES(22,'摄像头4',1,'192.168.31.64','admin','qwer6961', 4);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_balance',24);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);

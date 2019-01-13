@@ -18,8 +18,9 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
     """
     参数设置
     """
-    def __init__(self):
+    def __init__(self, parent):
         super(ParamsForm, self).__init__()
+        self.parent = parent
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
@@ -175,6 +176,7 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         if ret and ret1:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
+            self.parent.active_video()
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
 

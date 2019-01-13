@@ -1,6 +1,9 @@
 from PyQt5 import QtWidgets
+from qtpy import QtGui
+
 from ui.poll_main import Ui_PollmainForm
 from ui.poll_result import Ui_PollResultForm
+from ui.image_detail_dialog import Ui_imageDetailDialog
 from ui.balance_detail import Ui_balance_detailDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtCore import *
@@ -14,6 +17,9 @@ from PyQt5.QtGui import QTextDocument
 from xlwt import *
 import logging
 import os
+import cv2
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGraphicsScene, QGraphicsPixmapItem, QGraphicsItem
+from PyQt5.QtGui import QImage, QPixmap
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -96,7 +102,13 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
             condition = condition + ' receiver = "'+receiver_name+'" and'
         if supply_name:
             condition = condition + ' supplier = "'+supply_name+'" and'
-        condition = condition[:-3]
+        if self.CompleteradioButton.isChecked():
+            condition = condition + ' status = 1'
+        if self.UnCompleteradioButton.isChecked():
+            condition = condition + ' status = 0'
+        if self.AllradioButton.isChecked():
+            condition = condition + ' status = 1 or status = 0'
+        # condition = condition[:-3]
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
         logging.debug(query_sql)
@@ -333,6 +345,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.printPushButton.clicked.connect(self.print_data)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
+        self.image_detail_dialog = ImageDetailDialog()
+        self.graphicsView_1.doubleClicked.connect(self.image_detail_dialog.show)
 
     def show(self, column):
         """
@@ -343,7 +357,7 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.receiverComboBox.clear()
         self.supplierComboBox.clear()
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
-                    'balance_time2,goods_name,receiver,supplier,operator from t_balance  ' \
+                    'balance_time2,goods_name,receiver,supplier,operator,ext1,ext2 from t_balance  ' \
                     'where balance_id = %s' % (column)
         data_list = self.db.query(query_sql)
         supply_query_sql = 'select supplier_name from t_supplier'
@@ -374,6 +388,42 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.receiverComboBox.setCurrentText(str(list(data_list[0].values())[8]))
         self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[9]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
+        count = 0
+        while (count < 4):
+            count = count + 1
+            path1 = str(list(data_list[0].values())[11])+'0'+str(count)+'.png'
+            path2 = str(list(data_list[0].values())[12]) + '0' + str(count) + '.png'
+            if os.path.isfile(path1):
+                if count==1:
+                    self.showimage(path1, self.graphicsView_1)
+                if count == 2:
+                    self.showimage(path1, self.graphicsView_2)
+                if count == 3:
+                    self.showimage(path1, self.graphicsView_3)
+                if count == 4:
+                    self.showimage(path1, self.graphicsView_4)
+            if os.path.isfile(path2):
+                if count==1:
+                    self.showimage(path2, self.graphicsView_5)
+                if count == 2:
+                    self.showimage(path2, self.graphicsView_6)
+                if count == 3:
+                    self.showimage(path2, self.graphicsView_7)
+                if count == 4:
+                    self.showimage(path2, self.graphicsView_8)
+
+    def  showimage(self,path,graph):
+        img = cv2.imread(path)  # 读取图像
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 转换图像通道
+        frame_mini = cv2.resize(img, (graph.width(), graph.height()))
+        self.zoomscale = 1  # 图片放缩尺度
+        frame = QImage(frame_mini, graph.width(), graph.height(), QImage.Format_RGB888)
+        pix = QPixmap.fromImage(frame)
+        self.item = QGraphicsPixmapItem(pix)  # 创建像素图元
+        self.item.setScale(self.zoomscale)
+        self.scene = QGraphicsScene()  # 创建场景
+        self.scene.addItem(self.item)
+        graph.setScene(self.scene)
 
     def save_detail(self, warning=True):
         """
@@ -445,6 +495,16 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         logging.debug(cmd_str)
         logging.debug(cmd_str)
         self.p = subprocess.Popen(cmd_str)
+
+
+
+class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
+    """
+    图片查看
+    """
+    def __init__(self):
+        super(ImageDetailDialog, self).__init__()
+        self.setupUi(self)
 
 
 if __name__ == '__main__':

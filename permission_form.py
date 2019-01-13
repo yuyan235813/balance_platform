@@ -336,16 +336,17 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
             else:
                 sql = "select a.user_id, a.user_name, a.password, b.role_name from t_user a join t_role b on a.role_id = b.id where a.user_name = '%s'" % user_name
                 ret = self.db.query(sql)
-                self.user_id = ret[0].get('user_id')
-                user_name = ret[0].get('user_name')
-                self.password = ret[0].get('password')
-                role_name = ret[0].get('role_name')
-                self.roleComboBox.setCurrentText(role_name)
-                self.userIDLineEdit.setText(self.user_id)
-                self.userIDLineEdit.setEnabled(False)
-                self.userNameLineEdit.setText(user_name)
-                self.passwordLineEdit1.setText(self.password)
-                self.passwordLineEdit2.setText(self.password)
+                if ret:
+                    self.user_id = ret[0].get('user_id')
+                    user_name = ret[0].get('user_name')
+                    self.password = ret[0].get('password')
+                    role_name = ret[0].get('role_name')
+                    self.roleComboBox.setCurrentText(role_name)
+                    self.userIDLineEdit.setText(self.user_id)
+                    self.userIDLineEdit.setEnabled(False)
+                    self.userNameLineEdit.setText(user_name)
+                    self.passwordLineEdit1.setText(self.password)
+                    self.passwordLineEdit2.setText(self.password)
 
     def __save_data(self):
         """
