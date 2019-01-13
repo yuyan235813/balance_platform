@@ -8,7 +8,9 @@
 import os
 import datetime
 from utils.sqllite_util import EasySqlite
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QGraphicsView, QGraphicsPixmapItem, QGraphicsScene
+from PyQt5.QtGui import QImage, QPixmap
+import cv2
 import logging
 
 
@@ -134,6 +136,28 @@ def has_permission(user_id, operation):
 @has_permission('admin', 'system_params_form1')
 def test_fun(text):
     print('我就是我，不一样的烟火 %s' % text)
+
+
+def show_image(path, graph: QGraphicsView, origin_size=False):
+    """
+    在 QGraphicsView 控件上显示图片
+    """
+    img = cv2.imread(path)  # 读取图像
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 转换图像通道
+    zoomscale = 1  # 图片放缩尺度
+    if origin_size:
+        height, width = img.shape[:2]
+        frame = QImage(img, width, height, QImage.Format_RGB888)
+    else:
+        frame_mini = cv2.resize(img, (graph.width(), graph.height()))
+        frame = QImage(frame_mini, graph.width(), graph.height(), QImage.Format_RGB888)
+    pix = QPixmap.fromImage(frame)
+    item = QGraphicsPixmapItem(pix)  # 创建像素图元
+    item.setScale(zoomscale)
+    scene = QGraphicsScene()  # 创建场景
+    scene.addItem(item)
+    graph.setScene(scene)
+    graph.setWindowFilePath(path)
 
 
 if __name__ == '__main__':

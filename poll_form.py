@@ -1,25 +1,26 @@
-from PyQt5 import QtWidgets
-from qtpy import QtGui
-
-from ui.poll_main import Ui_PollmainForm
-from ui.poll_result import Ui_PollResultForm
-from ui.image_detail_dialog import Ui_imageDetailDialog
-from ui.balance_detail import Ui_balance_detailDialog
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtCore import *
-from utils.sqllite_util import EasySqlite
-import xlwt
-import subprocess
 import datetime
-from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QTableWidget
-from PyQt5.QtGui import QTextDocument
-from xlwt import *
 import logging
 import os
+import subprocess
+
 import cv2
-from PyQt5.QtWidgets import QMainWindow, QApplication, QGraphicsScene, QGraphicsPixmapItem, QGraphicsItem
+import xlwt
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import *
 from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QTextDocument
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem
+from PyQt5.QtWidgets import QTableWidget
+from xlwt import *
+
+from ui.balance_detail import Ui_balance_detailDialog
+from ui.image_detail_dialog import Ui_imageDetailDialog
+from ui.poll_main import Ui_PollmainForm
+from ui.poll_result import Ui_PollResultForm
+from utils.sqllite_util import EasySqlite
+from utils.normal_utils import show_image
 
 
 class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
@@ -347,6 +348,13 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.image_detail_dialog = ImageDetailDialog()
         self.graphicsView_1.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_2.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_3.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_4.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_5.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_6.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_7.doubleClicked.connect(self.image_detail_dialog.show)
+        self.graphicsView_8.doubleClicked.connect(self.image_detail_dialog.show)
 
     def show(self, column):
         """
@@ -395,35 +403,22 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
             path2 = str(list(data_list[0].values())[12]) + '0' + str(count) + '.png'
             if os.path.isfile(path1):
                 if count==1:
-                    self.showimage(path1, self.graphicsView_1)
+                    show_image(path1, self.graphicsView_1)
                 if count == 2:
-                    self.showimage(path1, self.graphicsView_2)
+                    show_image(path1, self.graphicsView_2)
                 if count == 3:
-                    self.showimage(path1, self.graphicsView_3)
+                    show_image(path1, self.graphicsView_3)
                 if count == 4:
-                    self.showimage(path1, self.graphicsView_4)
+                    show_image(path1, self.graphicsView_4)
             if os.path.isfile(path2):
                 if count==1:
-                    self.showimage(path2, self.graphicsView_5)
+                    show_image(path2, self.graphicsView_5)
                 if count == 2:
-                    self.showimage(path2, self.graphicsView_6)
+                    show_image(path2, self.graphicsView_6)
                 if count == 3:
-                    self.showimage(path2, self.graphicsView_7)
+                    show_image(path2, self.graphicsView_7)
                 if count == 4:
-                    self.showimage(path2, self.graphicsView_8)
-
-    def  showimage(self,path,graph):
-        img = cv2.imread(path)  # 读取图像
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 转换图像通道
-        frame_mini = cv2.resize(img, (graph.width(), graph.height()))
-        self.zoomscale = 1  # 图片放缩尺度
-        frame = QImage(frame_mini, graph.width(), graph.height(), QImage.Format_RGB888)
-        pix = QPixmap.fromImage(frame)
-        self.item = QGraphicsPixmapItem(pix)  # 创建像素图元
-        self.item.setScale(self.zoomscale)
-        self.scene = QGraphicsScene()  # 创建场景
-        self.scene.addItem(self.item)
-        graph.setScene(self.scene)
+                    show_image(path2, self.graphicsView_8)
 
     def save_detail(self, warning=True):
         """
@@ -497,7 +492,6 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.p = subprocess.Popen(cmd_str)
 
 
-
 class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
     """
     图片查看
@@ -505,6 +499,18 @@ class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
     def __init__(self):
         super(ImageDetailDialog, self).__init__()
         self.setupUi(self)
+        self.desktop = QtWidgets.QApplication.desktop()
+        self.setFixedSize(self.desktop.width(), self.desktop.height());
+        self.setWindowModality(Qt.ApplicationModal)
+
+    def show(self, path):
+        """
+        显示界面
+        :param path:
+        :return:
+        """
+        super(ImageDetailDialog, self).show()
+        show_image(path, self.graphicsView_1, True)
 
 
 if __name__ == '__main__':

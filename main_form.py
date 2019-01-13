@@ -79,10 +79,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(120)
         self.balance_status = 0
-        self.ischange = 0
+        # self.ischange = 0
         self.isexist = 0
         self.thread_dict = dict()
         self.active_video()
+        # 1：新建未完成磅单； 2：修改已完成订单；0：其他状态
+        self.balance_opt_status = 0
 
     def getUserName(self):
         sql = "select user_name from t_user where user_id = '%s'" % self.user_id
@@ -344,8 +346,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.balanceNoBlael.setText(str(self.tableView.model().index(index.row(), 0).data()))
             self.totalWeightLcdNumber.display(self.tableView.model().index(index.row(), 2).data())
             self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
+            print(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
 
+            self.extraWeightSpinBox.setValue(float(self.tableView.model().index(index.row(), 9).data()))
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
             self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
 
@@ -354,6 +358,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.receiverComboBox.setCurrentText(self.tableView.model().index(index.row(), 7).data())
             self.goodsComboBox.setCurrentText(self.tableView.model().index(index.row(), 5).data())
             self.operatorComboBox.setCurrentText(str(self.tableView.model().index(index.row(), 23).data()))
+            self.balance_status = str(self.tableView.model().index(index.row(), 24).data())
+            self.balance_opt_status = 0
         else:
             self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
 
@@ -376,12 +382,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
 
     def update_weight(self, car_no):
         """
-        更行重量
+        更新重量
         :return:
         """
-        if len(car_no) != 7:
-            self.leatherWeightLcdNumber.display(0)
-            return
+        # if len(car_no) != 7:
+        #     self.leatherWeightLcdNumber.display(0)
+        #     return
         if self.balanceNoBlael.text():
             return
         self.balanceNoBlael.setText('')
@@ -422,43 +428,68 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
         operator = self.getUserName()
-        print(operator)
-        # operator = u'系统管理员'
-        today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        path = os.path.abspath('.') + '\shot'
-        today_month = datetime.datetime.now().strftime("%Y%m")
-        path = path + '\\' + str(today_month)
-        folder = os.path.exists(path)
-        if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
-            os.makedirs(path)
-        path = path + '\\' + str(today_date)
-        self.shot_change(path)
-        data = ''
-        balance_time=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        if self.balance_status:
-            if self.ischange:
-                insert_sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
-                                     extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                     goods_name = ?, balance_time1=?,operator = ?, status= ?,ext2=? 
-                                     where balance_id = ?'''
-                data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                        supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+        if self.balance_opt_status:
+            print(operator)
+            # operator = u'系统管理员'
+            today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            path = os.path.abspath('.') + '\shot'
+            today_month = datetime.datetime.now().strftime("%Y%m")
+            path = path + '\\' + str(today_month)
+            folder = os.path.exists(path)
+            if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+                os.makedirs(path)
+            path = path + '\\' + str(balance_id)+str(today_date)
+            self.shot_change(path)
+            data = ''
+            balance_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(self.balance_status)
+            if self.balance_opt_status == 1:
+                sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
+                                extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
+                                balance_time2, operator, status,ext1) 
+                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                    supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
             else:
-                insert_sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                      extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
                                      goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ? 
                                      where balance_id = ? '''
                 data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                         supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
         else:
-            insert_sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
-                                extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
-                                balance_time2, operator, status,ext1) 
-                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-            data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
-        ret = self.db.update(insert_sql, args=data)
+            sql = """update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                                     extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
+                                     goods_name = ?, operator = ?, status= ?
+                                     where balance_id = ?"""
+            data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                    supplier, receiver, goods_name, operator, self.balance_status, int(balance_id))
+
+        # if self.balance_status:
+        #     if self.ischange:
+        #         sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+        #                              extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
+        #                              goods_name = ?, balance_time1=?,operator = ?, status= ?,ext2=?
+        #                              where balance_id = ?'''
+        #         data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+        #                 supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+        #     else:
+        #         sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+        #                              extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
+        #                              goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?
+        #                              where balance_id = ? '''
+        #         data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+        #                 supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+        # else:
+        #     sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
+        #                         extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
+        #                         balance_time2, operator, status,ext1)
+        #                         values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+        #     data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+        #         supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
+        ret = self.db.update(sql, args=data)
         if warning:
             if ret:
                 QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
@@ -477,13 +508,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.totalWeightLcdNumber.display(0)
         self.leatherWeightLcdNumber.display(0)
         self.actualWeightLcdNumber.display(0)
+        self.extraWeightSpinBox.setValue(0)
         self.priceSpinBox.setValue(0)
         self.amountSpinBox.setValue(0)
         self.CarComboBox.setCurrentText('')
         self.supplierComboBox.setCurrentText('')
         self.receiverComboBox.setCurrentText('')
         self.goodsComboBox.setCurrentText('')
-        self.operatorComboBox.setCurrentText('')
+        self.operatorComboBox.setCurrentText(self.getUserName())
         self.balance_status = 0
 
     def save_leather(self):
@@ -555,13 +587,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             total_weight_db = data_db.get('total_weight', 0)
             actual_weight = abs(current_weight - total_weight_db)
             leather_weight = current_weight if total_weight_db > current_weight else total_weight_db
-            if current_weight - total_weight_db > 0:
-                self.ischange = 1
+            # if current_weight - total_weight_db > 0:
+            #     self.ischange = 1
             total_weight = leather_weight + actual_weight
             self.totalWeightLcdNumber.display(total_weight)
             self.leatherWeightLcdNumber.display(leather_weight)
             self.actualWeightLcdNumber.display(actual_weight)
             self.balance_status = 1
+            self.balance_opt_status = 2
         else:
             balance_id = normal_utils.generate_balance_id()
             self.balanceNoBlael.setText(balance_id)
@@ -580,6 +613,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 self.actualWeightLcdNumber.display(actual_weight)
                 self.balance_status = 1
             self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
+            self.balance_opt_status = 1
 
     def show_dialog(self):
         """
