@@ -432,12 +432,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             print(operator)
             # operator = u'系统管理员'
             today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            path = os.path.abspath('.') + '\shot'
+            path = 'shot'
             today_month = datetime.datetime.now().strftime("%Y%m")
             path = path + '\\' + str(today_month)
-            folder = os.path.exists(path)
+            abs_path = os.path.join(os.path.abspath('.'), path)
+            folder = os.path.exists(abs_path)
             if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
-                os.makedirs(path)
+                os.makedirs(abs_path)
             path = path + '\\' + str(balance_id)+str(today_date)
             self.shot_change(path)
             data = ''
