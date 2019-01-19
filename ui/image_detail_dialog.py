@@ -34,4 +34,4 @@ class Ui_imageDetailDialog(object):
         _translate = QtCore.QCoreApplication.translate
         imageDetailDialog.setWindowTitle(_translate("imageDetailDialog", "图片查看"))
 
-from my_qgraphics_view import MyQGraphicsView
+from ui.my_qgraphics_view import MyQGraphicsView

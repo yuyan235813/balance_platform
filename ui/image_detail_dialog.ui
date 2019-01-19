@@ -42,7 +42,7 @@
   <customwidget>
    <class>MyQGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>my_qgraphics_view.h</header>
+   <header location="global">ui.my_qgraphics_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
