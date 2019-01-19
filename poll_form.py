@@ -273,7 +273,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         :return:
         """
         super(PollResultForm, self).show()
-        header = ['单号', '车牌号', '毛重', '皮重', '净重', '称重时间1',  '称重时间2', '货物名', '收货单位',  '供货单位',
+        header = ['单号', '车牌号', '毛重', '皮重', '净重', '毛重时间',  '皮重时间', '货物名', '收货单位',  '供货单位',
                   '操作员']
         row_no, col_no = len(column), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -364,8 +364,8 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         super(Balance_detailDialog, self).show()
         self.receiverComboBox.clear()
         self.supplierComboBox.clear()
-        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
-                    'balance_time2,goods_name,receiver,supplier,operator,ext1,ext2 from t_balance  ' \
+        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time2,' \
+                    'balance_time1,goods_name,receiver,supplier,operator,ext1,ext2 from t_balance  ' \
                     'where balance_id = %s' % (column)
         data_list = self.db.query(query_sql)
         supply_query_sql = 'select supplier_name from t_supplier'

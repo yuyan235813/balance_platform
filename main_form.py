@@ -79,7 +79,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(120)
         self.balance_status = 0
-        # self.ischange = 0
+        self.ischange = 0
         self.isexist = 0
         self.thread_dict = dict()
         self.active_video()
@@ -454,12 +454,23 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                     supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
             else:
-                sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
-                                     extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                     goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ? 
-                                     where balance_id = ? '''
-                data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                        supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
+                if self.ischange:
+                    sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                                                         extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
+                                                         goods_name = ?, balance_time1 = ?,operator = ?, status= ?,ext2= ? 
+                                                         where balance_id = ? '''
+                    data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path,
+                            int(balance_id))
+                else:
+                    sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
+                                         extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
+                                         goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?
+                                         where balance_id = ? '''
+                    data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
+                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path,
+                            int(balance_id))
+
         else:
             sql = """update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                      extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
@@ -588,8 +599,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             total_weight_db = data_db.get('total_weight', 0)
             actual_weight = abs(current_weight - total_weight_db)
             leather_weight = current_weight if total_weight_db > current_weight else total_weight_db
-            # if current_weight - total_weight_db > 0:
-            #     self.ischange = 1
+            if current_weight - total_weight_db > 0:
+                self.ischange = 1
             total_weight = leather_weight + actual_weight
             self.totalWeightLcdNumber.display(total_weight)
             self.leatherWeightLcdNumber.display(leather_weight)
