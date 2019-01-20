@@ -6,7 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.permission_setup import Ui_permissionSetupForm
 from ui.user_manage import Ui_Form

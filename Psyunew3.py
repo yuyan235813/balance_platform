@@ -2,7 +2,7 @@
 import platform
 from ctypes import *
 import random
-import os,sys
+import os
 
 path = os.getcwd()
 bit64 = ('64bit', 'WindowsPE')

@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from ui.cargo_manage import Ui_cargo_ManageForm
 from ui.cargo_dialog import Ui_Cargo_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import *
+from PyQt5.QtCore import Qt, pyqtSignal
 from utils.sqllite_util import EasySqlite
 import logging
 

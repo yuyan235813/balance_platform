@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from ui.Supply_manage import Ui_supplyManageForm
 from ui.supply_dialog import Ui_Supply_Dialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtSignal, Qt
 from utils.sqllite_util import EasySqlite
 import logging
 

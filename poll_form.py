@@ -3,18 +3,13 @@ import logging
 import os
 import subprocess
 
-import cv2
 import xlwt
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import pyqtSignal, Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtGui import QTextDocument
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtWidgets import QTableWidget
-from xlwt import *
-
 from ui.balance_detail import Ui_balance_detailDialog
 from ui.image_detail_dialog import Ui_imageDetailDialog
 from ui.poll_main import Ui_PollmainForm
@@ -509,8 +504,9 @@ class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
         :param path:
         :return:
         """
-        super(ImageDetailDialog, self).show()
-        show_image(path, self.graphicsView_1, True)
+        if os.path.exists(path):
+            super(ImageDetailDialog, self).show()
+            show_image(path, self.graphicsView_1, True)
 
 
 if __name__ == '__main__':

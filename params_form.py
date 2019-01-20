@@ -8,7 +8,7 @@
 from PyQt5 import QtWidgets
 from ui.params_setup import Ui_paramsSetupForm
 from ui.params_dialog import Ui_dialog
-from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtSignal, Qt, QThread
 from utils.sqllite_util import EasySqlite
 from functools import partial
 import logging
