@@ -1,0 +1,4 @@
+ParkComm.dll		接口文件
+ParkCommDll.cs		接口的C#函数声明示例
+接口函数说明.docx	接口函数功能描述
+一体机通讯协议说明.docx	接口通讯协议
