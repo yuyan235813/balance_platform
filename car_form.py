@@ -20,9 +20,11 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
     """
     车辆管理
     """
-    def __init__(self):
+    def __init__(self,parent):
         super(CarManageForm, self).__init__()
         self.setupUi(self)
+        self.parent = parent
+        self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         #self.pushButton.clicked.connect(self.__show_dialog)
         self.cancelPushButton.clicked.connect(self.close)
@@ -32,6 +34,7 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         self.dialog = CarNoDialogForm()
         # self.dialog.my_signal.connect(self.carNoLineEdit.setText)
         self.car_dialog = CarManageChangeForm(self)
+        self.autoMe = 0
 
     def __init_data(self):
         """
@@ -182,6 +185,15 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         """
         super().show()
         self.__init_data()
+
+    def closeEvent(self, event):
+        """
+        关闭事件
+        :param event:
+        :return:
+        """
+        self.parent.update_combobox()
+        self.close()
 
 
 class CarManageChangeForm(QtWidgets.QDialog, Ui_dialog):
