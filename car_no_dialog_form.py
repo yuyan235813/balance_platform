@@ -6,7 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtSignal, Qt
 from functools import partial
 from ui.car_no_dialog import Ui_DockWidget
 import logging

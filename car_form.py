@@ -6,7 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.car_manage import Ui_carManageForm
 from ui.car_manage_change import Ui_dialog

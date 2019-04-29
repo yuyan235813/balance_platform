@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>balance_detailDialog</class>
+ <widget class="QDialog" name="balance_detailDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -551,7 +551,7 @@
   <customwidget>
    <class>MyQGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>my_qgraphics_view.h</header>
+   <header location="global">ui.my_qgraphics_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

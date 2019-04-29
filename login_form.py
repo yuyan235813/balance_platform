@@ -9,10 +9,9 @@ from PyQt5 import QtWidgets
 from ui.login import Ui_loginDialog
 from main_form import MainForm
 from utils.sqllite_util import EasySqlite
-from winreg import *
 import winreg
 import Psyunew3
-from ctypes import *
+from ctypes import create_string_buffer, c_int, c_short
 import logging.config
 import os
 
@@ -69,13 +68,13 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                         exit()
                     QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)
                     newtime = int(usetime) - 1;
-                    winreg.SetValue(keys, "ValueName", REG_SZ, str(newtime))
+                    winreg.SetValue(keys, "ValueName", winreg.REG_SZ, str(newtime))
                 else:
                     QtWidgets.QMessageBox.warning(self, '本程序', "继续使用，请购买本软件！", QtWidgets.QMessageBox.Ok)
                     exit()
             else:
                 newKey = winreg.CreateKey(key, "MyNewkey")
-                winreg.SetValue(newKey, "ValueName", REG_SZ, "98")
+                winreg.SetValue(newKey, "ValueName", winreg.REG_SZ, "98")
                 QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件99次！", QtWidgets.QMessageBox.Ok)
         else:
             if Psyunew3.YReadString(outstring, 0, mylen, b'FFFFFFFF', b'FFFFFFFF', DevicePath) != 0:
