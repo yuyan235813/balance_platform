@@ -6,7 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.permission_setup import Ui_permissionSetupForm
 from ui.user_manage import Ui_Form
@@ -24,6 +24,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
     def __init__(self):
         super(PermissionSetupForm, self).__init__()
         self.setupUi(self)
+        self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
