@@ -73,6 +73,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         :return:
         """
         begin_date = self.begindateEdit.text()+' 00:00:00'
+        print(begin_date)
         begin_date = begin_date.replace("/" , "-")
         begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
         begin_date_zero =str(begin_date_zero)
@@ -103,11 +104,12 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         if self.UnCompleteradioButton.isChecked():
             condition = condition + ' status = 0'
         if self.AllradioButton.isChecked():
-            condition = condition + ' status = 1 or status = 0'
+            condition = condition[:-3]
         # condition = condition[:-3]
         query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
         logging.debug(query_sql)
+        print(query_sql)
         data_list = self.db.query(query_sql)
         self.pollresult.show(data_list)
 

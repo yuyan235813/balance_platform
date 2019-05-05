@@ -57,7 +57,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
-        self.car_form = CarManageForm()
+        self.car_form = CarManageForm(self)
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.Supply_form = SupplyForm(self)
         self.actionSupplier.triggered.connect(self.Supply_form.show)
@@ -314,6 +314,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         car_query_sql = 'select car_no from t_car order by add_time desc'
         car_list = self.db.query(car_query_sql)
         car_row_no = len(car_list)
+        self.CarComboBox.clear()
         for row in range(car_row_no):
             values = list(car_list[row].values())[0]
             self.CarComboBox.addItem(values)
@@ -412,8 +413,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         if not self.balanceNoBlael.text():
-            QtWidgets.QMessageBox.warning(self, '本程序', "单号不能为空！", QtWidgets.QMessageBox.Ok)
-            return
+            QtWidgets.QMessageBox.warning(self, '本程序', "磅单号不能为空！", QtWidgets.QMessageBox.Ok)
+            return False
         balance_id = int(self.balanceNoBlael.text())
         total_weight = float(self.totalWeightLcdNumber.value())
         leather_weight = float(self.leatherWeightLcdNumber.value())
@@ -424,12 +425,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         car_no = self.CarComboBox.currentText()
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车号不能为空！", QtWidgets.QMessageBox.Ok)
+            return False
         supplier = self.supplierComboBox.currentText()
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
         operator = self.getUserName()
         if self.balance_opt_status:
-            print(operator)
+            # print(operator)
             # operator = u'系统管理员'
             today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             path = 'shot'
@@ -445,7 +447,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             balance_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            print(self.balance_status)
             if self.balance_opt_status == 1:
                 sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                                 extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
@@ -510,6 +511,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if ret:
             self.set_table_view()
             self.clear_data()
+            return True
 
     def clear_data(self):
         """
@@ -557,6 +559,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         car_update = """insert into t_car(car_no, leather_weight) values(?,?)"""
         logging.info((car_no, float(total_weight)))
         self.db.update(car_update, args=(car_no, total_weight))
+        self.update_combobox()
 
     def print_data(self):
         """
@@ -570,14 +573,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 QtWidgets.QMessageBox.warning(self, '本程序', "请选择要打印的磅单！", QtWidgets.QMessageBox.Ok)
             return
         balance_id = int(self.balanceNoBlael.text())
-        self.save_data(warning=False)
-        sql = 'select default_rmf from t_rmf'
-        ret = self.db.query(sql)
-        default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
-        # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
-        logging.debug(cmd_str)
-        self.p = subprocess.Popen(cmd_str)
+        if self.save_data(warning=False):
+            sql = 'select default_rmf from t_rmf'
+            ret = self.db.query(sql)
+            default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
+            cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (
+            balance_id, default_rmf)
+            # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+            logging.debug(cmd_str)
+            self.p = subprocess.Popen(cmd_str)
+
 
     def choose_weight(self):
         """
@@ -762,6 +767,12 @@ class VideoThread(QThread):
         while cap.isOpened():
             if self.stoped:
                 return
+            ret = True
+            frame = ''
+            try:
+                cap.read()
+            except Exception as e:
+                print(e)
             ret, frame = cap.read()
             frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
             height, width, bytesPerComponent = frame_mini.shape
@@ -778,6 +789,10 @@ class VideoThread(QThread):
                 self.shortImage.emit(self.path)
             # 40毫秒发送一次信号
             time.sleep(0.04)
+
+
+
+
 
     def set_size(self, width, height):
         """

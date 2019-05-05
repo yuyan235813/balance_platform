@@ -431,7 +431,7 @@ class CameraTestThread(QThread):
         try:
             cap = cv2.VideoCapture(self.url)
         except Exception as e:
-            print(e)
+            print(e.args)
         self.result = 1 if cap.isOpened() else 0
 
     def get_result(self):
