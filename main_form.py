@@ -21,7 +21,7 @@ from params_form import ParamsForm
 from system_params_form import SystemParamsForm
 from car_form import CarManageForm
 from car_no_dialog_form import CarNoDialogForm
-from Supply_form import SupplyForm
+from supply_form import SupplyForm
 from receiver_form import receiverForm
 from cargo_form import cargoForm
 from poll_form import pollmainForm

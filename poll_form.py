@@ -72,23 +72,16 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         """
         :return:
         """
-        begin_date = self.begindateEdit.text()+' 00:00:00'
-        print(begin_date)
-        begin_date = begin_date.replace("/" , "-")
-        begin_date_zero=datetime.datetime.strptime(begin_date, "%Y-%m-%d %H:%M:%S")
-        begin_date_zero =str(begin_date_zero)
-        end_date = self.enddateEdit.text()+' 23:59:59'
-        end_date = end_date.replace("/","-")
-        end_date_24 = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
-        end_date_24 = str(end_date_24)
+        begin_date = str(self.begindateEdit.date().toPyDate())+' 00:00:00'
+        end_date = str(self.enddateEdit.date().toPyDate())+' 23:59:59'
         carNo = self.CarNoLineEdit.text()
         receiver_name = self.ReceiverNamecomboBox.currentText()
         cargo_name = self.CargoNamecomboBox.currentText()
         supply_name = self.SupplyNamecomboBox.currentText()
         balance_Id = self.balanceNoLineEdit.text()
         condition = ' where'
-        condition = condition + ' balance_time1 >= "' + begin_date_zero + '"  and  balance_time1' \
-                                                                          ' <= "' + end_date_24 + '"  and'
+        condition = condition + ' balance_time1 >= "' + begin_date + '"  and  balance_time1' \
+                                                                          ' <= "' + end_date + '"  and'
         if carNo:
             condition = condition + ' car_no = "'+carNo+'"  and'
         if balance_Id:
