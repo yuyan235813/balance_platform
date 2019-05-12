@@ -44,6 +44,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.user_id = user_id if user_id else 'admin'
         self.setupUi(self)
+        self.setWindowTitle(u'飞然称重系统')
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.init_data()

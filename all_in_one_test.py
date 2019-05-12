@@ -6,7 +6,8 @@
 @Email   : 794339312@qq.com
 """
 
-from ctypes import WinDLL, c_int, c_bool, byref, c_wchar_p, pointer
+from ctypes import WinDLL, c_int, c_bool, byref, c_wchar_p, pointer, c_char_p
+import ctypes
 
 # 一体机DLL
 DLL_PATH = 'lib/ParkComm.dll'
@@ -93,6 +94,21 @@ class AIODll(object):
         c_out_grant = c_wchar_p(out_grant)
         return int(self.dll.SetCardGrant(c_card_no, c_in_grant, c_out_grant))
 
+
+    def read_user_card(self):
+        c_card_no_ref = ctypes.create_string_buffer(8)
+        c_card_type_ref = ctypes.create_string_buffer(1)
+        c_valid_date_ref = ctypes.create_string_buffer(16)
+        c_is_use_ref = ctypes.byref(ctypes.c_bool)
+        c_anti_back_ref = ctypes.byref(ctypes.c_bool)
+        res = self.dll.ReadUserCard(c_card_no_ref, c_card_type_ref, c_valid_date_ref, c_is_use_ref, c_anti_back_ref)
+        print(c_card_no_ref.value)
+        print(c_card_type_ref.value)
+        print(c_valid_date_ref.value)
+        print(c_is_use_ref.value)
+        print(c_anti_back_ref.value)
+        print(res)
+
     def read_user_card(self, card_no_ref, card_type_ref, valid_date_ref, is_use_ref, anti_back_ref):
         """
         读取用户卡
@@ -103,11 +119,11 @@ class AIODll(object):
         :param anti_back_ref:是否限制反潜回
         :return:int
         """
-        c_card_no_ref = pointer(c_wchar_p(card_no_ref))
-        c_card_type_ref = pointer(c_wchar_p(card_type_ref))
-        c_valid_date_ref = pointer(c_wchar_p(valid_date_ref))
-        c_is_use_ref = pointer(c_bool(is_use_ref))
-        c_anti_back_ref = pointer(c_bool(anti_back_ref))
+        c_card_no_ref = byref(c_char_p(bytes(card_no_ref)))
+        c_card_type_ref = byref(c_char_p(bytes(card_type_ref)))
+        c_valid_date_ref = byref(c_char_p(bytes(valid_date_ref)))
+        c_is_use_ref = byref(c_bool(is_use_ref))
+        c_anti_back_ref = byref(c_bool(anti_back_ref))
         res = self.dll.ReadUserCard(c_card_no_ref, c_card_type_ref, c_valid_date_ref, c_is_use_ref, c_anti_back_ref)
         return int(res)
 
@@ -117,12 +133,48 @@ class AIODll(object):
         :param date_time:校时时间 yyyy-mm-dd hh:nn:ss
         :return:int
         """
-        c_date_time = 1
+        c_date_time = ctypes.c_wchar_p(date_time)
+        return c_int(self.dll.ManagerTime(c_date_time))
+
+    def manager_set_pos(self, pos_id, pos_type, in_out_type):
+        """
+        管理卡设置机号
+        :param pos_id:机号 0~15对应入口的1~16号进，16~31对应出口的1~16号出
+        :param pos_type:大小场 1：大车场；2：小车场
+        :param in_out_type:进出类型 1：进口  0： 出口
+        :return:
+        """
+        c_pos_id = ctypes.c_int(pos_id)
+        c_pos_type = ctypes.c_int(pos_type)
+        c_in_out_type = ctypes.c_int(in_out_type)
+        res = self.dll.ManagerSetPos(c_pos_id, c_pos_type, c_in_out_type)
+        return ctypes.c_int(res)
+
+    def manager_lost(self, car_no, lost_type):
+        """
+        管理卡挂失解挂
+        :param car_no:卡号
+        :param lost_type:操作类型 0：挂失；1：解挂
+        :return:
+        """
+        c_car_no = ctypes.c_wchar_p(car_no)
+        c_lost_type = ctypes.c_int(lost_type)
+        res = self.dll.ManagerLost(c_car_no, c_lost_type)
+        return ctypes.c_int(res)
+
+    def read_equ_date_time(self, date_time):
+        """
+        读取设备时间
+        :param date_time:设备时间 yyyy-mm-dd hh:nn:ss
+        :return:
+        """
+        c_date_time = pointer(ctypes.c_wchar_p(date_time))
+        return self.dll.ReadEquDateTime(c_date_time)
 
 
 
 if __name__ == '__main__':
     # dll = AIODll()
     # print(dll.open_com(2))
-    aa = c_wchar_p('aaaaa')
-    print(pointer(aa))
+    ss = ctypes.c_wchar_p('2019-05-11 13:43:50')
+    print(ss.value)
