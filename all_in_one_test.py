@@ -6,8 +6,8 @@
 @Email   : 794339312@qq.com
 """
 
-from ctypes import WinDLL, c_int, c_bool, byref, c_wchar_p, pointer
-
+from ctypes import WinDLL, c_int, c_bool, byref, c_wchar_p, pointer, c_char_p
+import ctypes
 # 一体机DLL
 DLL_PATH = 'lib/ParkComm.dll'
 
@@ -47,7 +47,7 @@ class AIODll(object):
         :return: int
         """
         self.dll.EquCheckWithTime.restype = c_int
-        return int(self.dllEquCheckWithTime())
+        return int(self.dll.EquCheckWithTime())
 
     def equ_check(self):
         """
@@ -55,7 +55,7 @@ class AIODll(object):
         :return: int
         """
         self.dll.EquCheck.restype = c_int
-        return int(self.EquCheck())
+        return int(self.dll.EquCheck())
 
     def issue_card(self, car_no, valid_date, anti_back, card_type, is_use):
         """
@@ -111,18 +111,48 @@ class AIODll(object):
         res = self.dll.ReadUserCard(c_card_no_ref, c_card_type_ref, c_valid_date_ref, c_is_use_ref, c_anti_back_ref)
         return int(res)
 
+    def read_equ_date_time(self, date_time):
+        """
+        读取设备时间
+        :param date_time:设备时间 yyyy-mm-dd hh:nn:ss
+        :return:
+        """
+        return self.dll.ReadEquDateTime(date_time)
+
     def manager_time(self, date_time):
         """
         管理卡校时
         :param date_time:校时时间 yyyy-mm-dd hh:nn:ss
         :return:int
         """
-        c_date_time = 1
+        c_date_time = c_char_p(date_time)
+        print(c_date_time.value)
+        return int(self.dll.ManagerTime(c_date_time))
 
-
+    def read_user_card1(self):
+        c_card_no_ref = ctypes.create_string_buffer(8)
+        c_card_type_ref = ctypes.create_string_buffer(1)
+        c_valid_date_ref = ctypes.create_string_buffer(16)
+        c_is_use_ref = ctypes.byref(ctypes.c_bool(True))
+        c_anti_back_ref = ctypes.byref(ctypes.c_bool(True))
+        res = self.dll.ReadUserCard(c_card_no_ref, c_card_type_ref, c_valid_date_ref, c_is_use_ref, c_anti_back_ref)
+        print(c_card_no_ref.value)
+        print(c_card_type_ref.value)
+        print(c_valid_date_ref.value)
+        print(c_is_use_ref)
+        print(c_anti_back_ref)
+        print(res)
 
 if __name__ == '__main__':
-    # dll = AIODll()
-    # print(dll.open_com(2))
-    aa = c_wchar_p('aaaaa')
-    print(pointer(aa))
+    dll = AIODll()
+    print("open_com:%s" % dll.open_com(4))
+    print("equ_check:%s" % dll.equ_check())
+    while True:
+        dll.read_user_card1()
+    # # print("equ_check_with_time:%s" % dll.equ_check_with_time())
+    # print("manager_time:%s" % dll.manager_time(b'2019-05-11 13:43:50'))
+    # import ctypes
+    # date_time = ctypes.create_string_buffer(32)
+    # res = dll.read_equ_date_time(date_time)
+    # print(res)
+    # print(date_time.value)

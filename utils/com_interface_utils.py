@@ -18,10 +18,12 @@ def read_com_interface(my_serial):
     :param my_serial:
     :return:
     """
-    while True:
+    retry_time = 0
+    while retry_time < NormalParam.COM_RETRY_TIMES:
+        retry_time += 1
         my_serial.flush()
         data = my_serial.read(12)
-        print_data(data)
+        print_data(my_serial.portstr, data)
         # 验证数据
         verify = verify_data(data)
         if 0 == verify:
@@ -30,17 +32,19 @@ def read_com_interface(my_serial):
             logging.error(verify)
             continue
         sleep(NormalParam.COM_READ_DURATION / 2 /1000)
+    if 0 != verify:
+        return NormalParam.ERROR_WEIGHT
     return format_data(data)
 
 
-def print_data(data):
+def print_data(port, data):
     """
     打印16进制和10进制data
     :param data:
     :return:
     """
-    logging.info('read data 16h: %s' % ' '.join(hex(x) for x in data))
-    logging.info('read data 10d: %s' % ' '.join(str(x) for x in data))
+    logging.info('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
+    logging.info('%s read data 10d: %s' % (port, ' '.join(str(x) for x in data)))
 
 
 def verify_data(data):
@@ -123,7 +127,7 @@ def func():
 
 
 if __name__ == '__main__':
-    my_serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+    my_serial = serial.Serial('COM5', COM_BAUD_RATE, timeout=0.5)
     if my_serial.isOpen():
         print("open success")
     else:

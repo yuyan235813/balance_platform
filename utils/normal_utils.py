@@ -20,7 +20,7 @@ def stdev(sequence):
     :param sequence:
     :return:
     """
-    if len(sequence) < 1:
+    if len(sequence) <= 1:
         return 0
     else:
         avg = sum(sequence)/len(sequence)

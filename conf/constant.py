@@ -32,7 +32,11 @@ class NormalParam:
     # 判断稳定误差阀值
     STABLES_ERROR = 0
     # 检测称重仪表连接时长 s
-    COM_CHECK_CONN_DURATION = 0.5
+    COM_CHECK_CONN_DURATION = 1
     # 检测称重仪表连接时长 s
     COM_OPEN_DURATION = 1
+    # 单次读取串口重试次数
+    COM_RETRY_TIMES = 3
+    # 错误重量
+    ERROR_WEIGHT = -10000
 
