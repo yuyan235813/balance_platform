@@ -67,6 +67,16 @@ def generate_balance_id():
     return balance_id
 
 
+def get_current_user_dir():
+    """
+    获取当前用户的主目录
+    :return:
+    """
+    dir = os.path.expanduser('~')
+    if not dir:
+        dir = "c:"
+    return dir
+
 def get_user_permission(user_id):
     """
     获取用户的权限

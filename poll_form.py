@@ -4,21 +4,20 @@ import os
 import subprocess
 
 import xlwt
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtGui import QTextDocument
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QTableWidget
+from PyQt5.QtWidgets import QTableWidget, QWidget, QFileDialog, QMessageBox, QDialog, QApplication
 from ui.balance_detail import Ui_balance_detailDialog
 from ui.image_detail_dialog import Ui_imageDetailDialog
 from ui.poll_main import Ui_PollmainForm
 from ui.poll_result import Ui_PollResultForm
 from utils.sqllite_util import EasySqlite
-from utils.normal_utils import show_image
+from utils.normal_utils import show_image, get_current_user_dir
 
 
-class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
+class pollmainForm(QWidget, Ui_PollmainForm):
     """
     参数设置
     """
@@ -107,7 +106,7 @@ class pollmainForm(QtWidgets.QWidget, Ui_PollmainForm):
         self.pollresult.show(data_list)
 
 
-class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
+class PollResultForm(QWidget, Ui_PollResultForm):
     """
     参数修改
     """
@@ -123,13 +122,25 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
         self.setWindowModality(Qt.ApplicationModal)
         self.balance_detail = Balance_detailDialog(self)
         self.printPushButton.clicked.connect(self.printViaHtml)
-        self.excelPushButton_2.clicked.connect(self.writeexcel)
+        self.excelPushButton_2.clicked.connect(self.write_excel)
         self.printer = QPrinter()
         self.printer.setPageSize(QPrinter.Letter)
         self.table = QTableWidget()
 
-    def writeexcel(self):
-        book = Workbook(encoding='utf-8')
+    def write_excel(self):
+        """
+        到处excel
+        :return:
+        """
+        today_date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        dir = os.path.join(get_current_user_dir(), '报表_%s.xls'% str(today_date))
+        file_name, file_type = QFileDialog.getSaveFileName(self,
+                                                           "报表导出",
+                                                           dir,
+                                                           "EXCEL(*.xls)")
+        if file_name == "":
+            return
+        book = xlwt.Workbook(encoding='utf-8')
         sheet = book.add_sheet('Sheet1')  # 创建一个sheet
         # -----样式设置----------------
         alignment = xlwt.Alignment()  # 创建居中
@@ -186,15 +197,10 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
             sheet.write(row, 5, goods_name)
             sheet.write(row, 6, supplier)
             sheet.write(row, 7, receiver)
-        today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        path = "d:/balance_plat"
-        folder = os.path.exists(path)
-        if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
-            os.makedirs(path)
-        if book.save('d:/balance_plat/报表'+str(today_date)+'.xls'):
-            QtWidgets.QMessageBox.warning(self, '本程序', "导出失败！", QtWidgets.QMessageBox.Ok)
+        if book.save(file_name):
+            QMessageBox.warning(self, '本程序', "导出失败！", QMessageBox.Ok)
         else:
-            QtWidgets.QMessageBox.warning(self, '本程序', "导出成功！", QtWidgets.QMessageBox.Ok)
+            QMessageBox.warning(self, '本程序', "导出成功！", QMessageBox.Ok)
 
     def printViaHtml(self):
         htmltext = ""
@@ -255,7 +261,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
             document.print_(self.printer)
 
     def print_data(self):
-        QtWidgets.QMessageBox.information(self, u'本程序', u'打印成功!', QtWidgets.QMessageBox.Ok)
+        QMessageBox.information(self, u'本程序', u'打印成功!', QMessageBox.Ok)
 
     def show(self, column):
         """
@@ -300,8 +306,7 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
                 self.balance_detail.show(id)
 
         else:
-            QtWidgets.QMessageBox.question(self,
-                                           '本程序')
+            QMessageBox.question(self, '本程序')
 
 
 
@@ -312,11 +317,10 @@ class PollResultForm(QtWidgets.QWidget, Ui_PollResultForm):
             # self.balance_detail.my_signal.connect(self.set_table_view)
             self.balance_detail.show(id)
         else:
-            QtWidgets.QMessageBox.question(self,
-                                           '本程序')
+            QMessageBox.question(self, '本程序')
 
 
-class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
+class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
     """
     参数修改
     """
@@ -429,13 +433,13 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
-            QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+            QMessageBox.information(self, u'本程序', u'保存成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()
             self.supplierComboBox.clear()
             self.close()
             self.my_signal.emit(self.table)
         else:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
+            QMessageBox.warning(self, u'本程序', u'保存失败:\n', QMessageBox.Ok)
 
     def cancel_detail(self):
         """
@@ -455,9 +459,9 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         delete_sql = 'delete from t_balance where  balance_id = ?'
         ret = self.db.update(delete_sql, [int(balance_id)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'删除失败:\n', QtWidgets.QMessageBox.Ok)
+            QMessageBox.warning(self, u'本程序', u'删除失败:\n', QMessageBox.Ok)
         else:
-            QtWidgets.QMessageBox.information(self, u'本程序', u'删除成功!', QtWidgets.QMessageBox.Ok)
+            QMessageBox.information(self, u'本程序', u'删除成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()
             self.supplierComboBox.clear()
             self.close()
@@ -482,14 +486,14 @@ class Balance_detailDialog(QtWidgets.QDialog, Ui_balance_detailDialog):
         self.p = subprocess.Popen(cmd_str)
 
 
-class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
+class ImageDetailDialog(QDialog, Ui_imageDetailDialog):
     """
     图片查看
     """
     def __init__(self):
         super(ImageDetailDialog, self).__init__()
         self.setupUi(self)
-        self.desktop = QtWidgets.QApplication.desktop()
+        self.desktop = QApplication.desktop()
         self.setFixedSize(self.desktop.width(), self.desktop.height());
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -506,7 +510,7 @@ class ImageDetailDialog(QtWidgets.QDialog, Ui_imageDetailDialog):
 
 if __name__ == '__main__':
     import sys
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     myshow = pollmainForm()
     myshow.show()
     sys.exit(app.exec_())
