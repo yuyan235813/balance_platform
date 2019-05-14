@@ -47,6 +47,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.setWindowTitle(u'飞然称重系统')
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
+        self._com_worker = None
         self.init_data()
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
@@ -217,6 +218,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         self._is_open = False
+        if self._com_worker:
+            self._com_worker.stop()
+            time.sleep(1)
         self._com_worker = COMThread()
         self._com_worker.start()
         self._weight = {}
@@ -238,6 +242,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self._weight[now] = weight
             del_keys = [k for k in self._weight.keys() if now - k > (NormalParam.STABLES_DURATION + 1) * 1000]
             [self._weight.pop(k) for k in del_keys]
+        else:
+            self._is_open = False
+            self.weightLcdNumber.display(weight)
 
     def check_weight_state(self):
         u"""
@@ -329,7 +336,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
                   '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '运货单位', '称重时间1',
                   '称重日期', '称重时间2', '操作员', '是否完成', '备注', '备用1', '备用2', '备用3', '备用4']
-        query_sql = 'select * from t_balance'
+        query_sql = 'select * from t_balance where status=0 order by balance_time1 desc'
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -686,7 +693,10 @@ class COMThread(QThread):
 
     def __init__(self):
         self._is_conn = False
+        self._serial = None
         super().__init__()
+        self.stoped = False
+        self.mutex = QMutex()
         self.db = EasySqlite(r'rmf/db/balance.db')
 
     def init_serial(self):
@@ -697,7 +707,13 @@ class COMThread(QThread):
         ret = self.db.query(query_sql_com1)[0]
         COM_INTERFACE = ret['com_no']
         COM_BAUD_RATE = ret['baud_rate']
-        self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+        if self._serial:
+            if COM_INTERFACE != self._serial.portstr or COM_BAUD_RATE != self._serial.baudrate:
+                self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+            if not self._serial.is_open:
+                self._serial.open()
+        else:
+            self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
         if self._serial.isOpen():
             logging.info("open success")
         else:
@@ -709,33 +725,54 @@ class COMThread(QThread):
         读取串口信息
         :return:
         """
+        with QMutexLocker(self.mutex):
+            self.stoped= False
         DEBUG = False
         query_sql_com1 = 'select * from t_com where is_default = 1'
         ret = self.db.query(query_sql_com1)[0]
         COM_INTERFACE = ret['com_no']
 
-        if DEBUG:
-            while True:
-                weight = 100
-                self.trigger.emit(1, weight)
-                time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
-        else:
-            while not self._is_conn:
-                try:
-                    self.init_serial()
-                    self._is_conn = True
-                except serial.serialutil.SerialException as e:
-                    logging.error(e)
-                    logging.info(u'%s 接口未连接！' % COM_INTERFACE)
-                    time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
-                except Exception as e:
-                    logging.error(e)
-                    time.sleep(NormalParam.COM_OPEN_DURATION)
-            while True:
-                is_open = 1
-                weight = com_interface_utils.read_com_interface(self._serial)
-                self.trigger.emit(is_open, weight)
-                time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+        while True:
+            if DEBUG:
+                while True:
+                    if self.stoped:
+                        return
+                    weight = 100
+                    self.trigger.emit(1, weight)
+                    time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+            else:
+                while not self._is_conn:
+                    if self.stoped:
+                        return
+                    try:
+                        self.init_serial()
+                        self._is_conn = True if self._serial.isOpen() else False
+                    except serial.serialutil.SerialException as e:
+                        logging.error(e)
+                        logging.info(u'%s 接口未连接！' % COM_INTERFACE)
+                        time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
+                    except Exception as e:
+                        logging.error(e)
+                        time.sleep(NormalParam.COM_OPEN_DURATION)
+                while True and self._serial.is_open:
+                    if self.stoped:
+                        return
+                    is_open = 1
+                    weight = com_interface_utils.read_com_interface(self._serial)
+                    if weight == NormalParam.ERROR_WEIGHT:
+                        self.trigger.emit(0, 0)
+                        break
+                    self.trigger.emit(is_open, weight)
+                    time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                self._is_conn = False
+
+    def stop(self):
+        with QMutexLocker(self.mutex):
+            self.stoped= True
+
+    def isStoped(self):
+        with QMutexLocker(self.mutex):
+            return self.stoped
 
 
 class VideoThread(QThread):
@@ -790,10 +827,6 @@ class VideoThread(QThread):
                 self.shortImage.emit(self.path)
             # 40毫秒发送一次信号
             time.sleep(0.04)
-
-
-
-
 
     def set_size(self, width, height):
         """

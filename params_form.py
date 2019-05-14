@@ -176,6 +176,7 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         if ret and ret1:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
             self.set_data()
+            self.parent.init_data()
             self.parent.active_video()
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
