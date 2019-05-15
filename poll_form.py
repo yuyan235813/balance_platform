@@ -456,16 +456,50 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         :return:
         """
         balance_id = self.balanceNoLineEdit.text()
+        query_sql =  'select ext1,ext2  from t_balance where  balance_id = ?'
         delete_sql = 'delete from t_balance where  balance_id = ?'
+        ret_query = self.db.update
+        data_list = self.db.query(query_sql, [int(balance_id)])
+        count = 0
+        while (count < 4):
+            count = count + 1
+            path1 = str(list(data_list[0].values())[0]) + '0' + str(count) + '.png'
+            path2 = str(list(data_list[0].values())[1]) + '0' + str(count) + '.png'
+            if os.path.isfile(path1):
+                if count == 1:
+                    if os.path.exists(path1):
+                        os.remove(path1)
+                if count == 2:
+                    if os.path.exists(path1):
+                        os.remove(path1)
+                if count == 3:
+                    if os.path.exists(path1):
+                        os.remove(path1)
+                if count == 4:
+                    if os.path.exists(path1):
+                        os.remove(path1)
+            if os.path.isfile(path2):
+                if count == 1:
+                    if os.path.exists(path2):
+                        os.remove(path2)
+                if count == 2:
+                    if os.path.exists(path2):
+                        os.remove(path2)
+                if count == 3:
+                    if os.path.exists(path2):
+                        os.remove(path2)
+                if count == 4:
+                    if os.path.exists(path2):
+                        os.remove(path2)
         ret = self.db.update(delete_sql, [int(balance_id)])
         if ret:
-            QMessageBox.warning(self, u'本程序', u'删除失败:\n', QMessageBox.Ok)
-        else:
             QMessageBox.information(self, u'本程序', u'删除成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()
             self.supplierComboBox.clear()
             self.close()
             self.my_signal.emit(self.table)
+        else:
+            QMessageBox.warning(self, u'本程序', u'删除失败:\n', QMessageBox.Ok)
 
     def print_data(self):
         """

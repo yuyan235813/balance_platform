@@ -34,6 +34,8 @@ import time
 import logging
 import os
 import cv2
+from datetime import timedelta
+from datetime import datetime, date
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -336,7 +338,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         header = ['单号', '车牌号', '毛重', '皮重', '净重', '货物名', '供货单位', '收货单位', '包装物重', '另扣',
                   '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '运货单位', '称重时间1',
                   '称重日期', '称重时间2', '操作员', '是否完成', '备注', '备用1', '备用2', '备用3', '备用4']
-        query_sql = 'select * from t_balance where status=0 order by balance_time1 desc'
+        weekday = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S')
+        query_sql = """select * from t_balance where balance_time1>'%s' and status=0 order by balance_time1 desc""" %weekday
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -461,7 +464,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                 balance_time2, operator, status,ext1) 
                                 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
                 data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                    supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
+                        supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
             else:
                 if self.ischange:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
@@ -586,7 +589,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             ret = self.db.query(sql)
             default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
             cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (
-            balance_id, default_rmf)
+                balance_id, default_rmf)
             # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
             logging.debug(cmd_str)
             self.p = subprocess.Popen(cmd_str)
@@ -602,7 +605,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "请先设置车号！", QtWidgets.QMessageBox.Ok)
             return
-        balance_query = """select * from t_balance where car_no = '%s' and status=0""" % car_no
+        # nowdate = datetime.datetime.now().strftime('%Y-%m-%d')
+        weekday = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S')
+        balance_query = """select * from t_balance where balance_time1> '%s' and car_no = '%s' and status=0 order by balance_time1 DESC """ % (weekday,car_no)
         print(balance_query)
         ret = self.db.query(balance_query)
         if ret:
