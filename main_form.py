@@ -444,9 +444,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.balance_opt_status:
             # print(operator)
             # operator = u'系统管理员'
-            today_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            today_date = datetime.now().strftime("%Y%m%d_%H%M%S")
             path = 'shot'
-            today_month = datetime.datetime.now().strftime("%Y%m")
+            today_month = datetime.now().strftime("%Y%m")
             path = path + '\\' + str(today_month)
             abs_path = os.path.join(os.path.abspath('.'), path)
             folder = os.path.exists(abs_path)
@@ -455,7 +455,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             path = path + '\\' + str(balance_id)+str(today_date)
             self.shot_change(path)
             data = ''
-            balance_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             if self.balance_opt_status == 1:
