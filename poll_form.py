@@ -31,8 +31,12 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         self.QueryPushButton.clicked.connect(self.poll_data)
         self.cancelPushButton.clicked.connect(self.cancel_pollForm)
         # self.pollresult = PollResultForm(self)
-        self.update_combobox()
+        #self.update_combobox()
         self.balance_detail = Balance_detailDialog(self)
+        self.printPushButton.clicked.connect(self.printViaHtml)
+        self.excelPushButton_2.clicked.connect(self.write_excel)
+        self.printer = QPrinter()
+        self.printer.setPageSize(QPrinter.Letter)
 
     def show(self):
         """
@@ -61,20 +65,20 @@ class pollmainForm(QWidget, Ui_PollmainForm):
             values = list(cargo_list[row].values())[0]
             self.CargoNamecomboBox.addItem(values)
         self.CargoNamecomboBox.clearEditText()
-        # supply_query_sql = 'select supplier_name from t_supplier'
-        # supply_list = self.db.query(supply_query_sql)
-        # supply_row_no = len(supply_list)
-        # for row in range(supply_row_no):
-        #     values = list(supply_list[row].values())[0]
-        #     self.SupplyNamecomboBox.addItem(values)
-        # self.SupplyNamecomboBox.clearEditText()
-        # receiver_query_sql = 'select receiver_name from t_receiver'
-        # receiver_list = self.db.query(receiver_query_sql)
-        # receiver_row_no = len(receiver_list)
-        # for row in range(receiver_row_no):
-        #     values = list(receiver_list[row].values())[0]
-        #     self.ReceiverNamecomboBox.addItem(values)
-        # self.ReceiverNamecomboBox.clearEditText()
+        supply_query_sql = 'select supplier_name from t_supplier'
+        supply_list = self.db.query(supply_query_sql)
+        supply_row_no = len(supply_list)
+        for row in range(supply_row_no):
+            values = list(supply_list[row].values())[0]
+            self.SupplyNamecomboBox.addItem(values)
+        self.SupplyNamecomboBox.clearEditText()
+        receiver_query_sql = 'select receiver_name from t_receiver'
+        receiver_list = self.db.query(receiver_query_sql)
+        receiver_row_no = len(receiver_list)
+        for row in range(receiver_row_no):
+            values = list(receiver_list[row].values())[0]
+            self.ReceiverNamecomboBox.addItem(values)
+        self.ReceiverNamecomboBox.clearEditText()
 
     def poll_data(self):
         """

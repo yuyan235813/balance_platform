@@ -8,14 +8,14 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(832, 555)
-        self.tableView = QtWidgets.QTableView(Form)
+class Ui_cargo_ManageForm(object):
+    def setupUi(self, cargo_ManageForm):
+        cargo_ManageForm.setObjectName("cargo_ManageForm")
+        cargo_ManageForm.resize(832, 555)
+        self.tableView = QtWidgets.QTableView(cargo_ManageForm)
         self.tableView.setGeometry(QtCore.QRect(150, 70, 531, 192))
         self.tableView.setObjectName("tableView")
-        self.layoutWidget = QtWidgets.QWidget(Form)
+        self.layoutWidget = QtWidgets.QWidget(cargo_ManageForm)
         self.layoutWidget.setGeometry(QtCore.QRect(160, 440, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -47,7 +47,7 @@ class Ui_Form(object):
         self.clearPushButton.setObjectName("clearPushButton")
         self.horizontalLayout_3.addWidget(self.clearPushButton)
         self.horizontalLayout_3.setStretch(0, 6)
-        self.groupBox = QtWidgets.QGroupBox(Form)
+        self.groupBox = QtWidgets.QGroupBox(cargo_ManageForm)
         self.groupBox.setGeometry(QtCore.QRect(150, 270, 512, 101))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -99,8 +99,8 @@ class Ui_Form(object):
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(cargo_ManageForm)
+        QtCore.QMetaObject.connectSlotsByName(cargo_ManageForm)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate

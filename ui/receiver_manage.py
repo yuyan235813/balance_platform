@@ -8,11 +8,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(757, 488)
-        self.groupBox = QtWidgets.QGroupBox(Form)
+class Ui_receiverManageForm(object):
+    def setupUi(self, receiverManageForm):
+        receiverManageForm.setObjectName("receiverManage")
+        receiverManageForm.resize(757, 488)
+        self.groupBox = QtWidgets.QGroupBox(receiverManageForm)
         self.groupBox.setGeometry(QtCore.QRect(100, 250, 512, 151))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -112,7 +112,7 @@ class Ui_Form(object):
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_13)
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.layoutWidget = QtWidgets.QWidget(Form)
+        self.layoutWidget = QtWidgets.QWidget(receiverManageForm)
         self.layoutWidget.setGeometry(QtCore.QRect(110, 420, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -144,16 +144,16 @@ class Ui_Form(object):
         self.savePushButton.setObjectName("savePushButton")
         self.horizontalLayout_3.addWidget(self.savePushButton)
         self.horizontalLayout_3.setStretch(3, 6)
-        self.tableView = QtWidgets.QTableView(Form)
+        self.tableView = QtWidgets.QTableView(receiverManageForm)
         self.tableView.setGeometry(QtCore.QRect(100, 50, 531, 192))
         self.tableView.setObjectName("tableView")
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(receiverManageForm)
+        QtCore.QMetaObject.connectSlotsByName(receiverManageForm)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, receiverManage):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "收货单位管理"))
+        receiverManage.setWindowTitle(_translate("Form", "收货单位管理"))
         self.groupBox.setTitle(_translate("Form", "收货单位"))
         self.label_5.setText(_translate("Form", "收货单位："))
         self.label_8.setText(_translate("Form", "联系电话："))

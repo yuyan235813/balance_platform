@@ -266,7 +266,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="excelPushButton_2">
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -276,10 +276,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>导入</string>
+    <string>导出</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="printPushButton">
    <property name="geometry">
     <rect>
      <x>370</x>

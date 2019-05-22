@@ -8,11 +8,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(710, 643)
-        self.layoutWidget = QtWidgets.QWidget(Form)
+class Ui_PollmainForm(object):
+    def setupUi(self, PollmainForm):
+        PollmainForm.setObjectName("PollmainForm")
+        PollmainForm.resize(710, 643)
+        self.layoutWidget = QtWidgets.QWidget(PollmainForm)
         self.layoutWidget.setGeometry(QtCore.QRect(100, 230, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -28,7 +28,7 @@ class Ui_Form(object):
         self.cancelPushButton = QtWidgets.QPushButton(self.layoutWidget)
         self.cancelPushButton.setObjectName("cancelPushButton")
         self.horizontalLayout_3.addWidget(self.cancelPushButton)
-        self.groupBox = QtWidgets.QGroupBox(Form)
+        self.groupBox = QtWidgets.QGroupBox(PollmainForm)
         self.groupBox.setGeometry(QtCore.QRect(70, 20, 571, 181))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -128,22 +128,22 @@ class Ui_Form(object):
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.CargoNamecomboBox)
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.tableView = QtWidgets.QTableView(Form)
+        self.tableView = QtWidgets.QTableView(PollmainForm)
         self.tableView.setGeometry(QtCore.QRect(70, 290, 581, 311))
         self.tableView.setObjectName("tableView")
-        self.pushButton = QtWidgets.QPushButton(Form)
-        self.pushButton.setGeometry(QtCore.QRect(210, 610, 75, 23))
-        self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QtWidgets.QPushButton(Form)
-        self.pushButton_2.setGeometry(QtCore.QRect(370, 610, 75, 23))
-        self.pushButton_2.setObjectName("pushButton_2")
+        self.excelPushButton_2 = QtWidgets.QPushButton(PollmainForm)
+        self.excelPushButton_2.setGeometry(QtCore.QRect(210, 610, 75, 23))
+        self.excelPushButton_2.setObjectName("excelPushButton_2")
+        self.printPushButton = QtWidgets.QPushButton(PollmainForm)
+        self.printPushButton.setGeometry(QtCore.QRect(370, 610, 75, 23))
+        self.printPushButton.setObjectName("printPushButton")
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(PollmainForm)
+        QtCore.QMetaObject.connectSlotsByName(PollmainForm)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, PollmainForm):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "查询"))
+        PollmainForm.setWindowTitle(_translate("Form", "查询"))
         self.QueryPushButton.setText(_translate("Form", "查询"))
         self.cancelPushButton.setText(_translate("Form", "取消"))
         self.groupBox.setTitle(_translate("Form", "查询条件"))
@@ -157,6 +157,6 @@ class Ui_Form(object):
         self.UnCompleteradioButton.setText(_translate("Form", "未完成"))
         self.CompleteradioButton.setText(_translate("Form", "完成"))
         self.AllradioButton.setText(_translate("Form", "全部"))
-        self.pushButton.setText(_translate("Form", "导入"))
-        self.pushButton_2.setText(_translate("Form", "打印"))
+        self.excelPushButton_2.setText(_translate("Form", "导出"))
+        self.printPushButton.setText(_translate("Form", "打印"))
 

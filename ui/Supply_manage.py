@@ -8,11 +8,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(765, 450)
-        self.groupBox = QtWidgets.QGroupBox(Form)
+class Ui_supplyManageForm(object):
+    def setupUi(self, supplyManageForm):
+        supplyManageForm.setObjectName("supplyManage")
+        supplyManageForm.resize(765, 450)
+        self.groupBox = QtWidgets.QGroupBox(supplyManageForm)
         self.groupBox.setGeometry(QtCore.QRect(80, 220, 512, 151))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -113,7 +113,7 @@ class Ui_Form(object):
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.SupplyIDLineEdit)
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.layoutWidget = QtWidgets.QWidget(Form)
+        self.layoutWidget = QtWidgets.QWidget(supplyManageForm)
         self.layoutWidget.setGeometry(QtCore.QRect(90, 390, 521, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -145,16 +145,16 @@ class Ui_Form(object):
         self.cancelPushButton_2.setObjectName("cancelPushButton_2")
         self.horizontalLayout_3.addWidget(self.cancelPushButton_2)
         self.horizontalLayout_3.setStretch(0, 6)
-        self.tableView = QtWidgets.QTableView(Form)
+        self.tableView = QtWidgets.QTableView(supplyManageForm)
         self.tableView.setGeometry(QtCore.QRect(80, 20, 531, 192))
         self.tableView.setObjectName("tableView")
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(supplyManageForm)
+        QtCore.QMetaObject.connectSlotsByName(supplyManageForm)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, supplyManage):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "供货单位管理"))
+        supplyManage.setWindowTitle(_translate("Form", "供货单位管理"))
         self.groupBox.setTitle(_translate("Form", "供货单位"))
         self.label_5.setText(_translate("Form", "供货单位："))
         self.label_8.setText(_translate("Form", "联系电话："))
