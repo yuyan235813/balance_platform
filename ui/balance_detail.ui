@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>1166</width>
-    <height>770</height>
+    <height>764</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>数据展示</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">

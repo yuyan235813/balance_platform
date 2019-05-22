@@ -2,17 +2,17 @@
 
 # Form implementation generated from reading ui file 'receiver_manage.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_receiverManageForm(object):
-    def setupUi(self, receiverManageForm):
-        receiverManageForm.setObjectName("Form")
-        receiverManageForm.resize(757, 488)
-        self.groupBox = QtWidgets.QGroupBox(receiverManageForm)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(757, 488)
+        self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setGeometry(QtCore.QRect(100, 250, 512, 151))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -50,7 +50,7 @@ class Ui_receiverManageForm(object):
         self.label_7.setObjectName("label_7")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_7)
         self.ReceiverBankLineEdit = QtWidgets.QLineEdit(self.groupBox)
-        self.ReceiverBankLineEdit.setEchoMode(QtWidgets.QLineEdit.Normal)
+        self.ReceiverBankLineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.ReceiverBankLineEdit.setObjectName("ReceiverBankLineEdit")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.ReceiverBankLineEdit)
         self.label_12 = QtWidgets.QLabel(self.groupBox)
@@ -61,7 +61,7 @@ class Ui_receiverManageForm(object):
         self.label_12.setObjectName("label_12")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_12)
         self.ReceiverDutyLineEdit = QtWidgets.QLineEdit(self.groupBox)
-        self.ReceiverDutyLineEdit.setEchoMode(QtWidgets.QLineEdit.Normal)
+        self.ReceiverDutyLineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.ReceiverDutyLineEdit.setObjectName("ReceiverDutyLineEdit")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.ReceiverDutyLineEdit)
         self.horizontalLayout_2.addLayout(self.formLayout)
@@ -112,7 +112,7 @@ class Ui_receiverManageForm(object):
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_13)
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.layoutWidget = QtWidgets.QWidget(receiverManageForm)
+        self.layoutWidget = QtWidgets.QWidget(Form)
         self.layoutWidget.setGeometry(QtCore.QRect(110, 420, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -144,20 +144,16 @@ class Ui_receiverManageForm(object):
         self.savePushButton.setObjectName("savePushButton")
         self.horizontalLayout_3.addWidget(self.savePushButton)
         self.horizontalLayout_3.setStretch(3, 6)
-        self.tableView = QtWidgets.QTableView(receiverManageForm)
-        self.tableView.setStyleSheet("QTableView QHeaderView::section { background-color:#dadada}")
-        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.tableView = QtWidgets.QTableView(Form)
         self.tableView.setGeometry(QtCore.QRect(100, 50, 531, 192))
         self.tableView.setObjectName("tableView")
 
-        self.retranslateUi(receiverManageForm)
-        QtCore.QMetaObject.connectSlotsByName(receiverManageForm)
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, receiverManageForm):
+    def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        receiverManageForm.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "收货单位管理"))
         self.groupBox.setTitle(_translate("Form", "收货单位"))
         self.label_5.setText(_translate("Form", "收货单位："))
         self.label_8.setText(_translate("Form", "联系电话："))

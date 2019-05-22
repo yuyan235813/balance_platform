@@ -633,6 +633,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if not ret:
                 # 没有存皮的情况
                 QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 没有存皮，将生成未完成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
+                self.actualWeightLcdNumber.display(current_weight)
                 self.balance_status = 0
             else:
                 # 有存皮

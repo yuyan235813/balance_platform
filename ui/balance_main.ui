@@ -375,13 +375,13 @@
       <string>打    印</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>42</x>
        <y>92</y>
        <width>161</width>
-       <height>221</height>
+       <height>230</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -784,7 +784,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>390</x>
@@ -1199,7 +1199,7 @@
   </action>
   <action name="actionReceiving">
    <property name="text">
-    <string>收获单位</string>
+    <string>收货单位</string>
    </property>
   </action>
   <action name="actionGoodsName">

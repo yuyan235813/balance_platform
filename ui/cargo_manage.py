@@ -2,24 +2,20 @@
 
 # Form implementation generated from reading ui file 'cargo_manage.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_cargo_ManageForm(object):
-    def setupUi(self, cargo_ManageForm):
-        cargo_ManageForm.setObjectName("Form")
-        cargo_ManageForm.resize(832, 555)
-        self.tableView = QtWidgets.QTableView(cargo_ManageForm)
-        self.tableView.setStyleSheet("QTableView QHeaderView::section { background-color:#dadada}")
-        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(832, 555)
+        self.tableView = QtWidgets.QTableView(Form)
         self.tableView.setGeometry(QtCore.QRect(150, 70, 531, 192))
         self.tableView.setObjectName("tableView")
-        self.layoutWidget = QtWidgets.QWidget(cargo_ManageForm)
+        self.layoutWidget = QtWidgets.QWidget(Form)
         self.layoutWidget.setGeometry(QtCore.QRect(160, 440, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -51,7 +47,7 @@ class Ui_cargo_ManageForm(object):
         self.clearPushButton.setObjectName("clearPushButton")
         self.horizontalLayout_3.addWidget(self.clearPushButton)
         self.horizontalLayout_3.setStretch(0, 6)
-        self.groupBox = QtWidgets.QGroupBox(cargo_ManageForm)
+        self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setGeometry(QtCore.QRect(150, 270, 512, 101))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -103,12 +99,12 @@ class Ui_cargo_ManageForm(object):
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.retranslateUi(cargo_ManageForm)
-        QtCore.QMetaObject.connectSlotsByName(cargo_ManageForm)
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, cargo_ManageForm):
+    def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        cargo_ManageForm.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "货物信息管理"))
         self.deletePushButton.setText(_translate("Form", "删除"))
         self.updatePushButton.setText(_translate("Form", "修改"))
         self.savePushButton.setText(_translate("Form", "保存"))

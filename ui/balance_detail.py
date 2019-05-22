@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'balance_detail.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_balance_detailDialog(object):
     def setupUi(self, balance_detailDialog):
         balance_detailDialog.setObjectName("balance_detailDialog")
-        balance_detailDialog.resize(1166, 770)
+        balance_detailDialog.resize(1166, 764)
         self.layoutWidget = QtWidgets.QWidget(balance_detailDialog)
         self.layoutWidget.setGeometry(QtCore.QRect(320, 290, 491, 41))
         self.layoutWidget.setObjectName("layoutWidget")
@@ -241,7 +241,7 @@ class Ui_balance_detailDialog(object):
 
     def retranslateUi(self, balance_detailDialog):
         _translate = QtCore.QCoreApplication.translate
-        balance_detailDialog.setWindowTitle(_translate("balance_detailDialog", "Dialog"))
+        balance_detailDialog.setWindowTitle(_translate("balance_detailDialog", "数据展示"))
         self.deletePushButton.setText(_translate("balance_detailDialog", "删除"))
         self.printPushButton.setText(_translate("balance_detailDialog", "打印"))
         self.savePushButton.setText(_translate("balance_detailDialog", "保存"))
