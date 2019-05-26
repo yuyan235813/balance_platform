@@ -31,8 +31,6 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         self.enddateEdit.setDate(QDate.currentDate())
         self.QueryPushButton.clicked.connect(self.poll_data)
         self.cancelPushButton.clicked.connect(self.cancel_pollForm)
-        # self.pollresult = PollResultForm(self)
-        self.update_combobox()
         self.balance_detail = Balance_detailDialog(self)
         self.printPushButton.clicked.connect(self.printViaHtml)
         self.excelPushButton_2.clicked.connect(self.write_excel)
@@ -45,9 +43,20 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         :return:
         """
         super().show()
-        self.printPushButton.setEnabled(False)
-        self.excelPushButton_2.setEnabled(False)
+        self.__init_data()
 
+    def __init_data(self):
+        """
+        初始化数据
+        :return:
+        """
+        self.update_combobox()
+        if self.tableView.model() and self.tableView.model().rowCount() > 1:
+            self.printPushButton.setEnabled(True)
+            self.excelPushButton_2.setEnabled(True)
+        else:
+            self.printPushButton.setEnabled(False)
+            self.excelPushButton_2.setEnabled(False)
 
     def cancel_pollForm(self):
         """
