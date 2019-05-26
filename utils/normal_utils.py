@@ -115,7 +115,7 @@ def get_user_permission(user_id):
                 where 
                     a.status=1 
                     and b.status=1
-            )t2 on (t1.user_id=t2.object_id or t1.role_id=t2.object_id);"""
+            )t2 on t1.user_id=t2.object_id;"""
     sql = sql_tmp % user_id
     ret = db.query(sql)
     logging.debug(ret)

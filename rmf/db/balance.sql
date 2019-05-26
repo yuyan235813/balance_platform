@@ -202,7 +202,9 @@ INSERT INTO t_operation VALUES(5,1,'车辆设置','car_form',1);
 INSERT INTO t_operation VALUES(6,1,'供货单位','Supply_form',1);
 INSERT INTO t_operation VALUES(7,1,'收货单位','receiver_form',1);
 INSERT INTO t_operation VALUES(8,1,'货物名称','cargo_form',1);
-INSERT INTO t_operation VALUES(9,1,'程中查询','poll_form',1);
+INSERT INTO t_operation VALUES(9,1,'称重查询','poll_form',1);
+INSERT INTO t_operation VALUES(10,2,'称重磅单修改','poll_form_change',1);
+INSERT INTO t_operation VALUES(11,2,'称重磅单删除','poll_form_delete',1);
 CREATE TABLE `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
@@ -219,6 +221,8 @@ INSERT INTO t_permission VALUES(6,1,'1',6,1);
 INSERT INTO t_permission VALUES(7,1,'1',7,1);
 INSERT INTO t_permission VALUES(8,1,'1',8,1);
 INSERT INTO t_permission VALUES(9,1,'1',9,1);
+INSERT INTO t_permission VALUES(46,1,'1',10,1);
+INSERT INTO t_permission VALUES(47,1,'1',11,1);
 INSERT INTO t_permission VALUES(10,2,'admin',1,1);
 INSERT INTO t_permission VALUES(11,2,'admin',2,1);
 INSERT INTO t_permission VALUES(12,2,'admin',3,1);
@@ -228,6 +232,8 @@ INSERT INTO t_permission VALUES(15,2,'admin',6,1);
 INSERT INTO t_permission VALUES(16,2,'admin',7,1);
 INSERT INTO t_permission VALUES(17,2,'admin',8,1);
 INSERT INTO t_permission VALUES(18,2,'admin',9,1);
+INSERT INTO t_permission VALUES(48,2,'admin',10,1);
+INSERT INTO t_permission VALUES(49,2,'admin',11,1);
 INSERT INTO t_permission VALUES(19,1,'2',1,1);
 INSERT INTO t_permission VALUES(20,1,'2',2,1);
 INSERT INTO t_permission VALUES(21,1,'2',3,1);
@@ -237,6 +243,8 @@ INSERT INTO t_permission VALUES(24,1,'2',6,1);
 INSERT INTO t_permission VALUES(25,1,'2',7,1);
 INSERT INTO t_permission VALUES(26,1,'2',8,1);
 INSERT INTO t_permission VALUES(27,1,'2',9,1);
+INSERT INTO t_permission VALUES(50,1,'2',10,1);
+INSERT INTO t_permission VALUES(51,1,'2',11,1);
 INSERT INTO t_permission VALUES(28,2,'user1',1,1);
 INSERT INTO t_permission VALUES(29,2,'user1',2,1);
 INSERT INTO t_permission VALUES(30,2,'user1',3,0);
@@ -246,6 +254,8 @@ INSERT INTO t_permission VALUES(33,2,'user1',6,1);
 INSERT INTO t_permission VALUES(34,2,'user1',7,1);
 INSERT INTO t_permission VALUES(35,2,'user1',8,0);
 INSERT INTO t_permission VALUES(36,2,'user1',9,0);
+INSERT INTO t_permission VALUES(52,2,'user1',10,0);
+INSERT INTO t_permission VALUES(53,2,'user1',11,0);
 INSERT INTO t_permission VALUES(37,2,'user2',1,1);
 INSERT INTO t_permission VALUES(38,2,'user2',2,1);
 INSERT INTO t_permission VALUES(39,2,'user2',3,0);
@@ -255,6 +265,8 @@ INSERT INTO t_permission VALUES(42,2,'user2',6,1);
 INSERT INTO t_permission VALUES(43,2,'user2',7,1);
 INSERT INTO t_permission VALUES(44,2,'user2',8,0);
 INSERT INTO t_permission VALUES(45,2,'user2',9,0);
+INSERT INTO t_permission VALUES(54,2,'user2',10,0);
+INSERT INTO t_permission VALUES(55,2,'user2',11,0);
 CREATE TABLE `t_camera` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `camera_name` text unique not null default '默认设备', -- 称重仪名称

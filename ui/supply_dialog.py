@@ -2,18 +2,21 @@
 
 # Form implementation generated from reading ui file 'supply_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Supply_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(623, 295)
-        self.groupBox = QtWidgets.QGroupBox(Dialog)
-        self.groupBox.setGeometry(QtCore.QRect(40, 30, 512, 151))
+    def setupUi(self, Supply_Dialog):
+        Supply_Dialog.setObjectName("Supply_Dialog")
+        Supply_Dialog.resize(530, 200)
+        Supply_Dialog.setMinimumSize(QtCore.QSize(530, 200))
+        Supply_Dialog.setMaximumSize(QtCore.QSize(530, 200))
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(Supply_Dialog)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.groupBox = QtWidgets.QGroupBox(Supply_Dialog)
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -117,45 +120,43 @@ class Ui_Supply_Dialog(object):
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_13)
         self.horizontalLayout_2.addLayout(self.formLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.layoutWidget = QtWidgets.QWidget(Dialog)
-        self.layoutWidget.setGeometry(QtCore.QRect(70, 220, 491, 41))
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.addWidget(self.groupBox)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
-        self.deletePushButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.deletePushButton = QtWidgets.QPushButton(Supply_Dialog)
         self.deletePushButton.setObjectName("deletePushButton")
         self.horizontalLayout_3.addWidget(self.deletePushButton)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem2)
-        self.savePushButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.savePushButton = QtWidgets.QPushButton(Supply_Dialog)
         self.savePushButton.setObjectName("savePushButton")
         self.horizontalLayout_3.addWidget(self.savePushButton)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem3)
-        self.cancelPushButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.cancelPushButton = QtWidgets.QPushButton(Supply_Dialog)
         self.cancelPushButton.setObjectName("cancelPushButton")
         self.horizontalLayout_3.addWidget(self.cancelPushButton)
         self.horizontalLayout_3.setStretch(0, 6)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi(Supply_Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Supply_Dialog)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, Supply_Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.groupBox.setTitle(_translate("Dialog", "供货单位"))
-        self.label_5.setText(_translate("Dialog", "供货单位："))
-        self.label_8.setText(_translate("Dialog", "联系电话："))
-        self.label_7.setText(_translate("Dialog", "开  户 行："))
-        self.label_12.setText(_translate("Dialog", "税      号："))
-        self.label_10.setText(_translate("Dialog", "联 系  人："))
-        self.label_9.setText(_translate("Dialog", "地      址："))
-        self.label_11.setText(_translate("Dialog", "账      号："))
-        self.label_13.setText(_translate("Dialog", "单位序号："))
-        self.deletePushButton.setText(_translate("Dialog", "删除"))
-        self.savePushButton.setText(_translate("Dialog", "保存"))
-        self.cancelPushButton.setText(_translate("Dialog", "取消"))
+        Supply_Dialog.setWindowTitle(_translate("Supply_Dialog", "收货单位"))
+        self.groupBox.setTitle(_translate("Supply_Dialog", "供货单位"))
+        self.label_5.setText(_translate("Supply_Dialog", "供货单位："))
+        self.label_8.setText(_translate("Supply_Dialog", "联系电话："))
+        self.label_7.setText(_translate("Supply_Dialog", "开  户 行："))
+        self.label_12.setText(_translate("Supply_Dialog", "税      号："))
+        self.label_10.setText(_translate("Supply_Dialog", "联 系  人："))
+        self.label_9.setText(_translate("Supply_Dialog", "地      址："))
+        self.label_11.setText(_translate("Supply_Dialog", "账      号："))
+        self.label_13.setText(_translate("Supply_Dialog", "单位序号："))
+        self.deletePushButton.setText(_translate("Supply_Dialog", "删除"))
+        self.savePushButton.setText(_translate("Supply_Dialog", "保存"))
+        self.cancelPushButton.setText(_translate("Supply_Dialog", "取消"))
 

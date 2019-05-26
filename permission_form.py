@@ -21,11 +21,14 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
     """
     车辆管理
     """
-    def __init__(self):
+    permission_changed = pyqtSignal(bool)
+
+    def __init__(self, parent):
         super(PermissionSetupForm, self).__init__()
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
+        self.parent = parent
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
         self.addUserPushButton.clicked.connect(self.__add_user)
@@ -39,6 +42,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.roleManageForm.my_signal.connect(self.__init_data)
         self.optionTableView.doubleClicked.connect(partial(self.__change_permissions, 1))
         self.permissionTableView.doubleClicked.connect(partial(self.__change_permissions, 2))
+        self.superLabel.doubleClicked.connect(self.__manage_permissions)
 
     def __init_data(self):
         """
@@ -52,9 +56,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         user_sql = 'select user_id, user_name from t_user where status = 1 order by id;'
         user_ret = self.db.query(user_sql)
         user_item = []
-        for item in user_ret:
+        row_no = 0
+        for idx, item in enumerate(user_ret):
             user_item.append(item.get('user_name'))
+            if self.parent.user_name == item.get('user_name'):
+                row_no = idx
         self.userListWidget.addItems(user_item)
+        self.userListWidget.setCurrentRow(row_no)
         # 角色
         role_sql = 'select id, role_name from t_role where status = 1 order by id;'
         role_ret = self.db.query(role_sql)
@@ -64,12 +72,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.roleListWidget.addItems(role_item)
         self.userListWidget.itemClicked.connect(self.__show_user_permissions)
         self.roleListWidget.itemClicked.connect(self.__show_role_permissions)
-
         model = QStandardItemModel(1, 2)
         model.setHorizontalHeaderLabels(('允许', '功能名称'))
         self.permissionTableView.setModel(model)
         model.setHorizontalHeaderLabels(('允许', '菜单名称'))
         self.optionTableView.setModel(model)
+        # 初始化用户权限
+        self.__show_user_permissions(self.parent.user_name)
 
     def show(self):
         """
@@ -85,8 +94,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         :param model:
         :return:
         """
+        if isinstance(model, str):
+            self.user_name = model
+        else:
+            self.user_name = model.text()
         self.role_name = ''
-        self.user_name = model.text()
+        #　or (a.role_id = b.object_id and b.object_type = 1)
         sql_tmp = """
             select t1.opt_type, opt_name, case when t2.operation_id is null then 0 else 1 end as has_permission
             from
@@ -94,7 +107,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             left join
             (select operation_id from (select user_id, role_id from t_user where user_name = '%s' and status = 1) a 
                 join t_permission b 
-                on (a.user_id = b.object_id and b.object_type = 2) or (a.role_id = b.object_id and b.object_type = 1)
+                on (a.user_id = b.object_id and b.object_type = 2) 
                 where b.status = 1
                 group by operation_id
             ) t2 on t1.id = t2.operation_id"""
@@ -187,9 +200,8 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         保存权限
         :return:
         """
-        # todo 保存权限
+        # 保存功能
         model = self.optionTableView.model()
-        opt_list = list()
         row = model.rowCount()
         for i in range(row):
             has_permission = 0 if model.data(model.index(i, 0)) == 'X' else 1
@@ -206,8 +218,27 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                                         and object_id = (select id from t_role where role_name = '%s')
                                         """ % (has_permission, opt_name, self.role_name)
                 self.db.update(sql, commit=False)
-        ret=self.db.update('')
+        # 保存功能
+        model = self.permissionTableView.model()
+        row = model.rowCount()
+        for i in range(row):
+            has_permission = 0 if model.data(model.index(i, 0)) == 'X' else 1
+            opt_name = model.data(model.index(i, 1))
+            if self.user_name:
+                sql = """update t_permission set status = %s where object_type = 2
+                        and operation_id = (select id from t_operation where opt_name = '%s')
+                        and object_id = (select user_id from t_user where user_name = '%s')
+                        """ % (has_permission, opt_name, self.user_name)
+                self.db.update(sql, commit=False)
+            if self.role_name:
+                sql = """update t_permission set status = %s where object_type = 1
+                                        and operation_id = (select id from t_operation where opt_name = '%s')
+                                        and object_id = (select id from t_role where role_name = '%s')
+                                        """ % (has_permission, opt_name, self.role_name)
+                self.db.update(sql, commit=False)
+        ret = self.db.update('')
         if ret:
+            self.permission_changed.emit(True)
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
@@ -299,6 +330,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         else:
             return
 
+    def __manage_permissions(self):
+        """
+        管理权限
+        :return:
+        """
+        pass
+
 
 class UserManageForm(QtWidgets.QWidget, Ui_Form):
     """
@@ -309,6 +347,7 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
     def __init__(self):
         super(UserManageForm, self).__init__()
         self.setupUi(self)
+        self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)
@@ -426,6 +465,7 @@ class RoleManageForm(QtWidgets.QWidget, Ui_roleForm):
     def __init__(self):
         super(RoleManageForm, self).__init__()
         self.setupUi(self)
+        self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.savePushButton.clicked.connect(self.__save_data)
         self.cancelPushButton.clicked.connect(self.close)

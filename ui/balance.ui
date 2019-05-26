@@ -1227,6 +1227,9 @@
     <addaction name="actionParameterSetup"/>
     <addaction name="actionUserPermission"/>
     <addaction name="actionSystemParameterSetup"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeUser"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="qmenuBasicInfoSetup">
     <property name="title">
@@ -1320,6 +1323,16 @@
   <action name="actionAbout">
    <property name="text">
     <string>关于</string>
+   </property>
+  </action>
+  <action name="actionChangeUser">
+   <property name="text">
+    <string>切换用户</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>退出</string>
    </property>
   </action>
  </widget>

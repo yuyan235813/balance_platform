@@ -25,7 +25,6 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
     """
     车辆管理
     """
-
     def __init__(self):
         super(LoginForm, self).__init__()
         self.setupUi(self)
@@ -80,14 +79,18 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
             if Psyunew3.YReadString(outstring, 0, mylen, b'FFFFFFFF', b'FFFFFFFF', DevicePath) != 0:
                 QtWidgets.QMessageBox.warning(self, '本程序', "加密狗密钥错误！", QtWidgets.QMessageBox.Ok)
                 exit()
-        self.__init_data()
         self.loginPushButton.clicked.connect(self.__login)
+
+    def show(self):
+        super(LoginForm, self).show()
+        self.__init_data()
 
     def __init_data(self):
         """
         初始化数据
         :return:
         """
+        self.usernameComboBox.clear()
         sql = "select user_name from t_user where status = 1"
         ret = self.db.query(sql, result_dict=False)
         user_list = list(zip(*ret))[0]
@@ -99,18 +102,18 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         :return:
         """
         pwd = self.passwordLineEdit.text()
-        user_name = self.usernameComboBox.currentText()
+        self.user_name = self.usernameComboBox.currentText()
         if not pwd:
             QtWidgets.QMessageBox.warning(self, '本程序', "密码不能为空！", QtWidgets.QMessageBox.Ok)
             return
-        sql = "select user_name, user_id, password from t_user where user_name = '%s'" % user_name
+        sql = "select user_name, user_id, password from t_user where user_name = '%s'" % self.user_name
         ret = self.db.query(sql)
         if ret:
             password = ret[0].get('password')
-            user_id = ret[0].get('user_id')
+            self.user_id = ret[0].get('user_id')
             if pwd == password:
-                logger.info(user_name)
-                self.mainWidget = MainForm(user_id)
+                logger.info(self.user_name)
+                self.mainWidget = MainForm(self)
                 self.mainWidget.show()
                 self.close()
             else:

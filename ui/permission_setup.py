@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'permission_setup.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_permissionSetupForm(object):
     def setupUi(self, permissionSetupForm):
         permissionSetupForm.setObjectName("permissionSetupForm")
-        permissionSetupForm.resize(519, 506)
+        permissionSetupForm.resize(520, 510)
+        permissionSetupForm.setMinimumSize(QtCore.QSize(520, 510))
+        permissionSetupForm.setMaximumSize(QtCore.QSize(520, 510))
+        permissionSetupForm.setAutoFillBackground(True)
+        permissionSetupForm.setStyleSheet("QPushButton:hover{}")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(permissionSetupForm)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -92,6 +96,12 @@ class Ui_permissionSetupForm(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.superLabel = QDoubleClickLabel(permissionSetupForm)
+        self.superLabel.setMinimumSize(QtCore.QSize(100, 23))
+        self.superLabel.setMaximumSize(QtCore.QSize(100, 23))
+        self.superLabel.setText("")
+        self.superLabel.setObjectName("superLabel")
+        self.horizontalLayout_4.addWidget(self.superLabel)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem1)
         self.savePushButton = QtWidgets.QPushButton(permissionSetupForm)
@@ -104,7 +114,7 @@ class Ui_permissionSetupForm(object):
 
         self.retranslateUi(permissionSetupForm)
         self.userRoleQTabWidget.setCurrentIndex(0)
-        self.permissionTabWidget.setCurrentIndex(1)
+        self.permissionTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(permissionSetupForm)
 
     def retranslateUi(self, permissionSetupForm):
@@ -122,3 +132,4 @@ class Ui_permissionSetupForm(object):
         self.savePushButton.setText(_translate("permissionSetupForm", "保存"))
         self.cancelPushButton.setText(_translate("permissionSetupForm", "取消"))
 
+from ui.qdoubleclicklabel import QDoubleClickLabel

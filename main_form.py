@@ -10,7 +10,7 @@ import datetime
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
@@ -42,11 +42,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
     """
-    def __init__(self, user_id=''):
+    def __init__(self, parent=''):
         super(MainForm, self).__init__()
-        self.user_id = user_id if user_id else 'admin'
+        self.user_id = parent.user_id if parent else 'admin'
+        self.user_name = parent.user_name if parent else '系统管理员'
+        self.parent = parent
         self.setupUi(self)
-        self.setWindowTitle(u'飞然称重系统')
+        self.setWindowTitle(u'飞然称重系统----当前用户：' + self.user_name)
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
@@ -61,6 +63,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionBalanceFormSetup.triggered.connect(self.setup_form.show)
         self.system_params_form = SystemParamsForm()
         self.actionSystemParameterSetup.triggered.connect(self.system_params_form.show)
+        self.actionChangeUser.triggered.connect(self.switch_user)
+        self.actionExit.triggered.connect(self.close)
         self.car_form = CarManageForm(self)
         self.actionCarInfo.triggered.connect(self.car_form.show)
         self.Supply_form = SupplyForm(self)
@@ -69,9 +73,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionReceiving.triggered.connect(self.receiver_form.show)
         self.cargo_form = cargoForm(self)
         self.actionGoodsName.triggered.connect(self.cargo_form.show)
-        self.poll_form = pollmainForm()
+        self.poll_form = pollmainForm(self.user_id)
         self.actionBalanceQuery.triggered.connect(self.poll_form.show)
-        self.permission_form = PermissionSetupForm()
+        self.permission_form = PermissionSetupForm(self)
+        self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.savePushButton.clicked.connect(partial(self.save_data, True))
@@ -89,11 +94,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.active_video()
         # 1：新建未完成磅单； 2：修改已完成订单；0：其他状态
         self.balance_opt_status = 0
-
-    def getUserName(self):
-        sql = "select user_name from t_user where user_id = '%s'" % self.user_id
-        ret = self.db.query(sql)
-        return ret[0].get('user_name')
+        # 是否需要退出确认
+        self.close_confirm = True
 
     def show(self):
         """
@@ -113,6 +115,21 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
+
+    def switch_user(self):
+        """
+        切换用户
+        :return:
+        """
+        reply = QtWidgets.QMessageBox.question(self,
+                                               '本程序',
+                                               "将要切换用户？",
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.close_confirm = False
+            self.close()
+            self.parent.show()
 
     def __init_permission(self):
         """
@@ -172,7 +189,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         #     QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
         return flag
 
-    def shot_change(self,path):
+    def shot_change(self, path):
         """
         截图
         :return:
@@ -279,18 +296,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         点击X号退出事件
         :param event:
+        :param confirm:
         :return:
         """
-        reply = QtWidgets.QMessageBox.question(self,
-                                               '本程序',
-                                               "是否要退出程序？",
-                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                               QtWidgets.QMessageBox.No)
-        if reply == QtWidgets.QMessageBox.Yes:
-            # sys.exit(app.exec_())
-            self.close()
+        if self.close_confirm:
+            reply = QtWidgets.QMessageBox.question(self,
+                                                   '本程序',
+                                                   "是否要退出程序？",
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.Yes:
+                self._com_worker.stop()
+                for thread in self.thread_dict.values():
+                    thread.stop()
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
+            self._com_worker.stop()
+            for thread in self.thread_dict.values():
+                thread.stop()
+            event.accept()
 
     def update_combobox(self):
         """
@@ -329,7 +355,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(car_list[row].values())[0]
             self.CarComboBox.addItem(values)
         self.CarComboBox.clearEditText()
-        self.operatorComboBox.setCurrentText(self.getUserName())
+        self.operatorComboBox.setCurrentText(self.user_name)
 
     def set_table_view(self):
         """
@@ -440,7 +466,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         supplier = self.supplierComboBox.currentText()
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
-        operator = self.getUserName()
+        operator = self.user_name
         if self.balance_opt_status:
             # print(operator)
             # operator = u'系统管理员'
@@ -540,7 +566,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.supplierComboBox.setCurrentText('')
         self.receiverComboBox.setCurrentText('')
         self.goodsComboBox.setCurrentText('')
-        self.operatorComboBox.setCurrentText(self.getUserName())
+        self.operatorComboBox.setCurrentText(self.user_name)
         self.balance_status = 0
 
     def save_leather(self):
