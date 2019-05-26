@@ -45,6 +45,8 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         :return:
         """
         super().show()
+        self.printPushButton.setEnabled(False)
+        self.excelPushButton_2.setEnabled(False)
 
 
     def cancel_pollForm(self):
@@ -140,6 +142,12 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         self.tableView.setModel(model)
         # self.tableView.doubleClicked.connect(lambda x: self.display_data(column[int(x.row())]))
         self.tableView.doubleClicked.connect(self.__display_data)
+        if row_no > 0:
+            self.printPushButton.setEnabled(True)
+            self.excelPushButton_2.setEnabled(True)
+        else:
+            self.printPushButton.setEnabled(False)
+            self.excelPushButton_2.setEnabled(False)
 
     def write_excel(self):
         """
