@@ -697,7 +697,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
                                           supplyName, operator, int(balance_No)])
         if ret:
-            QMessageBox.information(self, u'本程序', u'保存成功!', QMessageBox.Ok)
+            # QMessageBox.information(self, u'本程序', u'保存成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()
             self.supplierComboBox.clear()
             self.close()
