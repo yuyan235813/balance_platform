@@ -73,6 +73,7 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         cargo_query_sql = 'select name from t_cargo'
         cargo_list = self.db.query(cargo_query_sql)
         cargo_row_no = len(cargo_list)
+        self.CargoNamecomboBox.clear()
         for row in range(cargo_row_no):
             values = list(cargo_list[row].values())[0]
             self.CargoNamecomboBox.addItem(values)
@@ -80,6 +81,7 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         supply_query_sql = 'select supplier_name from t_supplier'
         supply_list = self.db.query(supply_query_sql)
         supply_row_no = len(supply_list)
+        self.SupplyNamecomboBox.clear()
         for row in range(supply_row_no):
             values = list(supply_list[row].values())[0]
             self.SupplyNamecomboBox.addItem(values)
@@ -87,6 +89,7 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         receiver_query_sql = 'select receiver_name from t_receiver'
         receiver_list = self.db.query(receiver_query_sql)
         receiver_row_no = len(receiver_list)
+        self.ReceiverNamecomboBox.clear()
         for row in range(receiver_row_no):
             values = list(receiver_list[row].values())[0]
             self.ReceiverNamecomboBox.addItem(values)
