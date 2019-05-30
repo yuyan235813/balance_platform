@@ -701,7 +701,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
             self.receiverComboBox.clear()
             self.supplierComboBox.clear()
             self.close()
-            self.my_signal.emit(self.table)
+            self.parent.poll_data()
         else:
             QMessageBox.warning(self, u'本程序', u'保存失败:\n', QMessageBox.Ok)
 
