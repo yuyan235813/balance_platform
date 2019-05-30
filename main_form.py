@@ -90,8 +90,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.balance_status = 0
         self.ischange = 0
         self.isexist = 0
-        self.thread_dict = dict()
-        self.active_video()
         # 1：新建未完成磅单； 2：修改已完成订单；0：其他状态
         self.balance_opt_status = 0
         # 是否需要退出确认
@@ -248,6 +246,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
+        self.thread_dict = dict()
+        self.active_video()
 
     def show_lcd(self, is_open, weight):
         u"""
@@ -768,6 +768,7 @@ class COMThread(QThread):
             if DEBUG:
                 while True:
                     if self.stoped:
+                        self.trigger.emit(0, 0)
                         return
                     weight = 100
                     self.trigger.emit(1, weight)
@@ -788,6 +789,7 @@ class COMThread(QThread):
                         time.sleep(NormalParam.COM_OPEN_DURATION)
                 while True and self._serial.is_open:
                     if self.stoped:
+                        self.trigger.emit(0, 0)
                         return
                     is_open = 1
                     weight = com_interface_utils.read_com_interface(self._serial)
