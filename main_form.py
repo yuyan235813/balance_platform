@@ -52,7 +52,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
-        self.init_data()
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
@@ -86,7 +85,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.CarComboBox.editTextChanged.connect(self.update_weight)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
-        self.weightLcdNumber.display(120)
+        self.weightLcdNumber.display(0)
         self.balance_status = 0
         self.ischange = 0
         self.isexist = 0
@@ -101,6 +100,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         super().show()
+        self.thread_dict = dict()
+        self.init_data()
         self.set_table_view()
         self.update_combobox()
         self.__init_permission()
@@ -162,6 +163,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if ret:
             for k in self.thread_dict.keys():
                 self.thread_dict[k].stop()
+                time.sleep(0.02)
+            for k in self.thread_dict.keys():
+                time.sleep(0.02)
+                if self.thread_dict[k].isStoped() and not self.thread_dict[k].finished:
+                    self.thread_dict[k].terminate()
             self.video_label_1.clear()
             self.video_label_2.clear()
             self.video_label_3.clear()
@@ -237,7 +243,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._is_open = False
         if self._com_worker:
             self._com_worker.stop()
-            time.sleep(1)
+            while not self._com_worker.isStoped():
+                time.sleep(0.1)
         self._com_worker = COMThread()
         self._com_worker.start()
         self._weight = {}
@@ -246,7 +253,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
-        self.thread_dict = dict()
         self.active_video()
 
     def show_lcd(self, is_open, weight):
@@ -290,7 +296,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         else:
             self.stateLabel.setText(u'称重仪表未连接！')
             self.stateLabel.setStyleSheet('color:red')
-            # self.pickBalanceButton.setEnabled(False)
+            self.pickBalanceButton.setEnabled(False)
 
     def closeEvent(self, event):
         """
@@ -669,7 +675,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 self.leatherWeightLcdNumber.display(leather_weight_db)
                 self.actualWeightLcdNumber.display(actual_weight)
                 self.balance_status = 1
-            self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
+            self.totalWeightLcdNumber.display(current_weight)
             self.balance_opt_status = 1
 
     def show_dialog(self):
@@ -726,26 +732,36 @@ class COMThread(QThread):
     def __init__(self):
         self._is_conn = False
         self._serial = None
+        self._is_running = True
         super().__init__()
         self.stoped = False
         self.mutex = QMutex()
+        self.com_interface = None
+        self.com_baud_rate = None
         self.db = EasySqlite(r'rmf/db/balance.db')
+        self.init_data()
+
+    def init_data(self):
+        """
+        初始化端口数据
+        :return:
+        """
+        query_sql_com1 = 'select * from t_com where is_default = 1'
+        ret = self.db.query(query_sql_com1)[0]
+        self.com_interface = ret['com_no']
+        self.com_baud_rate = ret['baud_rate']
 
     def init_serial(self):
         u"""
         :return:
         """
-        query_sql_com1 = 'select * from t_com where is_default = 1'
-        ret = self.db.query(query_sql_com1)[0]
-        COM_INTERFACE = ret['com_no']
-        COM_BAUD_RATE = ret['baud_rate']
         if self._serial:
-            if COM_INTERFACE != self._serial.portstr or COM_BAUD_RATE != self._serial.baudrate:
-                self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+            if self.com_interface != self._serial.portstr or self.com_baud_rate != self._serial.baudrate:
+                self._serial = serial.Serial(self.com_interface, self.com_baud_rate, timeout=0.5)
             if not self._serial.is_open:
                 self._serial.open()
         else:
-            self._serial = serial.Serial(COM_INTERFACE, COM_BAUD_RATE, timeout=0.5)
+            self._serial = serial.Serial(self.com_interface, self.com_baud_rate, timeout=0.5)
         if self._serial.isOpen():
             logging.info("open success")
         else:
@@ -760,37 +776,26 @@ class COMThread(QThread):
         with QMutexLocker(self.mutex):
             self.stoped= False
         DEBUG = False
-        query_sql_com1 = 'select * from t_com where is_default = 1'
-        ret = self.db.query(query_sql_com1)[0]
-        COM_INTERFACE = ret['com_no']
-
-        while True:
+        while not self.stoped:
             if DEBUG:
-                while True:
-                    if self.stoped:
-                        self.trigger.emit(0, 0)
-                        return
+                while not self.stoped:
                     weight = 100
                     self.trigger.emit(1, weight)
                     time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                self.trigger.emit(0, 0)
             else:
-                while not self._is_conn:
-                    if self.stoped:
-                        return
+                while not self._is_conn and not self.stoped:
                     try:
                         self.init_serial()
                         self._is_conn = True if self._serial.isOpen() else False
                     except serial.serialutil.SerialException as e:
                         logging.error(e)
-                        logging.info(u'%s 接口未连接！' % COM_INTERFACE)
+                        logging.info(u'%s 接口未连接！' % self.com_interface)
                         time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
                     except Exception as e:
                         logging.error(e)
                         time.sleep(NormalParam.COM_OPEN_DURATION)
-                while True and self._serial.is_open:
-                    if self.stoped:
-                        self.trigger.emit(0, 0)
-                        return
+                while not self.stoped and self._serial.is_open:
                     is_open = 1
                     weight = com_interface_utils.read_com_interface(self._serial)
                     if weight == NormalParam.ERROR_WEIGHT:
@@ -798,7 +803,9 @@ class COMThread(QThread):
                         break
                     self.trigger.emit(is_open, weight)
                     time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                self.trigger.emit(0, 0)
                 self._is_conn = False
+        self._is_running = False
 
     def stop(self):
         with QMutexLocker(self.mutex):
@@ -806,7 +813,7 @@ class COMThread(QThread):
 
     def isStoped(self):
         with QMutexLocker(self.mutex):
-            return self.stoped
+            return self.stoped and not self._is_running
 
 
 class VideoThread(QThread):
@@ -831,16 +838,14 @@ class VideoThread(QThread):
     def run(self):
         with QMutexLocker(self.mutex):
             self.stoped= False
-        cap = cv2.VideoCapture(self.url)
-        if cap.isOpened():
+        cap = cv2.VideoCapture()
+        if cap.open(self.url):
             logging.info('camera open success.')
         else:
+            logging.info('camera open failed.')
+            self.stop()
             return
-        while cap.isOpened():
-            if self.stoped:
-                return
-            ret = True
-            frame = ''
+        while cap.isOpened() and not self.stoped:
             try:
                 cap.read()
             except Exception as e:
@@ -872,7 +877,7 @@ class VideoThread(QThread):
         self.video_width = width
         self.video_height = height
 
-    def shot_image(self,path):
+    def shot_image(self, path):
         """
         截图操作
         :return:

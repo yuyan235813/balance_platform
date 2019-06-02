@@ -92,6 +92,8 @@ def format_data(data):
     :param data:
     :return:
     """
+    if not data:
+        return 0
     ret = ''
     for item in data[1:-4]:
         ret = ret + chr(item)
