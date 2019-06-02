@@ -838,18 +838,20 @@ class VideoThread(QThread):
     def run(self):
         with QMutexLocker(self.mutex):
             self.stoped= False
-        cap = cv2.VideoCapture()
-        if cap.open(self.url):
+        test_thread = CameraTestThread(self.url)
+        test_thread.start()
+        time.sleep(2)
+        if test_thread.get_result():
             logging.info('camera open success.')
         else:
-            logging.info('camera open failed.')
-            self.stop()
-            return
+            logging.error('camera open failed.')
+        test_thread.terminate()
+        cap = cv2.VideoCapture(self.url)
         while cap.isOpened() and not self.stoped:
             try:
                 cap.read()
             except Exception as e:
-                print(e)
+                logging.error(e)
             ret, frame = cap.read()
             frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
             height, width, bytesPerComponent = frame_mini.shape
@@ -892,6 +894,27 @@ class VideoThread(QThread):
     def isStoped(self):
         with QMutexLocker(self.mutex):
             return self.stoped
+
+
+class CameraTestThread(QThread):
+    """
+    测试摄像头连通性
+    """
+    def __init__(self, url):
+        super(CameraTestThread, self).__init__()
+        self.url = url
+        self.result = 0
+
+    def run(self):
+        import cv2
+        try:
+            cap = cv2.VideoCapture(self.url)
+        except Exception as e:
+            print(e.args)
+        self.result = 1 if cap.isOpened() else 0
+
+    def get_result(self):
+        return self.result
 
 
 if __name__ == '__main__':
