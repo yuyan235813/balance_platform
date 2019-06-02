@@ -160,18 +160,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
         ret = self.db.query(sql)
+        for k in self.thread_dict.keys():
+            self.thread_dict[k].stop()
+        time.sleep(0.05)
+        self.video_label_1.clear()
+        self.video_label_2.clear()
+        self.video_label_3.clear()
+        self.video_label_4.clear()
         if ret:
-            for k in self.thread_dict.keys():
-                self.thread_dict[k].stop()
-                time.sleep(0.02)
-            for k in self.thread_dict.keys():
-                time.sleep(0.02)
-                if self.thread_dict[k].isStoped() and not self.thread_dict[k].finished:
-                    self.thread_dict[k].terminate()
-            self.video_label_1.clear()
-            self.video_label_2.clear()
-            self.video_label_3.clear()
-            self.video_label_4.clear()
             for item in ret:
                 url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
                 camera_no = item['camera_no']
@@ -244,7 +240,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self._com_worker:
             self._com_worker.stop()
             while not self._com_worker.isStoped():
-                time.sleep(0.1)
+                time.sleep(0.02)
         self._com_worker = COMThread()
         self._com_worker.start()
         self._weight = {}
@@ -854,6 +850,8 @@ class VideoThread(QThread):
                 cap.read()
             except Exception as e:
                 logging.error(e)
+                time.sleep(0.04)
+                continue
             ret, frame = cap.read()
             frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
             height, width, bytesPerComponent = frame_mini.shape
@@ -908,11 +906,10 @@ class CameraTestThread(QThread):
         self.result = 0
 
     def run(self):
-        import cv2
         try:
             cap = cv2.VideoCapture(self.url)
         except Exception as e:
-            print(e.args)
+            logging.error(e)
         self.result = 1 if cap.isOpened() else 0
 
     def get_result(self):
