@@ -845,6 +845,8 @@ class VideoThread(QThread):
             logging.info('camera open success.')
         else:
             logging.error('camera open failed.')
+            test_thread.terminate()
+            return
         test_thread.terminate()
         cap = cv2.VideoCapture(self.url)
         while cap.isOpened() and not self.stoped:
