@@ -836,7 +836,7 @@ class VideoThread(QThread):
             self.stoped= False
         test_thread = CameraTestThread(self.url)
         test_thread.start()
-        time.sleep(2)
+        time.sleep(3.5)
         if test_thread.get_result():
             logging.info('camera open success.')
         else:
