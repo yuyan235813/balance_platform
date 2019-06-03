@@ -17,6 +17,7 @@ class Ui_supplyManageForm(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(supplyManageForm)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.tableView = QtWidgets.QTableView(supplyManageForm)
+        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_2.addWidget(self.tableView)
         self.groupBox = QtWidgets.QGroupBox(supplyManageForm)

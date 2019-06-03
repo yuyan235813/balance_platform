@@ -114,7 +114,7 @@ class Ui_cargo_ManageForm(object):
         self.label_8.setText(_translate("cargo_ManageForm", "单      价："))
         self.deletePushButton.setText(_translate("cargo_ManageForm", "删除"))
         self.updatePushButton.setText(_translate("cargo_ManageForm", "修改"))
-        self.savePushButton.setText(_translate("cargo_ManageForm", "保存"))
+        self.savePushButton.setText(_translate("cargo_ManageForm", "添加"))
         self.cancelPushButton.setText(_translate("cargo_ManageForm", "取消"))
         self.clearPushButton.setText(_translate("cargo_ManageForm", "清除"))
 

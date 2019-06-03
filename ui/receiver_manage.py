@@ -17,6 +17,7 @@ class Ui_receiverManageForm(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(receiverManageForm)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.tableView = QtWidgets.QTableView(receiverManageForm)
+        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_2.addWidget(self.tableView)
         self.groupBox = QtWidgets.QGroupBox(receiverManageForm)
@@ -166,7 +167,7 @@ class Ui_receiverManageForm(object):
         self.label_13.setText(_translate("receiverManageForm", "序   号："))
         self.savePushButton_3.setText(_translate("receiverManageForm", "删除"))
         self.savePushButton_4.setText(_translate("receiverManageForm", "修改"))
-        self.savePushButton_2.setText(_translate("receiverManageForm", "保存"))
+        self.savePushButton_2.setText(_translate("receiverManageForm", "添加"))
         self.cancelPushButton.setText(_translate("receiverManageForm", "取消"))
         self.savePushButton.setText(_translate("receiverManageForm", "清空"))
 

@@ -18,6 +18,7 @@ class VideoForm(QtWidgets.QWidget, Ui_videoTest):
     def __init__(self):
         super(VideoForm, self).__init__()
         self.setupUi(self)
+        # rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov
         self.thread = VideoThread('rtsp://admin:qwer6961@192.168.31.64')
         # 注册信号处理函数
         self.thread.breakSignal.connect(self.showCamer)

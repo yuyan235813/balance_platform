@@ -181,7 +181,7 @@
        <item>
         <widget class="QPushButton" name="savePushButton">
          <property name="text">
-          <string>保存</string>
+          <string>添加</string>
          </property>
         </widget>
        </item>
