@@ -11,7 +11,7 @@ from ui.params_dialog import Ui_dialog
 from PyQt5.QtCore import pyqtSignal, Qt, QThread
 from utils.sqllite_util import EasySqlite
 from functools import partial
-import cv2
+from utils import normal_utils
 import logging
 
 
@@ -277,16 +277,12 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', '密码不能为空！')
             return
         url = "rtsp://%s:%s@%s" % (user_id, password, ip_addr)
-        test_thread = CameraTestThread(url)
-        test_thread.start()
-        import time
-        time.sleep(2)
-        if test_thread.get_result():
-            logging.info('camera open success.')
+        is_connect = normal_utils.is_connected(url)
+        if is_connect:
+            logging.info('camera connect success.')
             QtWidgets.QMessageBox.information(self, '本程序', '连接成功！')
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', '连接失败！')
-        test_thread.terminate()
 
 
 class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
@@ -418,25 +414,25 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         return ret
 
 
-class CameraTestThread(QThread):
-    """
-    测试摄像头连通性
-    """
-    def __init__(self, url):
-        super(CameraTestThread, self).__init__()
-        self.url = url
-        self.result = 0
-
-    def run(self):
-        import cv2
-        try:
-            cap = cv2.VideoCapture(self.url)
-        except Exception as e:
-            print(e.args)
-        self.result = 1 if cap.isOpened() else 0
-
-    def get_result(self):
-        return self.result
+# class CameraTestThread(QThread):
+#     """
+#     测试摄像头连通性
+#     """
+#     def __init__(self, url):
+#         super(CameraTestThread, self).__init__()
+#         self.url = url
+#         self.result = 0
+#
+#     def run(self):
+#         import cv2
+#         try:
+#             cap = cv2.VideoCapture(self.url)
+#         except Exception as e:
+#             print(e.args)
+#         self.result = 1 if cap.isOpened() else 0
+#
+#     def get_result(self):
+#         return self.result
 
 
 if __name__ == '__main__':

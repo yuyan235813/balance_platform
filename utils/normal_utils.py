@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import QMessageBox, QGraphicsView, QGraphicsPixmapItem, QGr
 from PyQt5.QtGui import QImage, QPixmap
 import cv2
 import logging
+import socket
+import base64
 
 
 def stdev(sequence):
@@ -169,6 +171,43 @@ def show_image(path, graph: QGraphicsView, origin_size=False):
     graph.setScene(scene)
     graph.setWindowFilePath(path)
 
+
+def is_connected(url):
+    """
+    是否可以连通 rtsp 地址
+    :param url: rtsp 地址
+    :return:
+    """
+    if len(url) < 10 and '@' in url:
+        return False
+    username_password, ip = url[7:].split('@')
+    if ':' in ip:
+        ip, port = ip.split(':')
+    else:
+        port = 554
+    buffer_len = 1024
+    auth_64 = base64.b64encode(username_password.encode("utf-8")).decode()
+    header = 'DESCRIBE %s RTSP/1.0\r\n' % url
+    header += 'CSeq: 4\r\n'
+    header += 'User-Agent: RTSP Client\r\n'
+    header += 'Accept: application/sdp\r\n'
+    header += 'Authorization: Basic ' + auth_64 + ' \r\n'
+    header += '\r\n'
+    socket_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_send.settimeout(1)
+    msg_recv = None
+    try:
+        socket_send.connect((ip, port))
+        socket_send.send(header.encode())
+        msg_recv = socket_send.recv(buffer_len).decode()
+    except Exception as e:
+        print(e)
+    finally:
+        socket_send.close()
+    if msg_recv and '200 OK' in msg_recv:
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     # print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))

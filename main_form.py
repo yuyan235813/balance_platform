@@ -163,10 +163,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         for k in self.thread_dict.keys():
             self.thread_dict[k].stop()
         time.sleep(0.05)
-        self.video_label_1.clear()
-        self.video_label_2.clear()
-        self.video_label_3.clear()
-        self.video_label_4.clear()
         if ret:
             for item in ret:
                 url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
@@ -833,17 +829,13 @@ class VideoThread(QThread):
 
     def run(self):
         with QMutexLocker(self.mutex):
-            self.stoped= False
-        test_thread = CameraTestThread(self.url)
-        test_thread.start()
-        time.sleep(3.5)
-        if test_thread.get_result():
-            logging.info('camera open success.')
+            self.stoped = False
+        is_connect = normal_utils.is_connected(self.url)
+        if is_connect:
+            logging.info('camera can connect.')
         else:
-            logging.error('camera open failed.')
-            test_thread.terminate()
+            logging.error('camera connect failed.')
             return
-        test_thread.terminate()
         cap = cv2.VideoCapture(self.url)
         while cap.isOpened() and not self.stoped:
             try:
@@ -868,6 +860,8 @@ class VideoThread(QThread):
                 self.shortImage.emit(self.path)
             # 40毫秒发送一次信号
             time.sleep(0.04)
+        self.breakSignal.emit(str(self.camera_no), QPixmap(""))
+        cap.release()
 
     def set_size(self, width, height):
         """
@@ -895,25 +889,6 @@ class VideoThread(QThread):
         with QMutexLocker(self.mutex):
             return self.stoped
 
-
-class CameraTestThread(QThread):
-    """
-    测试摄像头连通性
-    """
-    def __init__(self, url):
-        super(CameraTestThread, self).__init__()
-        self.url = url
-        self.result = 0
-
-    def run(self):
-        try:
-            cap = cv2.VideoCapture(self.url)
-        except Exception as e:
-            logging.error(e)
-        self.result = 1 if cap.isOpened() else 0
-
-    def get_result(self):
-        return self.result
 
 
 if __name__ == '__main__':
