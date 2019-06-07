@@ -826,6 +826,7 @@ class VideoThread(QThread):
         self.video_height = 270
         self.mutex = QMutex()
         self.shot_flag = False
+        self.is_running = False
 
     def run(self):
         with QMutexLocker(self.mutex):
@@ -837,12 +838,16 @@ class VideoThread(QThread):
             logging.error('camera connect failed.')
             return
         cap = cv2.VideoCapture(self.url)
+        cap.set(cv2.CAP_PROP_FPS, 15)
         while cap.isOpened() and not self.stoped:
+            self.is_running = True
             try:
                 ret, frame = cap.read()
                 if not ret:
                     logging.error("carema read failed.")
+                    cap.release()
                     time.sleep(0.5)
+                    cap.open(self.url)
                     continue
                 frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
                 height, width, bytesPerComponent = frame_mini.shape
@@ -856,14 +861,15 @@ class VideoThread(QThread):
                     cv2.imwrite(self.path, frame)
                     self.shot_flag = False
                     self.shortImage.emit(self.path)
-                # 40毫秒发送一次信号
-                time.sleep(0.04)
+                # 50毫秒发送一次信号
+                time.sleep(0.05)
             except Exception as e:
                 logging.error(e)
                 time.sleep(0.5)
                 continue
         self.breakSignal.emit(str(self.camera_no), QPixmap(""))
         cap.release()
+        self.is_running = False
 
     def set_size(self, width, height):
         """
@@ -889,7 +895,7 @@ class VideoThread(QThread):
 
     def isStoped(self):
         with QMutexLocker(self.mutex):
-            return self.stoped
+            return self.stoped and not self.is_running
 
 
 

@@ -77,6 +77,7 @@ class VideoThread(QThread):
         cap = cv2.VideoCapture(self.url)
         if cap.isOpened():
             print('camera open success.')
+            cap.set(cv2.CAP_PROP_FPS, 15)
         while cap.isOpened():
             if self.stoped:
                 return
@@ -94,7 +95,7 @@ class VideoThread(QThread):
                 self.shot_flag = False
                 self.shortImage.emit('1')
             # 40毫秒发送一次信号
-            time.sleep(0.04)
+            time.sleep(0.05)
 
     def set_size(self, width, height):
         """
