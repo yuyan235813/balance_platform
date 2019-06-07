@@ -43,8 +43,8 @@ def print_data(port, data):
     :param data:
     :return:
     """
-    logging.info('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
-    logging.info('%s read data 10d: %s' % (port, ' '.join(str(x) for x in data)))
+    logging.debug('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
+    logging.debug('%s read data 10d: %s' % (port, ' '.join(str(x) for x in data)))
 
 
 def verify_data(data):

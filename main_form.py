@@ -791,7 +791,7 @@ class COMThread(QThread):
                     is_open = 1
                     weight = com_interface_utils.read_com_interface(self._serial)
                     if weight == NormalParam.ERROR_WEIGHT:
-                        self.trigger.emit(0, 0)
+                        time.sleep(NormalParam.COM_OPEN_DURATION)
                         break
                     self.trigger.emit(is_open, weight)
                     time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
@@ -821,12 +821,13 @@ class VideoThread(QThread):
         super().__init__()
         self.stoped = False
         self.camera_no = camera_no
-        self.url = url
+        self.url = url + '/ch1-s1?tcp'
         self.video_width = 360
         self.video_height = 270
         self.mutex = QMutex()
         self.shot_flag = False
         self.is_running = False
+        self.read_retry = 0
 
     def run(self):
         with QMutexLocker(self.mutex):
@@ -838,16 +839,24 @@ class VideoThread(QThread):
             logging.error('camera connect failed.')
             return
         cap = cv2.VideoCapture(self.url)
-        cap.set(cv2.CAP_PROP_FPS, 15)
+        # cap.set(cv2.CAP_PROP_FPS, 15)
         while cap.isOpened() and not self.stoped:
             self.is_running = True
             try:
                 ret, frame = cap.read()
+                # 读取失败，有可能连接断开或没有视频文件
                 if not ret:
+                    self.read_retry += 1
                     logging.error("carema read failed.")
-                    cap.release()
-                    time.sleep(0.5)
-                    cap.open(self.url)
+                    if self.read_retry > 1:
+                        self.read_retry = 0
+                        cap.release()
+                        time.sleep(0.5)
+                        if normal_utils.is_connected(self.url):
+                            cap.open(self.url)
+                            logging.error("carema open again success.")
+                        else:
+                            logging.error("carema open again failed.")
                     continue
                 frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
                 height, width, bytesPerComponent = frame_mini.shape
@@ -857,12 +866,12 @@ class VideoThread(QThread):
                 image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
                 self.breakSignal.emit(str(self.camera_no), QPixmap.fromImage(image))
                 if self.shot_flag:
-                    logging.info('shot')
+                    logging.info('camera shot image! saved in %s.' % self.path)
                     cv2.imwrite(self.path, frame)
                     self.shot_flag = False
                     self.shortImage.emit(self.path)
                 # 50毫秒发送一次信号
-                time.sleep(0.05)
+                # time.sleep(0.05)
             except Exception as e:
                 logging.error(e)
                 time.sleep(0.5)
