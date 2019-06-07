@@ -839,27 +839,29 @@ class VideoThread(QThread):
         cap = cv2.VideoCapture(self.url)
         while cap.isOpened() and not self.stoped:
             try:
-                cap.read()
+                ret, frame = cap.read()
+                if not ret:
+                    logging.error("carema read failed.")
+                    time.sleep(0.5)
+                    continue
+                frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
+                height, width, bytesPerComponent = frame_mini.shape
+                bytesPerLine = bytesPerComponent * width
+                # 变换彩色空间顺序
+                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB, frame_mini)
+                image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
+                self.breakSignal.emit(str(self.camera_no), QPixmap.fromImage(image))
+                if self.shot_flag:
+                    logging.info('shot')
+                    cv2.imwrite(self.path, frame)
+                    self.shot_flag = False
+                    self.shortImage.emit(self.path)
+                # 40毫秒发送一次信号
+                time.sleep(0.04)
             except Exception as e:
                 logging.error(e)
-                time.sleep(0.04)
+                time.sleep(0.5)
                 continue
-            ret, frame = cap.read()
-            frame_mini = cv2.resize(frame, (self.video_width, self.video_height))
-            height, width, bytesPerComponent = frame_mini.shape
-            bytesPerLine = bytesPerComponent * width
-            # 变换彩色空间顺序
-            cv2.cvtColor(frame, cv2.COLOR_BGR2RGB, frame_mini)
-            image = QImage(frame_mini.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            self.breakSignal.emit(str(self.camera_no), QPixmap.fromImage(image))
-            if self.shot_flag:
-                logging.info('shot')
-                # todo 截图地址
-                cv2.imwrite(self.path, frame)
-                self.shot_flag = False
-                self.shortImage.emit(self.path)
-            # 40毫秒发送一次信号
-            time.sleep(0.04)
         self.breakSignal.emit(str(self.camera_no), QPixmap(""))
         cap.release()
 

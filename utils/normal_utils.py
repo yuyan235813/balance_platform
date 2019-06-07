@@ -194,7 +194,7 @@ def is_connected(url):
     header += 'Authorization: Basic ' + auth_64 + ' \r\n'
     header += '\r\n'
     socket_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_send.settimeout(1)
+    socket_send.settimeout(2)
     msg_recv = None
     try:
         socket_send.connect((ip, port))

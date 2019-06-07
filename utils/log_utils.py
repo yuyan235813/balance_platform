@@ -49,7 +49,7 @@ class Logger:
             print(u'\033[31m%s [ERROR] %s, line %s: %s\033[0m' % (current_time, file_name, line, msg))
         else:
             with open(config.LOGGER_DIR, 'a+', encoding='utf-8') as f:
-                f.write(u'%s [ERROR] %s, line %s: %s\n' % (current_time, file_nameline, msg))
+                f.write(u'%s [ERROR] %s, line %s: %s\n' % (current_time, file_name, line, msg))
 
 
 if __name__ == '__main__':
