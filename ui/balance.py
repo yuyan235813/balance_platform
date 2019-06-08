@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'balance.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(1356, 693)
+        mainWindow.resize(1356, 691)
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(10)
@@ -569,7 +569,7 @@ class Ui_mainWindow(object):
         self.actionSystemParameterSetup.setText(_translate("mainWindow", "系统参数设置"))
         self.actionCarInfo.setText(_translate("mainWindow", "车辆设置"))
         self.actionSupplier.setText(_translate("mainWindow", "供货单位"))
-        self.actionReceiving.setText(_translate("mainWindow", "收获单位"))
+        self.actionReceiving.setText(_translate("mainWindow", "收货单位"))
         self.actionGoodsName.setText(_translate("mainWindow", "货物名称"))
         self.actionBalanceQuery.setText(_translate("mainWindow", "称重查询"))
         self.actionHelp.setText(_translate("mainWindow", "帮助信息"))

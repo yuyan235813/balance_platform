@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1356</width>
-    <height>693</height>
+    <height>691</height>
    </rect>
   </property>
   <property name="font">
@@ -1283,7 +1283,7 @@
   </action>
   <action name="actionReceiving">
    <property name="text">
-    <string>收获单位</string>
+    <string>收货单位</string>
    </property>
   </action>
   <action name="actionGoodsName">

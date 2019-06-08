@@ -821,7 +821,7 @@ class VideoThread(QThread):
         super().__init__()
         self.stoped = False
         self.camera_no = camera_no
-        self.url = url + '/ch1-s1?tcp'
+        self.url = url
         self.video_width = 360
         self.video_height = 270
         self.mutex = QMutex()
