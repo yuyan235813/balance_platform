@@ -839,7 +839,6 @@ class VideoThread(QThread):
             logging.error('camera connect failed.')
             return
         cap = cv2.VideoCapture(self.url)
-        # cap.set(cv2.CAP_PROP_FPS, 15)
         while cap.isOpened() and not self.stoped:
             self.is_running = True
             try:
