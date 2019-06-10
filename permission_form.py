@@ -135,12 +135,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 item = QStandardItem(permission_item[row][col])
                 model.setItem(row, col, item)
         self.permissionTableView.setModel(model)
-        if "系统管理员" == self.user_name:
-            self.permissionTableView.setEnabled(False)
-            self.optionTableView.setEnabled(False)
-        else:
+        if "系统管理员" == self.parent.user_name:
             self.permissionTableView.setEnabled(True)
             self.optionTableView.setEnabled(True)
+        else:
+            self.permissionTableView.setEnabled(False)
+            self.optionTableView.setEnabled(False)
 
     def __show_role_permissions(self, model):
         """
@@ -184,12 +184,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 item = QStandardItem(permission_item[row][col])
                 model.setItem(row, col, item)
         self.permissionTableView.setModel(model)
-        if "系统管理员" == self.role_name:
-            self.permissionTableView.setEnabled(False)
-            self.optionTableView.setEnabled(False)
-        else:
+        if "系统管理员" == self.parent.user_name:
             self.permissionTableView.setEnabled(True)
             self.optionTableView.setEnabled(True)
+        else:
+            self.permissionTableView.setEnabled(False)
+            self.optionTableView.setEnabled(False)
 
     def __change_permissions(self, type, index):
         """
@@ -259,14 +259,22 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         添加用户
         :return:
         """
-        self.userMangeForm.show(0)
+        if "系统管理员" == self.parent.user_name:
+            self.userMangeForm.show(0)
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "您没有添加角色的权限！", QtWidgets.QMessageBox.Ok)
+            return
 
     def __add_role(self):
         """
         添加用户
         :return:
         """
-        self.roleManageForm.show()
+        if "系统管理员" == self.parent.user_name:
+            self.roleManageForm.show()
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "您没有添加角色的权限！", QtWidgets.QMessageBox.Ok)
+            return
 
     def __change_user(self):
         """
@@ -278,7 +286,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要修改的用户！", QtWidgets.QMessageBox.Ok)
             return
         user_name = self.userListWidget.currentItem().text()
-        if "系统管理员" == user_name:
+        if not ("系统管理员" == self.parent.user_name or self.user_name == self.parent.user_name):
             QtWidgets.QMessageBox.warning(self, '本程序', "此用户不能被修改！", QtWidgets.QMessageBox.Ok)
             return
         self.userMangeForm.show(user_name)
@@ -292,7 +300,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的用户！", QtWidgets.QMessageBox.Ok)
             return
         user_name = self.userListWidget.currentItem().text()
-        if "系统管理员" == user_name:
+        if "系统管理员" != self.parent.user_name or user_name == "系统管理员":
             QtWidgets.QMessageBox.warning(self, '本程序', "此用户不能被删除！", QtWidgets.QMessageBox.Ok)
             return
         reply = QtWidgets.QMessageBox.question(self,
@@ -323,8 +331,8 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的角色！", QtWidgets.QMessageBox.Ok)
             return
         role_name = self.roleListWidget.currentItem().text()
-        if "系统管理员" == role_name:
-            QtWidgets.QMessageBox.warning(self, '本程序', "此角色不能被删除！", QtWidgets.QMessageBox.Ok)
+        if "系统管理员" != self.parent.user_name:
+            QtWidgets.QMessageBox.warning(self, '本程序', "您没有删除角色权限！", QtWidgets.QMessageBox.Ok)
             return
         reply = QtWidgets.QMessageBox.question(self,
                                                '本程序',
