@@ -14,7 +14,6 @@ from ui.role_manage import Ui_roleForm
 from utils.sqllite_util import EasySqlite
 from functools import partial
 import logging
-import os
 
 
 class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
@@ -136,6 +135,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 item = QStandardItem(permission_item[row][col])
                 model.setItem(row, col, item)
         self.permissionTableView.setModel(model)
+        if "系统管理员" == self.user_name:
+            self.permissionTableView.setEnabled(False)
+            self.optionTableView.setEnabled(False)
+        else:
+            self.permissionTableView.setEnabled(True)
+            self.optionTableView.setEnabled(True)
 
     def __show_role_permissions(self, model):
         """
@@ -179,6 +184,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 item = QStandardItem(permission_item[row][col])
                 model.setItem(row, col, item)
         self.permissionTableView.setModel(model)
+        if "系统管理员" == self.role_name:
+            self.permissionTableView.setEnabled(False)
+            self.optionTableView.setEnabled(False)
+        else:
+            self.permissionTableView.setEnabled(True)
+            self.optionTableView.setEnabled(True)
 
     def __change_permissions(self, type, index):
         """
@@ -267,6 +278,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要修改的用户！", QtWidgets.QMessageBox.Ok)
             return
         user_name = self.userListWidget.currentItem().text()
+        if "系统管理员" == user_name:
+            QtWidgets.QMessageBox.warning(self, '本程序', "此用户不能被修改！", QtWidgets.QMessageBox.Ok)
+            return
         self.userMangeForm.show(user_name)
 
     def __delete_user(self):
@@ -278,6 +292,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的用户！", QtWidgets.QMessageBox.Ok)
             return
         user_name = self.userListWidget.currentItem().text()
+        if "系统管理员" == user_name:
+            QtWidgets.QMessageBox.warning(self, '本程序', "此用户不能被删除！", QtWidgets.QMessageBox.Ok)
+            return
         reply = QtWidgets.QMessageBox.question(self,
                                                '本程序',
                                                "是否要删除用户 %s？" % user_name,
@@ -306,6 +323,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的角色！", QtWidgets.QMessageBox.Ok)
             return
         role_name = self.roleListWidget.currentItem().text()
+        if "系统管理员" == role_name:
+            QtWidgets.QMessageBox.warning(self, '本程序', "此角色不能被删除！", QtWidgets.QMessageBox.Ok)
+            return
         reply = QtWidgets.QMessageBox.question(self,
                                                '本程序',
                                                "是否要删除角色 %s？" % role_name,
