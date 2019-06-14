@@ -126,12 +126,12 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         if self.AllradioButton.isChecked():
             condition = condition[:-3]
         # condition = condition[:-3]
-        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time1,' \
+        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,extra,sweight,balance_time1,' \
                     'balance_time2,goods_name,receiver,supplier,operator from t_balance'+condition
         logging.debug(query_sql)
         data_list = self.db.query(query_sql)
         #self.show(data_list)
-        header = ['单号', '车牌号', '毛重', '皮重', '净重', '毛重时间', '皮重时间', '货物名', '收货单位', '供货单位',
+        header = ['单号', '车牌号', '毛重', '皮重', '净重', '另扣', '结算重量', '毛重时间', '皮重时间', '货物名', '收货单位', '供货单位',
                   '操作员']
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -139,11 +139,15 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         totalweight = 0.0
         leatherweight = 0.0
         actualweight = 0.0
+        extra = 0.0
+        settle = 0.0
         for row in range(row_no):
             values = list(data_list[row].values())
             totalweight = float(totalweight) + float(str(values[2]))
             leatherweight = float(leatherweight) + float(str(values[3]))
             actualweight = float(actualweight) + float(str(values[4]))
+            extra = float(extra) + float(str(values[5]))
+            settle = float(settle) + float(str(values[6]))
             for col in range(col_no):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
@@ -151,6 +155,8 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         model.setItem(int(row_no), 2, QStandardItem(str(totalweight)))
         model.setItem(int(row_no), 3, QStandardItem(str(leatherweight)))
         model.setItem(int(row_no), 4, QStandardItem(str(actualweight)))
+        model.setItem(int(row_no), 5, QStandardItem(str(extra)))
+        model.setItem(int(row_no), 6, QStandardItem(str(settle)))
         self.tableView.setModel(model)
         # self.tableView.doubleClicked.connect(lambda x: self.display_data(column[int(x.row())]))
         self.tableView.doubleClicked.connect(self.__display_data)
@@ -198,9 +204,11 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         sheet.write(1, 2, '毛重')
         sheet.write(1, 3, '皮重')
         sheet.write(1, 4, '净重')
-        sheet.write(1, 5, '货物名称')
-        sheet.write(1, 6, '供货单位')
-        sheet.write(1, 7, '收货单位')
+        sheet.write(1, 5, '另扣')
+        sheet.write(1, 6, '结算重量')
+        sheet.write(1, 7, '货物名称')
+        sheet.write(1, 8, '供货单位')
+        sheet.write(1, 9, '收货单位')
         for row in range(row_no):
             balance_id = self.tableView.model().index(row, 0).data()
             if self.tableView.model().index(row, 1).data() == None:
@@ -210,27 +218,31 @@ class pollmainForm(QWidget, Ui_PollmainForm):
             total_weight = self.tableView.model().index(row, 2).data()
             leather_weight = self.tableView.model().index(row, 3).data()
             actual_weight = self.tableView.model().index(row, 4).data()
-            if self.tableView.model().index(row, 7).data() == None:
+            extra_weight = self.tableView.model().index(row, 5).data()
+            settle_weight = self.tableView.model().index(row, 6).data()
+            if self.tableView.model().index(row, 9).data() == None:
                 goods_name = ''
             else:
-                goods_name = self.tableView.model().index(row, 7).data()
-            if self.tableView.model().index(row, 8).data() == None:
+                goods_name = self.tableView.model().index(row, 9).data()
+            if self.tableView.model().index(row, 11).data() == None:
                 supplier = ''
             else:
-                supplier = self.tableView.model().index(row, 8).data()
-            if self.tableView.model().index(row, 9).data() == None:
+                supplier = self.tableView.model().index(row, 11).data()
+            if self.tableView.model().index(row, 10).data() == None:
                 receiver = ''
             else:
-                receiver = self.tableView.model().index(row, 9).data()
+                receiver = self.tableView.model().index(row, 10).data()
             row = row + 2
             sheet.write(row, 0, balance_id)
             sheet.write(row, 1, car_No)
             sheet.write(row, 2, total_weight)
             sheet.write(row, 3, leather_weight)
             sheet.write(row, 4, actual_weight)
-            sheet.write(row, 5, goods_name)
-            sheet.write(row, 6, supplier)
-            sheet.write(row, 7, receiver)
+            sheet.write(row, 5, extra_weight)
+            sheet.write(row, 6, settle_weight)
+            sheet.write(row, 7, goods_name)
+            sheet.write(row, 8, supplier)
+            sheet.write(row, 9, receiver)
         if book.save(file_name):
             QMessageBox.warning(self, '本程序', "导出失败！", QMessageBox.Ok)
         else:
@@ -248,7 +260,8 @@ class pollmainForm(QWidget, Ui_PollmainForm):
             "<table  align=center cellpadding=0  border=0.5 cellspacing=0 width=100%> "
             "<thead><tr><th>单号</th><th>车号</th>"
             "<th>毛重</th><th>皮重</th>"
-            "<th>净重</th><th>货物名称</th>"
+            "<th>净重</th><th>另扣</th>"
+            "<th>结算重量</th><th>货物名称</th>"
             "<th>供货单位</th><th>收货单位</th></tr></thead>".format(company, date)
         )
         row_no = self.tableView.model().rowCount()
@@ -261,18 +274,20 @@ class pollmainForm(QWidget, Ui_PollmainForm):
             total_weight = self.tableView.model().index(row, 2).data()
             leather_weight = self.tableView.model().index(row, 3).data()
             actual_weight = self.tableView.model().index(row, 4).data()
-            if self.tableView.model().index(row, 7).data() == None:
+            extra_weight = self.tableView.model().index(row, 5).data()
+            settle_weight = self.tableView.model().index(row, 6).data()
+            if self.tableView.model().index(row, 9).data() == None:
                 goods_name = ''
             else:
-                goods_name = self.tableView.model().index(row, 7).data()
-            if self.tableView.model().index(row, 8).data() == None:
+                goods_name = self.tableView.model().index(row, 9).data()
+            if self.tableView.model().index(row, 11).data() == None:
                 supplier = ''
             else:
-                supplier = self.tableView.model().index(row, 8).data()
-            if self.tableView.model().index(row, 9).data() == None:
+                supplier = self.tableView.model().index(row, 11).data()
+            if self.tableView.model().index(row, 10).data() == None:
                 receiver = ''
             else:
-                receiver = self.tableView.model().index(row, 9).data()
+                receiver = self.tableView.model().index(row, 10).data()
             # balance_id = self.tableView.model().index(row, 8).data()
             htmltext += ("<tr><td align=center>{0}</td>"
                          "<td align=center>{1}</td>"
@@ -282,8 +297,10 @@ class pollmainForm(QWidget, Ui_PollmainForm):
                          "<td align=center>{5}</td>"
                          "<td align=center>{6}</td>"
                          "<td align=center>{7}</td>"
+                         "<td align=center>{8}</td>"
+                         "<td align=center>{9}</td>"
                          "</tr>".format(
-                balance_id, car_No, total_weight, leather_weight, actual_weight, goods_name, supplier, receiver))
+                balance_id, car_No, total_weight, leather_weight, actual_weight, extra_weight, settle_weight, goods_name, supplier, receiver))
 
         htmltext += (
             "</table>")
@@ -604,7 +621,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         self.__init_permissions()
         self.receiverComboBox.clear()
         self.supplierComboBox.clear()
-        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,balance_time2,' \
+        query_sql = 'select balance_id,car_no,total_weight,leather_weight,actual_weight,extra,sweight,balance_time2,' \
                     'balance_time1,goods_name,receiver,supplier,operator,ext1,ext2 from t_balance  ' \
                     'where balance_id = %s' % (column)
         data_list = self.db.query(query_sql)
@@ -630,12 +647,14 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         self.totalWeightLineEdit.setText(str(list(data_list[0].values())[2]))
         self.leatherWeightLineEdit.setText(str(list(data_list[0].values())[3]))
         self.actualWeightLineEdit.setText(str(list(data_list[0].values())[4]))
-        self.leatherWeighttimeLineEdit.setText(str(list(data_list[0].values())[5]))
-        self.totalWeighttimeLineEdit.setText(str(list(data_list[0].values())[6]))
-        self.cargoNameLineEdit.setText(str(list(data_list[0].values())[7]))
-        self.receiverComboBox.setCurrentText(str(list(data_list[0].values())[8]))
-        self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[9]))
-        self.operatorLineEdit_4.setText(str(list(data_list[0].values())[10]))
+        self.extraWeightLineEdit.setText(str(list(data_list[0].values())[5]))
+        self.SettlementLineEdit.setText(str(list(data_list[0].values())[6]))
+        self.leatherWeighttimeLineEdit.setText(str(list(data_list[0].values())[7]))
+        self.totalWeighttimeLineEdit.setText(str(list(data_list[0].values())[8]))
+        self.cargoNameLineEdit.setText(str(list(data_list[0].values())[9]))
+        self.receiverComboBox.setCurrentText(str(list(data_list[0].values())[10]))
+        self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[11]))
+        self.operatorLineEdit_4.setText(str(list(data_list[0].values())[12]))
         count = 0
         while (count < 4):
             count = count + 1

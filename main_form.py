@@ -406,7 +406,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
             print(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
-
+            self.SettlementlineEdit.setText(str(self.tableView.model().index(index.row(), 15).data()))
             self.extraWeightSpinBox.setText(str(self.tableView.model().index(index.row(), 9).data()))
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
             self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
@@ -587,6 +587,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.leatherWeightLcdNumber.display(0)
         self.actualWeightLcdNumber.display(0)
         self.extraWeightSpinBox.setText('')
+        self.SettlementlineEdit.setText('')
         self.priceSpinBox.setValue(0)
         self.amountSpinBox.setValue(0)
         self.CarComboBox.setCurrentText('')

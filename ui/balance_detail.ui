@@ -103,7 +103,7 @@
      <x>290</x>
      <y>40</y>
      <width>512</width>
-     <height>201</height>
+     <height>231</height>
     </rect>
    </property>
    <property name="title">
@@ -190,7 +190,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_16">
           <property name="font">
            <font>
@@ -203,7 +203,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QLineEdit" name="operatorLineEdit_4">
           <property name="echoMode">
            <enum>QLineEdit::Normal</enum>
@@ -213,7 +213,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_12">
           <property name="font">
            <font>
@@ -239,9 +239,32 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QComboBox" name="receiverComboBox">
           <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>结算重量：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="SettlementLineEdit">
+          <property name="echoMode">
+           <enum>QLineEdit::Normal</enum>
+          </property>
+          <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
@@ -309,7 +332,7 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="leatherWeighttimeLineEdit"/>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QLineEdit" name="cargoNameLineEdit">
           <property name="echoMode">
            <enum>QLineEdit::Normal</enum>
@@ -341,7 +364,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_13">
           <property name="font">
            <font>
@@ -354,7 +377,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_11">
           <property name="font">
            <font>
@@ -367,9 +390,29 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QComboBox" name="supplierComboBox">
           <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>另      扣：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="extraWeightLineEdit">
+          <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
