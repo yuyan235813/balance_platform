@@ -36,6 +36,7 @@ import os
 import cv2
 from datetime import timedelta
 from datetime import datetime, date
+import re
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -78,11 +79,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
+        self.extraWeightSpinBox.setText("0")
         self.savePushButton.clicked.connect(partial(self.save_data, True))
         self.clearPushButton.clicked.connect(self.clear_data)
         self.saveLeatherPushButton.clicked.connect(self.save_leather)
         self.printPushButton.clicked.connect(self.print_data)
         self.CarComboBox.editTextChanged.connect(self.update_weight)
+        self.extraWeightSpinBox.textEdited.connect(self.calculate)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(0)
@@ -114,6 +117,25 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
+
+    def calculate(self):
+        if self.balanceNoBlael.text()=="":
+            QtWidgets.QMessageBox.warning(self, '本程序', "请先取重量！", QtWidgets.QMessageBox.Ok)
+            self.extraWeightSpinBox.clear()
+            self.SettlementlineEdit.clear()
+            return
+        if self.extraWeightSpinBox.text()!="":
+            try:
+                float(self.extraWeightSpinBox.text())
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, '本程序', "输入有非法字符串！", QtWidgets.QMessageBox.Ok)
+                self.extraWeightSpinBox.clear()
+                self.SettlementlineEdit.clear()
+                return
+            sell=float(self.actualWeightLcdNumber.value())-float(self.extraWeightSpinBox.text())
+            self.SettlementlineEdit.setText(str(sell))
+        else:
+            self.SettlementlineEdit.clear()
 
     def switch_user(self):
         """
@@ -385,7 +407,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             print(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
 
-            self.extraWeightSpinBox.setValue(float(self.tableView.model().index(index.row(), 9).data()))
+            self.extraWeightSpinBox.setText(str(self.tableView.model().index(index.row(), 9).data()))
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
             self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
 
@@ -454,7 +476,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         total_weight = float(self.totalWeightLcdNumber.value())
         leather_weight = float(self.leatherWeightLcdNumber.value())
         actual_weight = float(self.actualWeightLcdNumber.value())
-        extra_value = float(self.extraWeightSpinBox.value())
+        if self.extraWeightSpinBox.text() == "":
+            extra_value=0.0
+        else:
+            extra_value = float(self.extraWeightSpinBox.text())
+        if self.SettlementlineEdit.text() == "":
+            settle=0.0
+        else:
+            settle = float(self.SettlementlineEdit.text())
         price = float(self.priceSpinBox.value())
         amount = float(self.amountSpinBox.value())
         car_no = self.CarComboBox.currentText()
@@ -485,35 +514,35 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if self.balance_opt_status == 1:
                 sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                                 extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
-                                balance_time2, operator, status,ext1) 
-                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                                balance_time2, operator, status,ext1,sweight) 
+                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
                 data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                        supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
+                        supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path,settle)
             else:
                 if self.ischange:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                                          extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                                         goods_name = ?, balance_time1 = ?,operator = ?, status= ?,ext2= ? 
+                                                         goods_name = ?, balance_time1 = ?,operator = ?, status= ?,ext2= ?,sweight=? 
                                                          where balance_id = ? '''
                     data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path,
+                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, settle,
                             int(balance_id))
                 else:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                          extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
-                                         goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?
+                                         goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?,sweight=?
                                          where balance_id = ? '''
                     data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path,
+                            supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, settle,
                             int(balance_id))
 
         else:
             sql = """update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                      extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                     goods_name = ?, operator = ?, status= ?
+                                     goods_name = ?, operator = ?, status= ?,sweight=?
                                      where balance_id = ?"""
             data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                    supplier, receiver, goods_name, operator, self.balance_status, int(balance_id))
+                    supplier, receiver, goods_name, operator, self.balance_status, settle, int(balance_id))
 
         # if self.balance_status:
         #     if self.ischange:
@@ -557,7 +586,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.totalWeightLcdNumber.display(0)
         self.leatherWeightLcdNumber.display(0)
         self.actualWeightLcdNumber.display(0)
-        self.extraWeightSpinBox.setValue(0)
+        self.extraWeightSpinBox.setText('')
         self.priceSpinBox.setValue(0)
         self.amountSpinBox.setValue(0)
         self.CarComboBox.setCurrentText('')
@@ -669,6 +698,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 self.balance_status = 1
             self.totalWeightLcdNumber.display(current_weight)
             self.balance_opt_status = 1
+        self.calculate()
 
     def show_dialog(self):
         """
