@@ -658,8 +658,8 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         count = 0
         while (count < 4):
             count = count + 1
-            path1 = str(list(data_list[0].values())[11])+'0'+str(count)+'.png'
-            path2 = str(list(data_list[0].values())[12]) + '0' + str(count) + '.png'
+            path1 = str(list(data_list[0].values())[13])+'0'+str(count)+'.png'
+            path2 = str(list(data_list[0].values())[14]) + '0' + str(count) + '.png'
             if os.path.isfile(path1):
                 if count==1:
                     show_image(path1, self.graphicsView_1)
