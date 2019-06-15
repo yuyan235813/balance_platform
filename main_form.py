@@ -35,8 +35,7 @@ import logging
 import os
 import cv2
 from datetime import timedelta
-from datetime import datetime, date
-import re
+from datetime import datetime
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -79,13 +78,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
-        self.extraWeightSpinBox.setText("0")
+        self.extraWeightSpinBox.setValue(0)
+        self.settlementLcdNumber.display(0)
         self.savePushButton.clicked.connect(partial(self.save_data, True))
         self.clearPushButton.clicked.connect(self.clear_data)
         self.saveLeatherPushButton.clicked.connect(self.save_leather)
         self.printPushButton.clicked.connect(self.print_data)
         self.CarComboBox.editTextChanged.connect(self.update_weight)
-        self.extraWeightSpinBox.textEdited.connect(self.calculate)
+        self.extraWeightSpinBox.valueChanged.connect(self.calculate)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(0)
@@ -119,23 +119,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.supplierComboBox.clearEditText()
 
     def calculate(self):
-        if self.balanceNoBlael.text()=="":
+        if self.balanceNoBlael.text() == "":
             QtWidgets.QMessageBox.warning(self, '本程序', "请先取重量！", QtWidgets.QMessageBox.Ok)
             self.extraWeightSpinBox.clear()
-            self.SettlementlineEdit.clear()
+            self.settlementLcdNumber.display(0)
             return
-        if self.extraWeightSpinBox.text()!="":
-            try:
-                float(self.extraWeightSpinBox.text())
-            except ValueError:
-                QtWidgets.QMessageBox.warning(self, '本程序', "输入有非法字符串！", QtWidgets.QMessageBox.Ok)
-                self.extraWeightSpinBox.clear()
-                self.SettlementlineEdit.clear()
-                return
-            sell=float(self.actualWeightLcdNumber.value())-float(self.extraWeightSpinBox.text())
-            self.SettlementlineEdit.setText(str(sell))
+        if self.extraWeightSpinBox.value() != 0:
+            sell = float(self.actualWeightLcdNumber.value())-float(self.extraWeightSpinBox.value())
+            self.settlementLcdNumber.display(sell)
         else:
-            self.SettlementlineEdit.clear()
+            self.settlementLcdNumber.display(0)
 
     def switch_user(self):
         """
@@ -404,10 +397,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.balanceNoBlael.setText(str(self.tableView.model().index(index.row(), 0).data()))
             self.totalWeightLcdNumber.display(self.tableView.model().index(index.row(), 2).data())
             self.leatherWeightLcdNumber.display(self.tableView.model().index(index.row(), 3).data())
-            print(self.tableView.model().index(index.row(), 3).data())
             self.actualWeightLcdNumber.display(self.tableView.model().index(index.row(), 4).data())
-            self.SettlementlineEdit.setText(str(self.tableView.model().index(index.row(), 15).data()))
-            self.extraWeightSpinBox.setText(str(self.tableView.model().index(index.row(), 9).data()))
+            self.settlementLcdNumber.display(self.tableView.model().index(index.row(), 15).data())
+            self.extraWeightSpinBox.setValue(float(self.tableView.model().index(index.row(), 9).data()))
             self.priceSpinBox.setValue(float(self.tableView.model().index(index.row(), 12).data()))
             self.amountSpinBox.setValue(float(self.tableView.model().index(index.row(), 13).data()))
 
@@ -476,14 +468,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         total_weight = float(self.totalWeightLcdNumber.value())
         leather_weight = float(self.leatherWeightLcdNumber.value())
         actual_weight = float(self.actualWeightLcdNumber.value())
-        if self.extraWeightSpinBox.text() == "":
-            extra_value=0.0
-        else:
-            extra_value = float(self.extraWeightSpinBox.text())
-        if self.SettlementlineEdit.text() == "":
-            settle=0.0
-        else:
-            settle = float(self.SettlementlineEdit.text())
+        extra_value = self.extraWeightSpinBox.value()
+        settle = float(self.settlementLcdNumber.value())
         price = float(self.priceSpinBox.value())
         amount = float(self.amountSpinBox.value())
         car_no = self.CarComboBox.currentText()
@@ -586,8 +572,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.totalWeightLcdNumber.display(0)
         self.leatherWeightLcdNumber.display(0)
         self.actualWeightLcdNumber.display(0)
-        self.extraWeightSpinBox.setText('')
-        self.SettlementlineEdit.setText('')
+        # self.extraWeightSpinBox.setValue(0)
+        self.settlementLcdNumber.display(0)
         self.priceSpinBox.setValue(0)
         self.amountSpinBox.setValue(0)
         self.CarComboBox.setCurrentText('')
