@@ -146,8 +146,10 @@ class pollmainForm(QWidget, Ui_PollmainForm):
             totalweight = float(totalweight) + float(str(values[2]))
             leatherweight = float(leatherweight) + float(str(values[3]))
             actualweight = float(actualweight) + float(str(values[4]))
-            extra = float(extra) + float(str(values[5]))
-            settle = float(settle) + float(str(values[6]))
+            if values[5]:
+               extra = float(extra) + float(str(values[5]))
+            if values[6]:
+               settle = float(settle) + float(str(values[6]))
             for col in range(col_no):
                 item = QStandardItem(str(values[col]))
                 model.setItem(row, col, item)
