@@ -13,6 +13,7 @@ from ui.user_manage import Ui_Form
 from ui.role_manage import Ui_roleForm
 from utils.sqllite_util import EasySqlite
 from functools import partial
+from utils import normal_utils
 import logging
 
 
@@ -455,24 +456,24 @@ class UserManageForm(QtWidgets.QWidget, Ui_Form):
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请输入密码！", QtWidgets.QMessageBox.Ok)
             return
-        # todo 密码加密
+        user_pwd = "321"
         if user_pwd1 == self.password:
-            pass
+            user_pwd = user_pwd1
         else:
-            pass
+            user_pwd = normal_utils.get_pwd_md5(user_pwd1)
         role_sql = "select id from t_role where role_name = '%s'" % role_name
         ret = self.db.query(role_sql)
         role_id = ret[0].get('id')
         permission_sql = ''
         if self.user_id == 0:
             user_sql = "insert into t_user(user_id, user_name, role_id, password) values('%s','%s','%s','%s')" % \
-                       (user_id, user_name, role_id, user_pwd1)
+                       (user_id, user_name, role_id, user_pwd)
             permission_sql = """insert into t_permission (object_type, object_id, operation_id, status) 
                                  select 2 as object_type, '%s' as object_id, id, 0 as status from t_operation
                                  where status = 1 """ % user_id
         else:
             user_sql = "update t_user set user_name='%s', role_id='%s', password='%s' where user_id = '%s'" % \
-                       (user_name, role_id, user_pwd1, user_id)
+                       (user_name, role_id, user_pwd, user_id)
         ret = self.db.update(user_sql)
         if ret:
             if permission_sql:

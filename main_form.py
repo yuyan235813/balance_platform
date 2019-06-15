@@ -912,7 +912,7 @@ class VideoThread(QThread):
         :return:
         """
         self.shot_flag = True
-        self.path =path
+        self.path = path
 
     def stop(self):
         with QMutexLocker(self.mutex):

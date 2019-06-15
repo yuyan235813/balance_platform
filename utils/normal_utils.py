@@ -10,6 +10,7 @@ import datetime
 from utils.sqllite_util import EasySqlite
 from PyQt5.QtWidgets import QMessageBox, QGraphicsView, QGraphicsPixmapItem, QGraphicsScene
 from PyQt5.QtGui import QImage, QPixmap
+import hashlib
 import cv2
 import logging
 import socket
@@ -78,6 +79,16 @@ def get_current_user_dir():
     if not dir:
         dir = "c:"
     return dir
+
+
+def get_pwd_md5(pwd):
+    """
+    加密密码
+    :param pwd:
+    :return:
+    """
+    solt = "whoisyourdady"
+    return hashlib.md5((solt + pwd).encode(encoding='UTF-8')).hexdigest()
 
 def get_user_permission(user_id):
     """
@@ -212,4 +223,5 @@ def is_connected(url):
 if __name__ == '__main__':
     # print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))
     # print(generate_balance_id())
-    test_fun('tttt')
+    # test_fun('tttt')
+    print(get_pwd_md5('686868'))

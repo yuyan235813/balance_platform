@@ -13,6 +13,7 @@ import winreg
 import Psyunew3
 from ctypes import create_string_buffer, c_int, c_short
 import logging.config
+from utils import normal_utils
 import os
 
 if not os.path.exists('log'):
@@ -111,7 +112,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         if ret:
             password = ret[0].get('password')
             self.user_id = ret[0].get('user_id')
-            if pwd == password:
+            if normal_utils.get_pwd_md5(pwd) == password:
                 logger.info(self.user_name)
                 self.mainWidget = MainForm(self)
                 self.mainWidget.show()

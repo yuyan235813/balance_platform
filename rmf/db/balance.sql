@@ -4,23 +4,23 @@ CREATE TABLE t_balance(
   id integer primary key AUTOINCREMENT, -- ID
   balance_id bigint(16) unique NOT NULL, --'单号'
   car_no text NOT NULL, --'车号'
-  total_weight decimal(10,2) DEFAULT NULL, --'毛重'
-  leather_weight decimal(10,2) DEFAULT NULL, --'皮重'
-  actual_weight decimal(10,2) DEFAULT NULL, --'净重'
+  total_weight decimal(10,2) DEFAULT 0, --'毛重'
+  leather_weight decimal(10,2) DEFAULT 0, --'皮重'
+  actual_weight decimal(10,2) DEFAULT 0, --'净重'
   goods_name text, --'货物名'
   supplier text, --'供货单位'
   receiver text, --'收货单位'
-  package_weight decimal(10,2) DEFAULT NULL, --'包装物重'
+  package_weight decimal(10,2) DEFAULT 0, --'包装物重'
   extra decimal(10,2) DEFAULT 0, --'另扣'
   impurity decimal(10,2) DEFAULT 0, --'杂质'
   water decimal(10,2) DEFAULT 0, --'水分'
   price decimal(10,2) DEFAULT 0, --'单价'
   amount decimal(10,2) DEFAULT 0, --'金额'
   oil decimal(10,2) DEFAULT 0, --'含油'
-  sweight decimal(10,2) DEFAULT NULL, --'结算重量'
+  sweight decimal(10,2) DEFAULT 0, --'结算重量'
   specification text, --'规格'
   driver text, --'驾驶员'
-  poddid bigint(64) DEFAULT NULL, --'计划单号'
+  poddid bigint(64) DEFAULT 0, --'计划单号'
   delivery text, --'运货单位'
   balance_time1 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间1'
   balance_date date not null DEFAULT (date('now')), --'称重日期'
@@ -180,13 +180,13 @@ CREATE TABLE `t_user` (
   `id` integer primary key AUTOINCREMENT, -- ID
   `user_id` text unique not null default '', -- 用户ID
   `user_name` text not null default '', --用户名
-  `password` text not null default '1256dce64096d2242f73cb55c572b9c3', -- 密码686868
+  `password` text not null default '90aae58fed8af5dc494afe4a67688e2e', -- 密码686868
   `role_id` int not null default 1, -- 角色ID
   `status` int not null default 1 -- 1:有效；0：删除
 );
-INSERT INTO t_user VALUES(1,'admin','系统管理员','321',1,1);
-INSERT INTO t_user VALUES(2,'user1','操作员1','123',2,1);
-INSERT INTO t_user VALUES(3,'user2','操作员2','123',2,1);
+INSERT INTO t_user VALUES(1,'admin','系统管理员','81d68dc5e2b8e305aab30aaff6e8f1b7',1,1);
+INSERT INTO t_user VALUES(2,'user1','操作员1','af6752541efe985e22a67e85713e408a',2,1);
+INSERT INTO t_user VALUES(3,'user2','操作员2','af6752541efe985e22a67e85713e408a',2,1);
 CREATE TABLE `t_operation`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `opt_type` int not null default 1, --操作类型，1：功能，2：权限
