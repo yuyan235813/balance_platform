@@ -11,6 +11,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.permission_setup import Ui_permissionSetupForm
 from ui.user_manage import Ui_Form
 from ui.role_manage import Ui_roleForm
+from super_form import SuperForm
 from utils.sqllite_util import EasySqlite
 from functools import partial
 from utils import normal_utils
@@ -36,10 +37,12 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         self.editUserPushButton.clicked.connect(self.__change_user)
         self.deleteUserPushButton.clicked.connect(self.__delete_user)
         self.deleteRolePushButton.clicked.connect(self.__delete_role)
+        self.superLineEdit.returnPressed.connect(self.__show_super)
         self.userMangeForm = UserManageForm()
         self.userMangeForm.my_signal.connect(self.__init_data)
         self.roleManageForm = RoleManageForm()
         self.roleManageForm.my_signal.connect(self.__init_data)
+        self.superForm = SuperForm()
         self.optionTableView.doubleClicked.connect(partial(self.__change_permissions, 1))
         self.permissionTableView.doubleClicked.connect(partial(self.__change_permissions, 2))
         self.superLabel.doubleClicked.connect(self.__manage_permissions)
@@ -49,6 +52,8 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         初始化数据
         :return:
         """
+        self.superLineEdit.clear()
+        self.superLineEdit.setVisible(False)
         self.flag = ''
         # 用户
         self.userListWidget.clear()
@@ -364,7 +369,25 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         管理权限
         :return:
         """
-        pass
+        if self.superLineEdit.isVisible():
+            self.superLineEdit.clear()
+            self.superLineEdit.setVisible(False)
+        else:
+            self.superLineEdit.clear()
+            self.superLineEdit.setVisible(True)
+
+    def __show_super(self):
+        """
+        显示超级窗口
+        :return:
+        """
+        if 'acf5aa9cb17a16ea2dad69046a4e9ce5' == normal_utils.get_pwd_md5(self.superLineEdit.text()):
+            logging.info('show super form by user: %s.' % self.user_name)
+            self.superForm.show()
+        else:
+            logging.info('show super form failed by user: %s' % self.user_name)
+        self.superLineEdit.clear()
+        self.superLineEdit.setVisible(False)
 
 
 class UserManageForm(QtWidgets.QWidget, Ui_Form):

@@ -15,6 +15,8 @@ import cv2
 import logging
 import socket
 import base64
+import requests
+import json
 
 
 def stdev(sequence):
@@ -32,11 +34,11 @@ def stdev(sequence):
         return stdev
 
 
-def get_file_list(path, type='.rmf'):
+def get_file_list(path, file_type='.rmf'):
     """
     获取指定目录下特定类型的文件
-    :param parh:
-    :param type:
+    :param path:
+    :param file_type:
     :return:
     """
     list_name = []
@@ -44,7 +46,7 @@ def get_file_list(path, type='.rmf'):
         file_path = os.path.join(path, file)
         if os.path.isdir(file_path):
             pass
-        elif os.path.splitext(file)[1] == type:
+        elif os.path.splitext(file)[1] == file_type:
             list_name.append(file_path)
         else:
             pass
@@ -89,6 +91,7 @@ def get_pwd_md5(pwd):
     """
     solt = "whoisyourdady"
     return hashlib.md5((solt + pwd).encode(encoding='UTF-8')).hexdigest()
+
 
 def get_user_permission(user_id):
     """
@@ -220,8 +223,42 @@ def is_connected(url):
     else:
         return False
 
+
+def sync_data(url):
+    """
+    同步数据
+    :return:
+    """
+    # db = EasySqlite(r'rmf/db/balance.db')
+    db = EasySqlite(r'../rmf/db/balance.db')
+    time1 = '1970-01-01 00:00:00'
+    time_now = datetime.datetime.now()
+    time2 = (time_now + datetime.timedelta(seconds=-1)).strftime("%Y-%m-%d %H:%M:%S")
+    query_sql1 = """select max(sync_time) as sync_time from t_balance_sync"""
+    query_sql2 = """select * from t_balance where balance_time > '%s' and balance_time <='%s'"""
+    update_sql = """insert into t_balance_sync(sync_time) value(%s)""" % time2
+    ret1 = db.query(query_sql1)
+    if ret1:
+        time1 = ret1[0].get('sync_time')
+        ret2 = db.query(query_sql2 % (time1, time2))
+        if ret2:
+            data = dict()
+            data['count'] = len(ret2)
+            data['data'] = ret2
+            try:
+                response = requests.post(url, data)
+                res = json.loads(response.text)
+                if 'code' in res.keyset() and res.get('code') == 1:
+                    ret = db.update(update_sql)
+                    if ret:
+                       pass
+            except Exception as e:
+                logging.info(e)
+
+
 if __name__ == '__main__':
     # print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))
     # print(generate_balance_id())
     # test_fun('tttt')
-    print(get_pwd_md5('686868'))
+    print(get_pwd_md5('kitty.'))
+    # sync_data()

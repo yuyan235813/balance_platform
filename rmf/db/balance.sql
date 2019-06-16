@@ -23,14 +23,14 @@ CREATE TABLE t_balance(
   poddid bigint(64) DEFAULT 0, --'计划单号'
   delivery text, --'运货单位'
   balance_time1 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间1'
-  balance_date date not null DEFAULT (date('now')), --'称重日期'
+  balance_time datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间'
   balance_time2 datetime not null DEFAULT (datetime('now', 'localtime')), --'称重时间2'
   operator text, --'操作员'
   status int not null default 0, --'是否完成'
   extend text, --'备注'
   ext1 text, -- '备用1'
   ext2 text, -- '备用2'
-  ext3 text, -- '备用3'
+  ext3 text default '', -- '备用3'
   ext4 text -- '备用4'
 );
 INSERT INTO t_balance VALUES(87,2019010813142001,'鲁1234',120,120,0,'','山东鲁能集团','泰安军火库',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 13:16:00','2019-01-08','2019-01-08 13:16:00','系统管理员',1,NULL,'shot\201901\20190108_131600',NULL,NULL,NULL);
@@ -38,6 +38,11 @@ INSERT INTO t_balance VALUES(89,2019010813163001,'鲁789',120,120,0,'','山东�
 INSERT INTO t_balance VALUES(90,2019010814210501,'鲁456',120,120,0,'','','',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 14:21:08','2019-01-08','2019-01-08 14:21:08','系统管理员',1,NULL,'shot\201901\20190108_142108','shot\201901\20190108_142544',NULL,NULL);
 INSERT INTO t_balance VALUES(91,2019010818083801,'1234',440,120,320,'水泥','江苏苏宁集团','山东瑞星电子有限公司',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 18:12:20','2019-01-08','2019-01-08 18:08:41','系统管理员',1,NULL,'shot\201901\20190108_180841','shot\201901\20190108_181220',NULL,NULL);
 INSERT INTO t_balance VALUES(92,2019010818131301,'125',120,80,40,'水泥','浙江绿城集团','规划风格化',NULL,0,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,'2019-01-08 18:13:31','2019-01-08','2019-01-08 18:13:22','系统管理员',1,NULL,'shot\201901\20190108_181322','shot\201901\20190108_181331',NULL,NULL);
+CREATE TABLE `t_balance_sync`(
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `sync_time` datetime not null DEFAULT (datetime('now', 'localtime')) --'同步时间'
+);
+insert into `t_balance_sync` values(1, '2019-01-08 13:16:00');
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `default_rmf` text not null default '' -- 默认磅单rmf

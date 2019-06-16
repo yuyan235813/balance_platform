@@ -20,7 +20,7 @@ class EasySqlite:
     def __init__(self, database):
         # 连接数据库
         try:
-            self._connection = sqlite3.connect(database,check_same_thread=False)
+            self._connection = sqlite3.connect(database, check_same_thread=False)
         except Exception as e:
             logging.error('%s 数据库连接失败！' % database)
 

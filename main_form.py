@@ -378,7 +378,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                   '杂志', '水分', '单价', '金额', '含油', '结算重量', '规格', '驾驶员', '计划单号', '运货单位', '称重时间1',
                   '称重日期', '称重时间2', '操作员', '是否完成', '备注', '备用1', '备用2', '备用3', '备用4']
         weekday = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S')
-        query_sql = """select * from t_balance where balance_time1>'%s' and status=0 order by balance_time1 desc""" %weekday
+        query_sql = """select * from t_balance where balance_time1>'%s' and status=0 and (ext3 != '1' or ext3 is null) order by balance_time1 desc""" %weekday
         data_list = self.db.query(query_sql)
         row_no, col_no = len(data_list), len(header)
         model = QStandardItemModel(row_no, col_no)
@@ -480,9 +480,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         receiver = self.receiverComboBox.currentText()
         goods_name = self.goodsComboBox.currentText()
         operator = self.user_name
+        balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if self.balance_opt_status:
-            # print(operator)
-            # operator = u'系统管理员'
             today_date = datetime.now().strftime("%Y%m%d_%H%M%S")
             path = 'shot'
             today_month = datetime.now().strftime("%Y%m")
@@ -493,65 +492,39 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 os.makedirs(abs_path)
             path = path + '\\' + str(balance_id)+str(today_date)
             self.shot_change(path)
-            data = ''
-            balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-            # balance_time2 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             if self.balance_opt_status == 1:
                 sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                                 extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
-                                balance_time2, operator, status,ext1,sweight) 
-                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                                balance_time, balance_time2, operator, status,ext1,sweight) 
+                                values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
                 data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                        supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path,settle)
+                        supplier, receiver, goods_name, balance_time, balance_time, balance_time, operator,
+                        self.balance_status, path, settle)
             else:
                 if self.ischange:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
-                                                         extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                                         goods_name = ?, balance_time1 = ?,operator = ?, status= ?,ext2= ?,sweight=? 
-                                                         where balance_id = ? '''
+                                 extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
+                                 goods_name = ?, balance_time1 = ?,operator = ?, status= ?,ext2= ?,sweight=?,
+                                 balance_time = ? where balance_id = ? '''
                     data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                             supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, settle,
-                            int(balance_id))
+                            balance_time, int(balance_id))
                 else:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                          extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
-                                         goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?,sweight=?
-                                         where balance_id = ? '''
+                                         goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?,sweight=?,
+                                         balance_time = ? where balance_id = ? '''
                     data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                             supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, settle,
-                            int(balance_id))
+                            balance_time, int(balance_id))
 
         else:
             sql = """update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                      extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?, 
-                                     goods_name = ?, operator = ?, status= ?,sweight=?
+                                     goods_name = ?, operator = ?, status= ?,sweight=?, balance_time = ?
                                      where balance_id = ?"""
             data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-                    supplier, receiver, goods_name, operator, self.balance_status, settle, int(balance_id))
-
-        # if self.balance_status:
-        #     if self.ischange:
-        #         sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
-        #                              extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
-        #                              goods_name = ?, balance_time1=?,operator = ?, status= ?,ext2=?
-        #                              where balance_id = ?'''
-        #         data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-        #                 supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
-        #     else:
-        #         sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
-        #                              extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
-        #                              goods_name = ?, balance_time2 = ?,operator = ?, status= ?,ext2= ?
-        #                              where balance_id = ? '''
-        #         data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-        #                 supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, int(balance_id))
-        # else:
-        #     sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
-        #                         extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
-        #                         balance_time2, operator, status,ext1)
-        #                         values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-        #     data = (balance_id, total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
-        #         supplier, receiver, goods_name, balance_time, balance_time, operator, self.balance_status, path)
+                    supplier, receiver, goods_name, operator, self.balance_status, settle, balance_time, int(balance_id))
         ret = self.db.update(sql, args=data)
         if warning:
             if ret:
@@ -609,8 +582,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
 
         car_update = """insert into t_car(car_no, leather_weight) values(?,?)"""
         logging.info((car_no, float(total_weight)))
-        self.db.update(car_update, args=(car_no, total_weight))
-        self.update_combobox()
+        ret = self.db.update(car_update, args=(car_no, total_weight))
+        if ret:
+            QtWidgets.QMessageBox.warning(self, '本程序', "存皮成功！", QtWidgets.QMessageBox.Ok)
+            self.update_combobox()
 
     def print_data(self):
         """
@@ -647,7 +622,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             return
         # nowdate = datetime.datetime.now().strftime('%Y-%m-%d')
         weekday = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S')
-        balance_query = """select * from t_balance where balance_time1> '%s' and car_no = '%s' and status=0 order by balance_time1 DESC """ % (weekday,car_no)
+        balance_query = """select * from t_balance where balance_time1> '%s' and car_no = '%s' and (ext3 != '1' or ext3 is null) and status=0 order by balance_time1 DESC """ % (weekday,car_no)
         print(balance_query)
         ret = self.db.query(balance_query)
         if ret:
@@ -784,7 +759,7 @@ class COMThread(QThread):
         """
         with QMutexLocker(self.mutex):
             self.stoped= False
-        DEBUG = False
+        DEBUG = True
         while not self.stoped:
             if DEBUG:
                 while not self.stoped:

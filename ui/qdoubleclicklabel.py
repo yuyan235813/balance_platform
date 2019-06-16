@@ -19,4 +19,4 @@ class QDoubleClickLabel(QLabel):
         :param e:
         :return:
         """
-        self.doubleClicked.emit()
+        self.doubleClicked.emit(True)

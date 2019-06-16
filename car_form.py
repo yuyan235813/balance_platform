@@ -12,7 +12,6 @@ from ui.car_manage import Ui_carManageForm
 from ui.car_manage_change import Ui_dialog
 from car_no_dialog_form import CarNoDialogForm
 from utils.sqllite_util import EasySqlite
-from utils.normal_utils import get_cur_time
 import logging
 
 
@@ -26,13 +25,10 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         self.parent = parent
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
-        #self.pushButton.clicked.connect(self.__show_dialog)
         self.cancelPushButton.clicked.connect(self.close)
-        # self.addPushButton.clicked.connect(self.__add_data)
         self.deletePushButton.clicked.connect(self.__delete_data)
         self.savePushButton.clicked.connect(self.__save_data)
         self.dialog = CarNoDialogForm()
-        # self.dialog.my_signal.connect(self.carNoLineEdit.setText)
         self.car_dialog = CarManageChangeForm(self)
         self.autoMe = 0
 
@@ -79,59 +75,6 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
             model = self.tableView.model()
             model.setData(model.index(index, 0), car_no)
             model.setData(model.index(index, 1), leather_weight)
-
-    def __show_dialog(self):
-        """
-        显示车牌号键盘
-        :return:
-        """
-        if self.dialog.isVisible():
-            self.dialog.setVisible(False)
-            return
-        self.dialog.show()
-
-    def moveEvent(self, a0):
-        """
-        移动窗口事件
-        :param a0:
-        :return:
-        """
-        super().moveEvent(a0)
-        point = a0.pos()
-        point.setX(point.x() + 50)
-        point.setY(point.y() + 300)
-        self.dialog.move(point)
-
-    def __add_data(self):
-        """
-        添加数据
-        :return:
-        """
-        car_no = self.carNoLineEdit.text()
-        leather_weight = self.doubleSpinBox.value()
-        if len(car_no.strip()) == 0:
-            QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能为空！", QtWidgets.QMessageBox.Ok)
-            return
-        if leather_weight <= 0:
-            QtWidgets.QMessageBox.warning(self, '本程序', "重量必须为正数！", QtWidgets.QMessageBox.Ok)
-            return
-        repeat = False
-        row_count = self.tableView.model().rowCount()
-        for i in range(row_count):
-            if car_no == self.tableView.model().index(i, 0).data():
-                repeat = True
-                break
-        if repeat:
-            QtWidgets.QMessageBox.warning(self, '本程序', "车牌号已经存在！", QtWidgets.QMessageBox.Ok)
-            return
-        cur_time = get_cur_time()
-        items = (QStandardItem(car_no),
-                 QStandardItem(str(round(leather_weight, 2))),
-                 QStandardItem(cur_time))
-        self.tableView.model().insertRow(0, items)
-        self.carNoLineEdit.clear()
-        self.doubleSpinBox.clear()
-
 
     def __delete_data(self):
         """
@@ -209,8 +152,6 @@ class CarManageChangeForm(QtWidgets.QDialog, Ui_dialog):
         self.dialog.my_signal.connect(self.carNoLineEdit.setText)
         self.setWindowModality(Qt.ApplicationModal)
         self.pushButton.clicked.connect(self.__show_dialog)
-        self.dialog = CarNoDialogForm()
-        self.dialog.my_signal.connect(self.carNoLineEdit.setText)
         self.cancelPushButton.clicked.connect(self.close)
         self.okPushButton.clicked.connect(self.__update_data)
 
