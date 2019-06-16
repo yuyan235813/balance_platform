@@ -117,6 +117,15 @@ class SuperForm(QtWidgets.QWidget, Ui_superForm):
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的记录！", QtWidgets.QMessageBox.Ok)
 
+    def closeEvent(self, a0):
+        """
+        关闭事件
+        :param a0:
+        :return:
+        """
+        super(SuperForm, self).closeEvent(a0)
+        self.tableView.setModel(None)
+
 
 if __name__ == '__main__':
     import sys
