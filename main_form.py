@@ -759,7 +759,7 @@ class COMThread(QThread):
         """
         with QMutexLocker(self.mutex):
             self.stoped= False
-        DEBUG = True
+        DEBUG = False
         while not self.stoped:
             if DEBUG:
                 while not self.stoped:
