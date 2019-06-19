@@ -93,10 +93,8 @@ class AIODll(object):
         :return:int
         """
         card_no = self.card_no_to_hex(card_no)
-        self.dll.IssueCard.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool, ctypes.c_int, ctypes.c_bool]
-        self.dll.IssueCard.restype = ctypes.c_int
-        c_car_no = ctypes.c_char_p(card_no)
-        c_valid_date = ctypes.c_char_p(valid_date)
+        c_car_no = ctypes.c_char_p(card_no.encode("utf-8"))
+        c_valid_date = ctypes.c_char_p(valid_date.encode("utf-8"))
         c_anti_back = ctypes.c_bool(anti_back)
         c_card_type = ctypes.c_int(card_type)
         c_is_use = ctypes.c_bool(is_use)
@@ -133,14 +131,15 @@ class AIODll(object):
         c_card_no_ref = ctypes.c_char_p()
         c_card_type_ref = ctypes.c_int()
         c_valid_date_ref = ctypes.c_char_p()
-        c_is_use_ref = ctypes.ctypes.c_bool
-        c_anti_back_ref = ctypes.ctypes.c_bool
+        c_is_use_ref = ctypes.c_bool()
+        c_anti_back_ref = ctypes.c_bool()
         res = self.dll.ReadUserCard(pointer(c_card_no_ref), pointer(c_card_type_ref), pointer(c_valid_date_ref), pointer(c_is_use_ref), pointer(c_anti_back_ref))
-        data['card_no'] = eval('0x' + c_card_no_ref.value.decode('utf-8'))
-        data['card_type'] = c_card_type_ref.value
-        data['valid_date'] = c_valid_date_ref.value.decode('utf-8')
-        data['is_use'] = c_is_use_ref.value
-        data['anti_back'] = c_anti_back_ref.value
+        if int(res) == 0:
+            data['card_no'] = eval('0x' + c_card_no_ref.value.decode('utf-8'))
+            data['card_type'] = c_card_type_ref.value
+            data['valid_date'] = c_valid_date_ref.value.decode('utf-8')
+            data['is_use'] = c_is_use_ref.value
+            data['anti_back'] = c_anti_back_ref.value
         return int(res)
 
     def manager_time(self, date_time):
@@ -149,7 +148,7 @@ class AIODll(object):
         :param date_time:校时时间 yyyy-mm-dd hh:nn:ss
         :return:int
         """
-        c_date_time = ctypes.c_char_p(date_time)
+        c_date_time = ctypes.c_char_p(date_time.encode("utf-8"))
         res = self.dll.ManagerTime(c_date_time)
         return int(res)
 
@@ -189,7 +188,8 @@ class AIODll(object):
         """
         c_date_time = ctypes.c_char_p()
         res = self.dll.ReadEquDateTime(pointer(c_date_time))
-        data['date_time'] = c_date_time.value.decode('utf-8')
+        if int(res) == 0:
+            data['date_time'] = c_date_time.value.decode('utf-8')
         return int(res)
 
     def multi_psw(self):
@@ -271,8 +271,8 @@ class AIODll(object):
         :return:
         """
         card_no = self.card_no_to_hex(card_no)
-        c_card_no = ctypes.c_char_p(card_no)
-        c_start_date_time = ctypes.c_char_p(start_date_time)
+        c_card_no = ctypes.c_char_p(card_no.encode("utf-8"))
+        c_start_date_time = ctypes.c_char_p(start_date_time.encode("utf-8"))
         res = self.dll.SetTmpCard(c_card_no, c_start_date_time)
         return int(res)
 
@@ -306,14 +306,29 @@ class AIODll(object):
         return card_no_hex.upper()
 
 
-
-def hex_to_str(s):
-    return ''.join([chr(i) for i in [int(b, 16) for b in s]])
-
 if __name__ == '__main__':
     dll = AIODll()
-    dll.open_com(3)
-    data = dict()
-    dll.read_user_card(data)
-    for k, v in data:
-        print("key: %s---value: %s" % (k, v))
+    res = dll.open_com(3)
+    print(res)
+    # while True:
+    #     data = dict()
+    #     dll.read_user_card(data)
+    #     for k, v in data.items():
+    #         print("%s = %s" % (k, v))
+    #     print("======================================")
+    # time_now = "2019-06-19 21:00:01"
+    # res = dll.manager_time(time_now)
+    # print(res)
+    # card_no = "12345677"
+    # valid_date = '2019-07-19'
+    # anti_back = False
+    # card_type = 2
+    # is_use = True
+    # res = dll.issue_card(card_no, valid_date, anti_back, card_type, is_use)
+    # print(res)
+    # res = dll.empty_com_data()
+    # print(res)
+    # res = dll.set_tmp_card(card_no, time_now)
+    # print(res)
+    res = dll.open_pos(1, 2, 1)
+    print(res)
