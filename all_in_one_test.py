@@ -136,7 +136,7 @@ class AIODll(object):
         c_is_use_ref = ctypes.ctypes.c_bool
         c_anti_back_ref = ctypes.ctypes.c_bool
         res = self.dll.ReadUserCard(pointer(c_card_no_ref), pointer(c_card_type_ref), pointer(c_valid_date_ref), pointer(c_is_use_ref), pointer(c_anti_back_ref))
-        data['card_no'] = eval(c_card_no_ref.value.decode('utf-8'))
+        data['card_no'] = eval('0x' + c_card_no_ref.value.decode('utf-8'))
         data['card_type'] = c_card_type_ref.value
         data['valid_date'] = c_valid_date_ref.value.decode('utf-8')
         data['is_use'] = c_is_use_ref.value
@@ -150,7 +150,8 @@ class AIODll(object):
         :return:int
         """
         c_date_time = ctypes.c_char_p(date_time)
-        return ctypes.c_int(self.dll.ManagerTime(c_date_time))
+        res = self.dll.ManagerTime(c_date_time)
+        return int(res)
 
     def manager_set_pos(self, pos_id, pos_type, in_out_type):
         """
@@ -311,8 +312,8 @@ def hex_to_str(s):
 
 if __name__ == '__main__':
     dll = AIODll()
-    # print(dll.card_no_to_hex('12345678'))
-    # print(dll.open_com(2))
-    # ss = ctypes.c_char_p('2019-05-11 13:43:50')
-    # print(ss.value)
-    # print(eval((b'00BC614E').decode('utf8')))
+    dll.open_com(3)
+    data = dict()
+    dll.read_user_card(data)
+    for k, v in data:
+        print("key: %s---value: %s" % (k, v))
