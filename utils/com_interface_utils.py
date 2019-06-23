@@ -9,6 +9,7 @@ import serial
 from time import sleep
 from conf.constant import ErrorCode, NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
+import time
 import logging
 
 
@@ -127,16 +128,45 @@ def func():
         print(format_data(data))
         print('================')
 
-
-if __name__ == '__main__':
-    my_serial = serial.Serial('COM5', COM_BAUD_RATE, timeout=0.5)
+def set_barrier_gate(state):
+    """
+    设置道闸
+    :param state:
+    :return:
+    """
+    close_msg = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
+    open_msg = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
+    my_serial = serial.Serial('COM4', COM_BAUD_RATE, timeout=0.5)
     if my_serial.isOpen():
-        print("open success")
+        # print("open success")
+        # msg = open_msg.encode('utf-8')
+        start = time.time()
+        while True:
+            my_serial.write(open_msg)
+            if open_msg == my_serial.read(8):
+                print('open success')
+                break
+        time.sleep(0.5)
+        while True:
+            my_serial.write(close_msg)
+            if my_serial.read(8) == close_msg:
+                print('close success')
+                break
+        print(time.time() - start)
     else:
         print("open failed")
-    while True:
-        data = read_com_interface(my_serial)
-        print(data)
     my_serial.close()
+
+if __name__ == '__main__':
+    # my_serial = serial.Serial('COM5', COM_BAUD_RATE, timeout=0.5)
+    # if my_serial.isOpen():
+    #     print("open success")
+    # else:
+    #     print("open failed")
+    # while True:
+    #     data = read_com_interface(my_serial)
+    #     print(data)
+    # my_serial.close()
     # func()
     # print(get_bytes_num())
+    set_barrier_gate(1)
