@@ -1,0 +1,292 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+@Time    : 2018/8/17 下午9:54
+@Author  : lizhiran
+@Email   : 794339312@qq.com
+"""
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QDate, QModelIndex
+from PyQt5 import QtSql
+from ui.card_form import Ui_cardFrom
+import logging
+
+
+class CardForm(QtWidgets.QWidget, Ui_cardFrom):
+    """
+    超级管理界面
+    """
+    def __init__(self):
+        super(CardForm, self).__init__()
+        self.setupUi(self)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("rmf/db/balance.db")
+        self.queryPushButton.clicked.connect(self.__query_data)
+        self.addPushButton.clicked.connect(self.__add_data)
+        self.savePushButton.clicked.connect(self.__save_data)
+        self.deletePushButton.clicked.connect(self.__delete_data)
+        self.cancelPushButton.clicked.connect(self.close)
+        self.table = 't_card_info'
+        self.db_model = QtSql.QSqlTableModel()
+        self.tableView.verticalHeader().hide()
+        self.__init_data()
+
+    def __init_data(self):
+        """
+        初始化数据
+        :return:
+        """
+        self.beginDateEdit.setDate(QDate.currentDate())
+        self.endDateEdit.setDate(QDate.currentDate())
+        self.tableView.setItemDelegate(CardInfoDelegate(self.tableView))
+        self.tableView.setColumnHidden(0, True)
+        self.tableView.doubleClicked.connect(self.__display_data)
+        self.__query_data()
+
+    def __display_data(self, index: QModelIndex):
+        """
+        返显数据
+        :param index:
+        :return:
+        """
+        record = self.db_model.record(index.row())
+        print(index.row())
+        user_name = record.value(1)
+        gender = '男' if record.value(2) == 1 else '女'
+        print(record.value(2))
+        card_type = "月卡"
+        if record.value(3) == 2:
+            card_type = "临时卡"
+        elif record.value(3) == 3:
+            card_type = "免费卡"
+        enroll_date = record.value(5)
+        valid_date = record.value(6)
+        card_status = "有" if record.value(7) == 1 else "无"
+        phone_number = record.value(8)
+        cred_no = record.value(9)
+        car_no = record.value(10)
+        address = record.value(11)
+        # operation_date = str(QDate.currentDate().toPyDate())
+        supplier = record.value(14)
+        receiver = record.value(15)
+        cargo = record.value(16)
+        extra = record.value(17)
+        price = record.value(18)
+
+        self.userNameLineEdit_2.setText(user_name)
+        self.genderComboBox.setCurrentText(gender)
+        self.cardTypeComboBox.setCurrentText(card_type)
+        self.enrollDateEdit.setDate(QDate.fromString(enroll_date, "yyyy-MM-dd"))
+        self.validDateEdit.setDate(QDate.fromString(valid_date, "yyyy-MM-dd"))
+        self.isValidComboBox.setCurrentText(card_status)
+        self.phoneNumberLineEdit.setText(phone_number)
+        self.credNoLineEdit.setText(cred_no)
+        self.carNoLineEdit_2.setText(car_no)
+        self.addressLineEdit.setText(address)
+        self.supplierLineEdit_2.setText(supplier)
+        self.receiverLineEdit_2.setText(receiver)
+        self.cargoLineEdit.setText(cargo)
+        self.extraDoubleSpinBox.setValue(extra)
+        self.priceDoubleSpinBox.setValue(price)
+
+    def __query_data(self):
+        """
+        查询数据
+        :return:
+        """
+        begin_date = str(self.beginDateEdit.date().toPyDate())
+        end_date = str(self.endDateEdit.date().toPyDate())
+        card_no = self.carNoLineEdit.text()
+        user_name = self.userNameLineEdit.text()
+        supplier = self.supplierLineEdit.text()
+        receiver = self.receiverLineEdit.text()
+        issued = 'status = 1' if self.issuedRadioButton.isChecked() else 'status = 0'
+        condition = 'enroll_date >= "' + begin_date + '" and enroll_date' \
+                                                                     ' <= "' + end_date + '" and '
+        if card_no:
+            condition += 'card_no = "%s" and ' % card_no
+        if user_name:
+            condition += 'user_name = "%s" and ' % user_name
+        if supplier:
+            condition += 'supplier like "%' + supplier + '%" and '
+        if receiver:
+            condition += 'receiver like "%' + supplier + '%" and '
+        condition += issued
+        if self.db.open():
+            self.db_model.setTable(self.table)
+            self.db_model.setFilter(condition)
+            self.db_model.select()
+            self.db_model.setHeaderData(0, Qt.Horizontal, '序号')
+            self.db_model.setHeaderData(1, Qt.Horizontal, '用户姓名')
+            self.db_model.setHeaderData(2, Qt.Horizontal, '性别')
+            self.db_model.setHeaderData(3, Qt.Horizontal, '卡片类型')
+            self.db_model.setHeaderData(4, Qt.Horizontal, '卡号')
+            self.db_model.setHeaderData(5, Qt.Horizontal, '登记日期')
+            self.db_model.setHeaderData(6, Qt.Horizontal, '有效期')
+            self.db_model.setHeaderData(7, Qt.Horizontal, '卡片是否有效')
+            self.db_model.setHeaderData(8, Qt.Horizontal, '电话号码')
+            self.db_model.setHeaderData(9, Qt.Horizontal, '证件号码')
+            self.db_model.setHeaderData(10, Qt.Horizontal, '车牌号')
+            self.db_model.setHeaderData(11, Qt.Horizontal, '地址')
+            self.db_model.setHeaderData(12, Qt.Horizontal, '操作员编号')
+            self.db_model.setHeaderData(13, Qt.Horizontal, '操作日期')
+            self.db_model.setHeaderData(14, Qt.Horizontal, '供货单位')
+            self.db_model.setHeaderData(15, Qt.Horizontal, '收货单位')
+            self.db_model.setHeaderData(16, Qt.Horizontal, '货物名称')
+            self.db_model.setHeaderData(17, Qt.Horizontal, '另扣')
+            self.db_model.setHeaderData(18, Qt.Horizontal, '价格')
+            self.db_model.setHeaderData(19, Qt.Horizontal, '状态')
+            self.db_model.setHeaderData(20, Qt.Horizontal, '扩展1')
+            self.db_model.setHeaderData(21, Qt.Horizontal, '扩展2')
+            self.db_model.setHeaderData(22, Qt.Horizontal, '扩展3')
+            self.db_model.setHeaderData(23, Qt.Horizontal, '扩展4')
+            print(condition)
+            self.tableView.setModel(self.db_model)
+            max_card_no_query = self.db.exec('select max(card_no) from t_card_info')
+            self.max_card_no = int(max_card_no_query.value(0)) if max_card_no_query.next() else -1
+        self.tableView.setColumnHidden(0, True)
+
+    def __add_data(self):
+        """
+        添加数据
+        :return:
+        """
+        # todo 性别、状态的格式转化；数据的判断验证
+        logging.info('add data')
+        user_name = self.userNameLineEdit_2.text()
+        gender = self.genderComboBox.currentText()
+        card_type = self.cardTypeComboBox.currentText()
+        card_no = self.max_card_no + 1
+        enroll_date = str(self.enrollDateEdit.date().toPyDate())
+        valid_date = str(self.validDateEdit.date().toPyDate())
+        card_status = self.isValidComboBox.currentText()
+        phone_number = self.phoneNumberLineEdit.text()
+        cred_no = self.credNoLineEdit.text()
+        car_no = self.carNoLineEdit.text()
+        address = self.addressLineEdit.text()
+        operation_id = 0
+        operation_date = str(QDate.currentDate().toPyDate())
+        supplier = self.supplierLineEdit_2.text()
+        receiver = self.receiverLineEdit_2.text()
+        cargo = self.cargoLineEdit.text()
+        extra = self.extraDoubleSpinBox.value()
+        price = self.priceDoubleSpinBox.value()
+        status = 0
+        ext1 = ''
+        ext2 = ''
+        ext3 = ''
+        ext4 = ''
+        record = self.db_model.record()
+        record.setGenerated('id', False)
+        record.setValue(1, user_name)
+        record.setValue(2, gender)
+        record.setValue(3, card_type)
+        record.setValue(4, card_no)
+        record.setValue(5, enroll_date)
+        record.setValue(6, valid_date)
+        record.setValue(7, card_status)
+        record.setValue(8, phone_number)
+        record.setValue(9, cred_no)
+        record.setValue(10, car_no)
+        record.setValue(11, address)
+        record.setValue(12, operation_id)
+        record.setValue(13, operation_date)
+        record.setValue(14, supplier)
+        record.setValue(15, receiver)
+        record.setValue(16, cargo)
+        record.setValue(17, extra)
+        record.setValue(18, price)
+        record.setValue(19, status)
+        record.setValue(20, ext1)
+        record.setValue(21, ext2)
+        record.setValue(22, ext3)
+        record.setValue(23, ext4)
+        success = self.db_model.insertRecord(self.db_model.rowCount(), record)
+        if success:
+            self.max_card_no += 1
+
+    def __save_data(self, without_info=False):
+        """
+        保存数据
+        :return:
+        """
+        if self.db_model.submitAll():
+            if not without_info:
+                QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+            self.__query_data()
+        else:
+            if not without_info:
+                QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+
+    def __delete_data(self):
+        """
+        删除数据
+        :return:
+        """
+        current_row = self.tableView.currentIndex().row()
+        if current_row != -1:
+            reply = QtWidgets.QMessageBox.question(self,
+                                                   '本程序',
+                                                   "是否要删除记录 id = %s ？" % self.db_model.index(current_row, 0).data(),
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.Yes:
+                logging.info("delete id = %s" % self.db_model.index(current_row, 0).data())
+                record = self.db_model.record(current_row)
+                record.setValue('status', -1)
+                self.db_model.setRecord(current_row, record)
+                self.__save_data(True)
+        else:
+            QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的记录！", QtWidgets.QMessageBox.Ok)
+
+    def closeEvent(self, a0):
+        """
+        关闭事件
+        :param a0:
+        :return:
+        """
+        super(CardForm, self).closeEvent(a0)
+        self.tableView.setModel(None)
+
+
+class CardInfoDelegate(QtWidgets.QItemDelegate):
+    """
+    性别列
+    """
+    def __init__(self, parent):
+        super(CardInfoDelegate, self).__init__(parent)
+
+    def paint(self, painter, option, index):
+        """
+        渲染单元格
+        :param painter:
+        :param option:
+        :param index:
+        :return:
+        """
+        if index.column() == 2:
+            text = "男" if self.parent().model().data(index) == 1 else "女"
+        elif index.column() == 3:
+            text = "月卡"
+            if self.parent().model().data(index) == 2:
+                text = "临时卡"
+            elif self.parent().model().data(index) == 3:
+                text = "免费卡"
+        elif index.column() == 7:
+            text = "有" if self.parent().model().data(index) == 1 else "无"
+        elif index.column() == 19:
+            text = "已发行" if self.parent().model().data(index) == 1 else "未发行"
+        if index.column() in (2, 3, 7, 19):
+            label = QtWidgets.QLabel(text)
+            self.parent().setIndexWidget(index, label)
+        else:
+            super(CardInfoDelegate, self).paint(painter, option, index)
+
+
+if __name__ == '__main__':
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    myshow = CardForm()
+    myshow.show()
+    sys.exit(app.exec_())

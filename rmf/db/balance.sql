@@ -276,15 +276,41 @@ CREATE TABLE `t_camera` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `camera_name` text unique not null default '默认设备', -- 称重仪名称
   `is_active` int not null default 0, -- 是否默认
-  `ip_addr` text not null default '', -- '串口号'
-  `user_id` text not null DEFAULT '', -- '比特率'
-  `password` text not null DEFAULT '', -- '数据位'
-  `camera_no` int unique not null DEFAULT 1 -- '校验位'
+  `ip_addr` text not null default '', -- 'ip地址'
+  `user_id` text not null DEFAULT '', -- '用户名'
+  `password` text not null DEFAULT '', -- '密码'
+  `camera_no` int unique not null DEFAULT 1 -- '编号'
 );
 INSERT INTO t_camera VALUES(163,'摄像头1',0,'192.168.31.64','admin','qwer6961',1);
 INSERT INTO t_camera VALUES(164,'摄像头2',1,'192.168.31.64','admin','qwer6961',2);
 INSERT INTO t_camera VALUES(165,'摄像头3',1,'192.168.31.64','admin','qwer6961',3);
 INSERT INTO t_camera VALUES(166,'摄像头4',0,'192.168.31.64','admin','qwer6961',4);
+CREATE TABLE `t_card_info` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `user_name` text not null default '', -- 用户姓名
+  `gender` int not null default 1, -- 性别，1为男，0为女
+  `card_type` int not null DEFAULT 1, -- 卡片类型 1月卡2临时卡3免费卡
+  `card_no` text not null default '', -- 卡号
+  `enroll_date` date not null default (date('now', 'localtime')), -- 登记日期
+  `valid_date` date not null default (date('now', 'localtime')), -- 有效期
+  `card_status` int not null DEFAULT 1, -- '卡片是否有效'
+  `phone_number` text not null default '', -- 电话号码
+  `cred_no` text not null default '', -- 证件号码
+  `car_no` text not null default '' , -- 车牌号
+  `address` text not null default '', -- 地址
+  `operation_id` text not null default '', -- 操作员编号
+  `operation_date` date not null default (date('now', 'localtime')), -- 操作日期
+  `supplier` text not null default '', --供货单位
+  `receiver` text not null default '', -- 收货单位
+  `cargo` text not null default '', -- 货物名称
+  `extra` decimal(10,2) DEFAULT 0, --'另扣'
+  `price` decimal(10,2) DEFAULT 0, --价格
+  `status` int not null default 0, -- 状态：1成功写卡；0待写卡
+  `ext1` text not null default '', --扩展1
+  `ext2` text not null default '', --扩展2
+  `ext3` text not null default '', --扩展3
+  `ext4` text not null default '' --扩展4
+);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_balance',92);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
@@ -300,3 +326,42 @@ INSERT INTO sqlite_sequence VALUES('t_user',2);
 INSERT INTO sqlite_sequence VALUES('t_receiver',4);
 INSERT INTO sqlite_sequence VALUES('t_camera',166);
 COMMIT;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

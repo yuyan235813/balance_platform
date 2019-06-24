@@ -8,6 +8,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5 import QtSql
+from qitem_delegate import ReadonlyDelegate
 from ui.super_form import Ui_superForm
 import logging
 
@@ -44,6 +45,7 @@ class SuperForm(QtWidgets.QWidget, Ui_superForm):
             self.tableComboBox.addItems(tables)
         self.whereLineEdit.clear()
         self.sortComboBox1.clear()
+        self.tableView.setItemDelegateForColumn(0, ReadonlyDelegate(self))
 
     def __set_column(self, table):
         """
