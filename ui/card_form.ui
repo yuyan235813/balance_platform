@@ -87,7 +87,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>保  存</string>
+    <string>修  改</string>
    </property>
   </widget>
   <widget class="QPushButton" name="deletePushButton">

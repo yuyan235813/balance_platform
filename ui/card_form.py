@@ -226,7 +226,7 @@ class Ui_cardFrom(object):
         self.addPushButton.setText(_translate("cardFrom", "添  加"))
         self.issuePushButton.setText(_translate("cardFrom", "发  行"))
         self.readPushButton.setText(_translate("cardFrom", "读  卡"))
-        self.savePushButton.setText(_translate("cardFrom", "保  存"))
+        self.savePushButton.setText(_translate("cardFrom", "修  改"))
         self.deletePushButton.setText(_translate("cardFrom", "删  除"))
         self.cancelPushButton.setText(_translate("cardFrom", "取  消"))
         self.queryPushButton.setText(_translate("cardFrom", "查  询"))
