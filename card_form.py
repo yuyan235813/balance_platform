@@ -6,11 +6,10 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QDate, QModelIndex, QThread, QTimer, pyqtSignal, QMutexLocker, QMutex
+from PyQt5.QtCore import Qt, QDate, QModelIndex
 from PyQt5 import QtSql
 from ui.card_form import Ui_cardFrom
 from all_in_one_test import AIODll
-import time
 import logging
 
 
@@ -235,7 +234,8 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             print(condition)
             self.tableView.setModel(self.db_model)
             max_card_no_query = self.db.exec('select max(card_no) from t_card_info')
-            self.max_card_no = int(max_card_no_query.value(0)) if max_card_no_query.next() else -1
+            ret = max_card_no_query.next()
+            self.max_card_no = int(max_card_no_query.value(0) if ret and max_card_no_query.value(0) != '' else -1)
         self.tableView.setColumnHidden(0, True)
 
     def __change_data(self):
