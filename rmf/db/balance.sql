@@ -305,12 +305,23 @@ CREATE TABLE `t_card_info` (
   `cargo` text not null default '', -- 货物名称
   `extra` decimal(10,2) DEFAULT 0, --'另扣'
   `price` decimal(10,2) DEFAULT 0, --价格
-  `status` int not null default 0, -- 状态：1成功写卡；0待写卡
+  `status` int not null default 0, -- 状态：1成功写卡；0待写卡;-1删除
   `ext1` text not null default '', --扩展1
   `ext2` text not null default '', --扩展2
   `ext3` text not null default '', --扩展3
   `ext4` text not null default '' --扩展4
 );
+CREATE TABLE `t_com_auto` (
+  `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `issue_com` int not null default 0, -- 发卡器串口
+  `read_com` int not null default 0, -- 读卡器串口
+  `barrier_com` int not null default 0, -- 道闸串口
+  `ext1` text, -- '备用1'
+  `ext2` text, -- '备用2'
+  `ext3` text, -- '备用3'
+  `ext4` text -- '备用4'
+);
+insert into t_com_auto values(1, 1, 2, 3, '', '', '', '');
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_balance',92);
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);

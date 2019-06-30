@@ -1367,6 +1367,7 @@
     <addaction name="actionParameterSetup"/>
     <addaction name="actionUserPermission"/>
     <addaction name="actionSystemParameterSetup"/>
+    <addaction name="actionComSetup"/>
     <addaction name="separator"/>
     <addaction name="actionChangeUser"/>
     <addaction name="actionExit"/>
@@ -1473,6 +1474,11 @@
   <action name="actionExit">
    <property name="text">
     <string>退出</string>
+   </property>
+  </action>
+  <action name="actionComSetup">
+   <property name="text">
+    <string>无人值守设置</string>
    </property>
   </action>
  </widget>

@@ -26,6 +26,7 @@ from receiver_form import receiverForm
 from cargo_form import cargoForm
 from poll_form import pollmainForm
 from permission_form import PermissionSetupForm
+from com_setup_form import ComSetupForm
 from functools import partial
 import subprocess
 import sys
@@ -77,6 +78,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.permission_form = PermissionSetupForm(self)
         self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
+        self.com_setup_form = ComSetupForm()
+        self.actionComSetup.triggered.connect(self.com_setup_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.extraWeightSpinBox.setValue(0)
         self.settlementLcdNumber.display(0)
