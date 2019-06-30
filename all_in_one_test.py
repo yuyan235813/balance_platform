@@ -35,6 +35,8 @@ class AIODll(object):
     """
     一体机操作类
     """
+    dll = None
+
     def __init__(self):
         """
         初始化
@@ -52,10 +54,13 @@ class AIODll(object):
         :param com_number:
         :return: 是否打开
         """
-        self.dll.OpenCom.argtypes = [ctypes.c_int]
-        self.dll.OpenCom.restype = ctypes.c_bool
-        c_com_number = ctypes.c_int(com_number)
-        return bool(self.dll.OpenCom(c_com_number))
+        if self.dll:
+            self.dll.OpenCom.argtypes = [ctypes.c_int]
+            self.dll.OpenCom.restype = ctypes.c_bool
+            c_com_number = ctypes.c_int(com_number)
+            return bool(self.dll.OpenCom(c_com_number))
+        else:
+            return False
 
     def close_com(self):
         """
@@ -319,12 +324,12 @@ if __name__ == '__main__':
     # time_now = "2019-06-19 21:00:01"
     # res = dll.manager_time(time_now)
     # print(res)
-    # card_no = "12345677"
-    # valid_date = '2019-07-19'
-    # anti_back = False
-    # card_type = 2
-    # is_use = True
-    # res = dll.issue_card(card_no, valid_date, anti_back, card_type, is_use)
+    card_no = "12345677"
+    valid_date = '2019-07-19'
+    anti_back = False
+    card_type = 2
+    is_use = True
+    res = dll.issue_card(card_no, valid_date, anti_back, card_type, is_use)
     # print(res)
     # res = dll.empty_com_data()
     # print(res)

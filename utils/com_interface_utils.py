@@ -128,34 +128,81 @@ def func():
         print(format_data(data))
         print('================')
 
-def set_barrier_gate(state):
+
+def read_card_no(my_serial):
+    """
+    读取串口卡号数据
+    :param my_serial:
+    :return:
+    """
+    retry_time = 0
+    while retry_time < NormalParam.COM_RETRY_TIMES:
+        retry_time += 1
+        my_serial.flush()
+        data = my_serial.read(12)
+        print_data(my_serial.portstr, data)
+        # 验证数据
+        verify = verify_data(data)
+        if 0 == verify:
+            break
+        else:
+            logging.error(verify)
+            continue
+        sleep(NormalParam.COM_READ_DURATION / 2 /1000)
+    if 0 != verify:
+        return NormalParam.ERROR_WEIGHT
+    return format_data(data)
+
+
+def open_barrier_gate(num):
+    """
+    打开第 num 个道闸
+    :param num:
+    :return:
+    """
+    set_barrier_gate(num, 1)
+
+
+def close_barrier_gate(num):
+    """
+    关闭第 num 个道闸
+    :param num:
+    :return:
+    """
+    set_barrier_gate(num, 0)
+
+
+def set_barrier_gate(num, state):
     """
     设置道闸
     :param state:
     :return:
     """
-    close_msg = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
-    open_msg = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
+    open_msg_1 = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
+    close_msg_1 = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
+    open_msg_2 = b"\x01\x05\x00\x01\xFF\x00\xDD\xFA"
+    close_msg_2 = b"\x01\x05\x00\x01\x00\x00\x9C\x0A"
     my_serial = serial.Serial('COM4', COM_BAUD_RATE, timeout=0.5)
     if my_serial.isOpen():
         # print("open success")
         # msg = open_msg.encode('utf-8')
         start = time.time()
         while True:
-            my_serial.write(open_msg)
-            if open_msg == my_serial.read(8):
+            my_serial.write(open_msg_1)
+            if open_msg_1 == my_serial.read(8):
                 print('open success')
                 break
         time.sleep(0.5)
         while True:
-            my_serial.write(close_msg)
-            if my_serial.read(8) == close_msg:
+            my_serial.write(close_msg_1)
+            if my_serial.read(8) == close_msg_1:
                 print('close success')
                 break
         print(time.time() - start)
     else:
         print("open failed")
     my_serial.close()
+
 
 if __name__ == '__main__':
     # my_serial = serial.Serial('COM5', COM_BAUD_RATE, timeout=0.5)
@@ -169,4 +216,7 @@ if __name__ == '__main__':
     # my_serial.close()
     # func()
     # print(get_bytes_num())
-    set_barrier_gate(1)
+    # set_barrier_gate(1)
+    import serial.tools.list_ports
+    plist = list(serial.tools.list_ports.comports())
+    print(plist[0].device)

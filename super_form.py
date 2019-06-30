@@ -8,7 +8,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5 import QtSql
-from qitem_delegate import ReadonlyDelegate
 from ui.super_form import Ui_superForm
 import logging
 
@@ -127,6 +126,18 @@ class SuperForm(QtWidgets.QWidget, Ui_superForm):
         """
         super(SuperForm, self).closeEvent(a0)
         self.tableView.setModel(None)
+
+
+class ReadonlyDelegate(QtWidgets.QItemDelegate):
+    """
+    性别列
+    """
+    def __init__(self, parent):
+        super(ReadonlyDelegate, self).__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        return None
+
 
 
 if __name__ == '__main__':
