@@ -626,7 +626,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         print(balance_query)
         ret = self.db.query(balance_query)
         if ret:
-            QtWidgets.QMessageBox.warning(self, '本程序', "此车 %s 有未完成的磅单，正在进行完成操作!" % car_no, QtWidgets.QMessageBox.Ok)
+            #QtWidgets.QMessageBox.warning(self, '本程序', "此车 %s 有未完成的磅单，正在进行完成操作!" % car_no, QtWidgets.QMessageBox.Ok)
             data_db = ret[0]
             self.display_data(data_db)
             total_weight_db = data_db.get('total_weight', 0)
@@ -647,9 +647,24 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             ret = self.db.query(car_query)
             if not ret:
                 # 没有存皮的情况
-                QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 没有存皮，将生成未完成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
+                #QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 没有存皮，将生成未完成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
                 self.actualWeightLcdNumber.display(current_weight)
                 self.balance_status = 0
+                balance_query = """select * from t_card_info where  car_no = '%s'  and card_status=1  """ % (car_no)
+                ret = self.db.query(balance_query)
+                data = ret[0]
+                if data:
+                    self.priceSpinBox.setValue(data.get('price', 0.))
+                    self.amountSpinBox.setValue(data.get('amount', 0.))
+                    self.supplierComboBox.setCurrentText(data.get('supplier', ''))
+                    self.receiverComboBox.setCurrentText(data.get('receiver', ''))
+                    self.goodsComboBox.setCurrentText(data.get('cargo', ''))
+                    self.extraWeightSpinBox.setValue(data.get('extra', 0.))
+                    #self.operatorComboBox.setCurrentText(data.get('operator', ''))
+                    #self.balance_status = data.get('status', '')
+                else:
+                    self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
+
             else:
                 # 有存皮
                 QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 已有存皮，将自动生成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
