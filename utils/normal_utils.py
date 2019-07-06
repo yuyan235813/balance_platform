@@ -10,6 +10,8 @@ import datetime
 from utils.sqllite_util import EasySqlite
 from PyQt5.QtWidgets import QMessageBox, QGraphicsView, QGraphicsPixmapItem, QGraphicsScene
 from PyQt5.QtGui import QImage, QPixmap
+import serial
+import time
 import hashlib
 import cv2
 import logging
@@ -224,6 +226,63 @@ def is_connected(url):
         return False
 
 
+def open_barrier_gate(num):
+    """
+    打开第 num 个道闸
+    :param num:
+    :return:
+    """
+    set_barrier_gate(num, 1)
+
+
+def close_barrier_gate(num):
+    """
+    关闭第 num 个道闸
+    :param num:
+    :return:
+    """
+    set_barrier_gate(num, 0)
+
+
+def set_barrier_gate(num, state):
+    """
+    设置道闸
+    :param state:
+    :return:
+    """
+    open_msg_1 = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
+    close_msg_1 = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
+    open_msg_2 = b"\x01\x05\x00\x01\xFF\x00\xDD\xFA"
+    close_msg_2 = b"\x01\x05\x00\x01\x00\x00\x9C\x0A"
+    msg = open_msg_1
+    if num == 1 and state == 0:
+        msg = close_msg_1
+    elif num == 2 and state == 1:
+        msg = open_msg_2
+    elif num == 2 and state == 0:
+        msg = close_msg_2
+    db = EasySqlite(r'rmf/db/balance.db')
+    ret = db.query("select barrier_com from t_com_auto where id = 1")
+    if not ret:
+        logging.error('获取道闸串口信息失败！')
+        return -1
+    port = 'COM%s' % ret[0]['barrier_com']
+    my_serial = serial.Serial(port, 9600, timeout=0.5)
+    if my_serial.isOpen():
+        start = time.time()
+        retry = 0
+        while retry < 5:
+            my_serial.write(msg)
+            retry += 1
+            if msg == my_serial.read(8):
+                print('open barrier %s success' % num)
+                break
+        print('set_barrier_gate spend time %s second.' % time.time() - start)
+    else:
+        print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
+    my_serial.close()
+
+
 def sync_data(url):
     """
     同步数据
@@ -260,5 +319,6 @@ if __name__ == '__main__':
     # print(get_file_list(r'H:\workspace\python3\balance_platform\rmf\rmf'))
     # print(generate_balance_id())
     # test_fun('tttt')
-    print(get_pwd_md5('kitty.'))
+    # print(get_pwd_md5('kitty.'))
     # sync_data()
+    my_serial = serial.Serial('COM1', 9600, timeout=0.5)

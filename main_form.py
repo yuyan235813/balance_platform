@@ -208,7 +208,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         截图
         :return:
         """
-
         sql = """select  camera_no from t_camera where is_active = 1"""
         ret = self.db.query(sql)
         for item in ret:
@@ -257,9 +256,18 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 time.sleep(0.02)
         self._com_worker = COMThread()
         self._com_worker.start()
+
+        self._is_barrier_open = False
+        if self._barrier_worker:
+            self._barrier_worker.stop()
+            while not self._barrier_worker.isStoped():
+                time.sleep(0.02)
+        self._barrier_worker = CardThread()
+        self._barrier_worker.start()
         self._weight = {}
         self._timer = QTimer(self)  # 新建一个定时器
         # 关联timeout信号和showTime函数，每当定时器过了指定时间间隔，就会调用showTime函数
+        self._barrier_worker.trigger.connect(self.check_card_no)
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
@@ -280,6 +288,18 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         else:
             self._is_open = False
             self.weightLcdNumber.display(weight)
+
+    def check_card_no(self, is_open, card_no):
+        u"""
+        判断卡号
+        :return:
+        """
+        query = """select car_no from t_card_info where car_no = '%s'  and card_status = 1 and status = 1  """ % card_no
+        ret = self.db.query(query)
+        if ret:
+            print("card_no = %s -- car_no = %s." % (card_no, ret[0]))
+        else:
+            print("card_no = %s" % card_no)
 
     def check_weight_state(self):
         u"""
@@ -725,6 +745,91 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         # self.thread_dict[].set_size(width, height)
 
 
+class CardThread(QThread):
+    """
+    串口读取线程
+    """
+    trigger = pyqtSignal(int, str)
+
+    def __init__(self):
+        self._is_conn = False
+        self._serial = None
+        self._is_running = True
+        super().__init__()
+        self.stoped = False
+        self.mutex = QMutex()
+        self.com_interface = None
+        self.com_baud_rate = None
+        self.db = EasySqlite(r'rmf/db/balance.db')
+        self.init_data()
+
+    def init_data(self):
+        """
+        初始化端口数据
+        :return:
+        """
+        query_sql_com1 = 'select * from t_com_auto where id = 1'
+        ret = self.db.query(query_sql_com1)[0]
+        self.com_interface = 'COM%s' % ret['read_com']
+        self.com_baud_rate = 9600
+
+    def init_serial(self):
+        u"""
+        :return:
+        """
+        if self._serial:
+            if self.com_interface != self._serial.portstr or self.com_baud_rate != self._serial.baudrate:
+                self._serial = serial.Serial(self.com_interface, self.com_baud_rate, timeout=0.5)
+            if not self._serial.is_open:
+                self._serial.open()
+        else:
+            self._serial = serial.Serial(self.com_interface, self.com_baud_rate, timeout=0.5)
+        if self._serial.isOpen():
+            logging.info("open success")
+        else:
+            logging.error("open failed")
+            raise Exception(u'%s 串口打开失败！' % 'COM5')
+
+    def run(self):
+        """
+        读取串口信息
+        :return:
+        """
+        with QMutexLocker(self.mutex):
+            self.stoped= False
+        while not self.stoped:
+            while not self._is_conn and not self.stoped:
+                try:
+                    self.init_serial()
+                    self._is_conn = True if self._serial.isOpen() else False
+                except serial.serialutil.SerialException as e:
+                    logging.error(e)
+                    logging.info(u'%s 接口未连接！' % self.com_interface)
+                    time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
+                except Exception as e:
+                    logging.error(e)
+                    time.sleep(NormalParam.COM_OPEN_DURATION)
+            while not self.stoped and self._serial.is_open:
+                is_open = 1
+                card_no = com_interface_utils.read_card_no(self._serial)
+                if card_no == NormalParam.ERROR_CARD_NO:
+                    time.sleep(NormalParam.COM_OPEN_DURATION)
+                    break
+                self.trigger.emit(is_open, str(card_no))
+                time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+            self.trigger.emit(0, NormalParam.ERROR_CARD_NO)
+            self._is_conn = False
+        self._is_running = False
+
+    def stop(self):
+        with QMutexLocker(self.mutex):
+            self.stoped= True
+
+    def isStoped(self):
+        with QMutexLocker(self.mutex):
+            return self.stoped and not self._is_running
+
+
 class COMThread(QThread):
     """
     串口读取线程
@@ -768,7 +873,7 @@ class COMThread(QThread):
             logging.info("open success")
         else:
             logging.error("open failed")
-            raise Exception(u'%s 串口打开失败！' % 'COM5')
+            raise Exception(u'%s 串口打开失败！' % self.com_interface)
 
     def run(self):
         """

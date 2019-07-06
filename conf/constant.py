@@ -39,4 +39,6 @@ class NormalParam:
     COM_RETRY_TIMES = 3
     # 错误重量
     ERROR_WEIGHT = -10000
+    # 错误卡号
+    ERROR_CARD_NO = -1
 

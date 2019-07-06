@@ -5,7 +5,7 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-import serial
+
 from time import sleep
 from conf.constant import ErrorCode, NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
@@ -129,6 +129,42 @@ def func():
         print('================')
 
 
+def verify_card_no(data):
+    """
+    校验读卡数据
+    STX	    DATA(10位)	    CR	    LF	    EXT
+    0x02	0x30----0x39	0x0D	0x0A	0x03
+    如果读到的卡是:0012345678
+    则发送到计算机的数据是:
+    0x02, 0x30, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x0D, 0x0A, 0x03
+    :param data:
+    :return:
+    """
+    if not data:
+        return ErrorCode.NOT_DATA_ERROR
+    if 14 != len(data):
+        return ErrorCode.DATA_LENGTH_ERROR
+    if 0x02 != data[0]:
+        return ErrorCode.BEGIN_ERROR
+    if 0x03 != data[-1] or 0x0A != data[-2] or 0x0D != data[-3]:
+        return ErrorCode.END_ERROR
+    return 0
+
+
+def format_card_no(data):
+    """
+    转换卡号
+    :param data:
+    :return:
+    """
+    if not data:
+        return -1
+    ret = ''
+    for item in data[1:-3]:
+        ret = ret + chr(item)
+    return str(int(ret))
+
+
 def read_card_no(my_serial):
     """
     读取串口卡号数据
@@ -136,13 +172,14 @@ def read_card_no(my_serial):
     :return:
     """
     retry_time = 0
+    verify = -1
     while retry_time < NormalParam.COM_RETRY_TIMES:
         retry_time += 1
         my_serial.flush()
-        data = my_serial.read(12)
+        data = my_serial.read(14)
         print_data(my_serial.portstr, data)
         # 验证数据
-        verify = verify_data(data)
+        verify = verify_card_no(data)
         if 0 == verify:
             break
         else:
@@ -150,58 +187,8 @@ def read_card_no(my_serial):
             continue
         sleep(NormalParam.COM_READ_DURATION / 2 /1000)
     if 0 != verify:
-        return NormalParam.ERROR_WEIGHT
-    return format_data(data)
-
-
-def open_barrier_gate(num):
-    """
-    打开第 num 个道闸
-    :param num:
-    :return:
-    """
-    set_barrier_gate(num, 1)
-
-
-def close_barrier_gate(num):
-    """
-    关闭第 num 个道闸
-    :param num:
-    :return:
-    """
-    set_barrier_gate(num, 0)
-
-
-def set_barrier_gate(num, state):
-    """
-    设置道闸
-    :param state:
-    :return:
-    """
-    open_msg_1 = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
-    close_msg_1 = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
-    open_msg_2 = b"\x01\x05\x00\x01\xFF\x00\xDD\xFA"
-    close_msg_2 = b"\x01\x05\x00\x01\x00\x00\x9C\x0A"
-    my_serial = serial.Serial('COM4', COM_BAUD_RATE, timeout=0.5)
-    if my_serial.isOpen():
-        # print("open success")
-        # msg = open_msg.encode('utf-8')
-        start = time.time()
-        while True:
-            my_serial.write(open_msg_1)
-            if open_msg_1 == my_serial.read(8):
-                print('open success')
-                break
-        time.sleep(0.5)
-        while True:
-            my_serial.write(close_msg_1)
-            if my_serial.read(8) == close_msg_1:
-                print('close success')
-                break
-        print(time.time() - start)
-    else:
-        print("open failed")
-    my_serial.close()
+        return -1
+    return format_card_no(data)
 
 
 if __name__ == '__main__':
@@ -217,6 +204,5 @@ if __name__ == '__main__':
     # func()
     # print(get_bytes_num())
     # set_barrier_gate(1)
-    import serial.tools.list_ports
-    plist = list(serial.tools.list_ports.comports())
-    print(plist[0].device)
+    card_data = [0x02, 0x30, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x0D, 0x0A, 0x03]
+    print(format_card_no(card_data))

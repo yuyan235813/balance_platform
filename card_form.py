@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt, QDate, QModelIndex
 from PyQt5 import QtSql
 from ui.card_form import Ui_cardFrom
 from all_in_one_test import AIODll
+import time
 import logging
 
 
@@ -236,7 +237,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             self.tableView.setModel(self.db_model)
             max_card_no_query = self.db.exec('select max(card_no) from t_card_info')
             ret = max_card_no_query.next()
-            self.max_card_no = int(max_card_no_query.value(0) if ret and max_card_no_query.value(0) != '' else -1)
+            self.max_card_no = int(max_card_no_query.value(0)) if ret and max_card_no_query.value(0) != '' else -1
         self.tableView.setColumnHidden(0, True)
 
     def __change_data(self):
@@ -276,7 +277,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能为空！", QtWidgets.QMessageBox.Ok)
             return
-        query = self.db.exec('select car_no from t_card_info')
+        query = self.db.exec('select car_no from t_card_info where status >= 0')
         while(query.next()):
                 if car_no==query.value(0):
                     QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能重复！", QtWidgets.QMessageBox.Ok)
