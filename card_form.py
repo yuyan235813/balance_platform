@@ -275,6 +275,11 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能为空！", QtWidgets.QMessageBox.Ok)
             return
+        query = self.db.exec('select car_no from t_card_info')
+        while(query.next()):
+                if car_no==query.value(0):
+                    QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能重复！", QtWidgets.QMessageBox.Ok)
+                    return
         address = self.addressLineEdit.text()
         operation_id = 0
         operation_date = str(QDate.currentDate().toPyDate())
