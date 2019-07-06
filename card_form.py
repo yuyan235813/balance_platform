@@ -116,6 +116,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.read_card_no = card_no
         dll.close_com()
         self.__query_data()
+        self.read_card_no = 0
         if self.db_model.rowCount() == 0:
             print("没有卡信息")
             return
