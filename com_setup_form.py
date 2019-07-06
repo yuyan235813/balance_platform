@@ -53,15 +53,14 @@ class ComSetupForm(QtWidgets.QWidget, Ui_ComSetupForm):
         :return:
         """
         issue_com = self.issueComboBox.currentText().replace('COM', '')
-        read_com = self.issueComboBox.currentText().replace('COM', '')
-        barrier_com = self.issueComboBox.currentText().replace('COM', '')
-        update_sql = 'replace into t_com_auto(id, issue_com, read_com, barrier_com)' \
-                     ' values(1, ?, ?, ?)'
-        ret = self.db.query(update_sql, [issue_com, read_com, barrier_com])
+        read_com = self.readComboBox.currentText().replace('COM', '')
+        barrier_com = self.barrierComboBox.currentText().replace('COM', '')
+        update_sql = """replace into t_com_auto(id, issue_com, read_com, barrier_com) values(1, ?, ?, ?)"""
+        ret = self.db.update(update_sql, [int(issue_com), int(read_com), int(barrier_com)])
         if ret:
-            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
-        else:
             QtWidgets.QMessageBox.information(self, u'本程序', u'保存成功!', QtWidgets.QMessageBox.Ok)
+        else:
+            QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
 
     @property
     def list_ports(self):

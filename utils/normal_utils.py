@@ -277,7 +277,7 @@ def set_barrier_gate(num, state):
             if msg == my_serial.read(8):
                 print('open barrier %s success' % num)
                 break
-        print('set_barrier_gate spend time %s second.' % time.time() - start)
+        print('set_barrier_gate spend time %s second.' % (time.time() - start))
     else:
         print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
     my_serial.close()
@@ -321,4 +321,4 @@ if __name__ == '__main__':
     # test_fun('tttt')
     # print(get_pwd_md5('kitty.'))
     # sync_data()
-    my_serial = serial.Serial('COM1', 9600, timeout=0.5)
+    my_serial = serial.Serial('COM5', 9600, timeout=0.5)

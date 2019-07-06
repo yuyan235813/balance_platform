@@ -53,6 +53,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
+        self._barrier_worker = None
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
@@ -817,7 +818,7 @@ class CardThread(QThread):
                     break
                 self.trigger.emit(is_open, str(card_no))
                 time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
-            self.trigger.emit(0, NormalParam.ERROR_CARD_NO)
+            self.trigger.emit(0, str(NormalParam.ERROR_CARD_NO))
             self._is_conn = False
         self._is_running = False
 
