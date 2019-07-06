@@ -232,16 +232,16 @@ def open_barrier_gate(num):
     :param num:
     :return:
     """
-    set_barrier_gate(num, 1)
+    return set_barrier_gate(num, 1)
 
 
-def close_barrier_gate(num):
+def 打close_barrier_gate(num):
     """
     关闭第 num 个道闸
     :param num:
     :return:
     """
-    set_barrier_gate(num, 0)
+    return set_barrier_gate(num, 0)
 
 
 def set_barrier_gate(num, state):
@@ -267,20 +267,69 @@ def set_barrier_gate(num, state):
         logging.error('获取道闸串口信息失败！')
         return -1
     port = 'COM%s' % ret[0]['barrier_com']
-    my_serial = serial.Serial(port, 9600, timeout=0.5)
-    if my_serial.isOpen():
-        start = time.time()
-        retry = 0
-        while retry < 5:
-            my_serial.write(msg)
-            retry += 1
-            if msg == my_serial.read(8):
-                print('open barrier %s success' % num)
-                break
-        print('set_barrier_gate spend time %s second.' % (time.time() - start))
+    success = False
+    try:
+        my_serial = serial.Serial(port, 9600, timeout=0.5)
+        if my_serial.isOpen():
+            start = time.time()
+            retry = 0
+            while retry < 5:
+                my_serial.write(msg)
+                retry += 1
+                if msg == my_serial.read(8):
+                    print('open barrier %s success' % num)
+                    success = True
+                    break
+            print('set_barrier_gate spend time %s second.' % (time.time() - start))
+        else:
+            print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
+        my_serial.close()
+    except Exception as e:
+        print('set_barrier_gate error: ' + str(e.__str__()))
+    return success
+
+
+def get_barrier_state(num):
+    """
+    获取道闸状态
+    :param state:
+    :return:-1 读取失败；0 关闭；1 打开
+    """
+    send_msg = b"\x01\x01\x00\x00\x00\x02\x3D\xC6"
+    db = EasySqlite(r'rmf/db/balance.db')
+    ret = db.query("select barrier_com from t_com_auto where id = 1")
+    if not ret:
+        logging.error('获取道闸串口信息失败！')
+        return -1
+    port = 'COM%s' % ret[0]['barrier_com']
+    msg = ''
+    success = False
+    try:
+        my_serial = serial.Serial(port, 9600, timeout=0.5)
+        if my_serial.isOpen():
+            start = time.time()
+            retry = 0
+            while retry < 5:
+                my_serial.write(send_msg)
+                retry += 1
+                msg = my_serial.read(7)
+                if msg[1] == 1:
+                    print('get barrier %s state success' % num)
+                    success = True
+                    break
+            print('get_barrier_state spend time %s second.' % (time.time() - start))
+        else:
+            print("get_barrier_state fialed num: %s." % num)
+        my_serial.close()
+    except Exception as e:
+        print('get_barrier_state error: ' + str(e.__str__()))
+    if success:
+        if len(msg) > 3 and msg[3] & num == num:
+            return 1
+        else:
+            return 0
     else:
-        print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
-    my_serial.close()
+        return -1
 
 
 def sync_data(url):
@@ -321,4 +370,6 @@ if __name__ == '__main__':
     # test_fun('tttt')
     # print(get_pwd_md5('kitty.'))
     # sync_data()
-    my_serial = serial.Serial('COM5', 9600, timeout=0.5)
+    # my_serial = serial.Serial('COM5', 9600, timeout=0.5)
+    send_msg = b"\x01\x01\x00\x00\x00\x02\x3D\xC6"
+    print(1&1)

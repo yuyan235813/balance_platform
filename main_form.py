@@ -90,6 +90,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.printPushButton.clicked.connect(self.print_data)
         self.CarComboBox.editTextChanged.connect(self.update_weight)
         self.extraWeightSpinBox.valueChanged.connect(self.calculate)
+        self.barrier1PushButton.clicked.connect(self.__set_barrier1)
+        self.barrier2PushButton.clicked.connect(self.__set_barrier2)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(0)
@@ -100,6 +102,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.balance_opt_status = 0
         # 是否需要退出确认
         self.close_confirm = True
+        # 无人值守是否正在称重，如果为 True，车在榜上并已稳定
+        self.weight_working = False
 
     def show(self):
         """
@@ -121,6 +125,33 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             values = list(supply_list[row].values())[0]
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
+
+    def __set_barrier1(self):
+        """
+        设置道闸1
+        :return:
+        """
+        state = normal_utils.get_barrier_state(1)
+        if state == 0:
+            if normal_utils.open_barrier_gate(1):
+                self.barrier1PushButton.setText('关闭道闸1')
+        elif state == 1:
+            if normal_utils.close_barrier_gate(1):
+                self.weight_working = True
+                self.barrier1PushButton.setText('打开道闸1')
+
+    def __set_barrier2(self):
+        """
+        设置道闸1
+        :return:
+        """
+        state = normal_utils.get_barrier_state(2)
+        if state == 0:
+            if normal_utils.open_barrier_gate(2):
+                self.barrier1PushButton.setText('关闭道闸2')
+        elif state == 1:
+            if normal_utils.close_barrier_gate(2):
+                self.barrier1PushButton.setText('打开道闸2')
 
     def calculate(self):
         if self.balanceNoBlael.text() == "":
@@ -272,6 +303,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
+        self._timer_barrier = QTimer(self)
         self.active_video()
 
     def show_lcd(self, is_open, weight):
@@ -295,12 +327,28 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         判断卡号
         :return:
         """
-        query = """select car_no from t_card_info where car_no = '%s'  and card_status = 1 and status = 1  """ % card_no
+        if card_no == -1:
+            print("card_no = %s" % card_no)
+            return
+        if self.weightLcdNumber.value() > 100:
+            print("正在称重请稍候")
+            return
+        if normal_utils.get_barrier_state(1) != 0:
+            print("道闸1已经打开")
+            return
+        query = """select car_no from t_card_info where car_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
         if ret:
             print("card_no = %s -- car_no = %s." % (card_no, ret[0]))
+            self.CarComboBox.setCurrentText(ret[0])
+            if normal_utils.open_barrier_gate(1):
+                self._timer_barrier.timeout.connect(self.__set_barrier1)
+                self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)  # 设置定时间隔为60s，并启动定时器
+                print("道闸1打开成功")
+            else:
+                print("道闸1打开失败")
         else:
-            print("card_no = %s" % card_no)
+            print("card_no = %s 没有记录" % card_no)
 
     def check_weight_state(self):
         u"""
@@ -310,12 +358,23 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self._is_open:
             now = int(time.time() * 1000)
             first = min(self._weight.keys())
-            if first + NormalParam.STABLES_DURATION * 1000 < now:
-                weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
-                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR:
+            if first + NormalParam.STABLES_DURATION * 10000 < now:
+                weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 10000]
+                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > 100:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
+                    if self.weight_working:
+                        if normal_utils.close_barrier_gate(1):
+                            print("道闸1关闭成功")
+                        else:
+                            print("道闸1关闭失败")
+                        self._timer_barrier.stop()
+                        self.choose_weight()
+                        normal_utils.open_barrier_gate(2)
+                        self.weight_working = False
+                        self._timer_barrier.timeout.connect(self.__set_barrier2)
+                        self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -633,7 +692,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             logging.debug(cmd_str)
             self.p = subprocess.Popen(cmd_str)
 
-
     def choose_weight(self):
         """
         取重量
@@ -651,6 +709,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         ret = self.db.query(balance_query)
         if ret:
             #QtWidgets.QMessageBox.warning(self, '本程序', "此车 %s 有未完成的磅单，正在进行完成操作!" % car_no, QtWidgets.QMessageBox.Ok)
+            print("此车 %s 有未完成的磅单，正在进行完成操作!" % car_no)
             data_db = ret[0]
             self.display_data(data_db)
             total_weight_db = data_db.get('total_weight', 0)
@@ -672,9 +731,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if not ret:
                 # 没有存皮的情况
                 #QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 没有存皮，将生成未完成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
+                print("该车 %s 没有存皮，将生成未完成磅单！" % car_no)
                 self.actualWeightLcdNumber.display(current_weight)
                 self.balance_status = 0
-                balance_query = """select * from t_card_info where  car_no = '%s'  and card_status=1  """ % (car_no)
+                balance_query = """select * from t_card_info where car_no = '%s'  and card_status=1  """ % car_no
                 ret = self.db.query(balance_query)
                 data = ret[0]
                 if data:
@@ -688,10 +748,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     #self.balance_status = data.get('status', '')
                 else:
                     self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
-
             else:
                 # 有存皮
-                QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 已有存皮，将自动生成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
+                # QtWidgets.QMessageBox.warning(self, '本程序', "该车 %s 已有存皮，将自动生成磅单！" % car_no, QtWidgets.QMessageBox.Ok)
+                print("该车 %s 已有存皮，将自动生成磅单！" % car_no)
                 leather_weight_db = ret[0].get('leather_weight', 0)
                 actual_weight = current_weight - leather_weight_db
                 self.leatherWeightLcdNumber.display(leather_weight_db)
@@ -817,7 +877,7 @@ class CardThread(QThread):
                     time.sleep(NormalParam.COM_OPEN_DURATION)
                     break
                 self.trigger.emit(is_open, str(card_no))
-                time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                time.sleep(NormalParam.COM_READ_DURATION / 100)
             self.trigger.emit(0, str(NormalParam.ERROR_CARD_NO))
             self._is_conn = False
         self._is_running = False
