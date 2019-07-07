@@ -315,25 +315,25 @@ if __name__ == '__main__':
     dll = AIODll()
     res = dll.open_com(3)
     print(res)
-    # while True:
-    #     data = dict()
-    #     dll.read_user_card(data)
-    #     for k, v in data.items():
-    #         print("%s = %s" % (k, v))
-    #     print("======================================")
+    while True:
+        data = dict()
+        dll.read_user_card(data)
+        for k, v in data.items():
+            print("%s = %s" % (k, v))
+        print("======================================")
     # time_now = "2019-06-19 21:00:01"
     # res = dll.manager_time(time_now)
     # print(res)
-    card_no = "12345677"
-    valid_date = '2019-07-19'
-    anti_back = False
-    card_type = 2
-    is_use = True
-    res = dll.issue_card(card_no, valid_date, anti_back, card_type, is_use)
+    # card_no = "12345677"
+    # valid_date = '2019-07-19'
+    # anti_back = False
+    # card_type = 2
+    # is_use = True
+    # res = dll.issue_card(card_no, valid_date, anti_back, card_type, is_use)
     # print(res)
     # res = dll.empty_com_data()
     # print(res)
     # res = dll.set_tmp_card(card_no, time_now)
     # print(res)
-    res = dll.open_pos(1, 2, 1)
-    print(res)
+    # res = dll.open_pos(1, 2, 1)
+    # print(res)

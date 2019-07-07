@@ -156,7 +156,11 @@ class VideoThread(QThread):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    myshow = VideoForm()
-    myshow.show()
-    sys.exit(app.exec_())
+    # app = QApplication(sys.argv)
+    # myshow = VideoForm()
+    # myshow.show()
+    # sys.exit(app.exec_())
+    ret = normal_utils.get_barrier_state(1)
+    # ret = normal_utils.close_barrier_gate(1)
+    # ret = normal_utils.open_barrier_gate(1)
+    print(ret)

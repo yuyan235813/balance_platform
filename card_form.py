@@ -98,7 +98,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         读取卡片
         :return:
         """
-        res = self.db.exec("select read_com from t_com_auto where id = 1")
+        res = self.db.exec("select issue_com from t_com_auto where id = 1")
         port = int(res.value(0)) if res.next() else -1
         if port == -1:
             QtWidgets.QMessageBox.warning(self, '本程序', "获取发卡器配置失败！", QtWidgets.QMessageBox.Ok)

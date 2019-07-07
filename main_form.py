@@ -132,12 +132,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         state = normal_utils.get_barrier_state(1)
+        print(state)
         if state == 0:
             if normal_utils.open_barrier_gate(1):
+                # self._timer_barrier.stop()
                 self.barrier1PushButton.setText('关闭道闸1')
         elif state == 1:
             if normal_utils.close_barrier_gate(1):
-                self.weight_working = True
                 self.barrier1PushButton.setText('打开道闸1')
 
     def __set_barrier2(self):
@@ -303,7 +304,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
-        self._timer_barrier = QTimer(self)
+        # self._timer_barrier = QTimer(self)
         self.active_video()
 
     def show_lcd(self, is_open, weight):
@@ -327,24 +328,29 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         判断卡号
         :return:
         """
-        if card_no == -1:
+        print("check_card_no")
+        print("card_no = %s" % card_no)
+        if card_no == str(-1):
             print("card_no = %s" % card_no)
             return
-        if self.weightLcdNumber.value() > 100:
+        if self.weightLcdNumber.value() > 10:
             print("正在称重请稍候")
             return
         if normal_utils.get_barrier_state(1) != 0:
             print("道闸1已经打开")
             return
-        query = """select car_no from t_card_info where car_no = '%s' and card_status = 1 and status = 1""" % card_no
+        query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
         if ret:
-            print("card_no = %s -- car_no = %s." % (card_no, ret[0]))
-            self.CarComboBox.setCurrentText(ret[0])
+            print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
+            self.CarComboBox.setCurrentText(ret[0]['car_no'])
             if normal_utils.open_barrier_gate(1):
-                self._timer_barrier.timeout.connect(self.__set_barrier1)
-                self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)  # 设置定时间隔为60s，并启动定时器
+                # self._timer_barrier.timeout.connect(self.__set_barrier1)
+                # self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
                 print("道闸1打开成功")
+                time.sleep(1)
+                if normal_utils.close_barrier_gate(1):
+                    self.weight_working = True
             else:
                 print("道闸1打开失败")
         else:
@@ -358,23 +364,26 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self._is_open:
             now = int(time.time() * 1000)
             first = min(self._weight.keys())
-            if first + NormalParam.STABLES_DURATION * 10000 < now:
-                weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 10000]
-                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > 100:
+            if first + NormalParam.STABLES_DURATION * 1000 < now:
+                weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
+                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > 10:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
                     if self.weight_working:
-                        if normal_utils.close_barrier_gate(1):
-                            print("道闸1关闭成功")
-                        else:
-                            print("道闸1关闭失败")
-                        self._timer_barrier.stop()
+                        # if normal_utils.close_barrier_gate(1):
+                        #     print("道闸1关闭成功")
+                        # else:
+                        #     print("道闸1关闭失败")
+                        # self._timer_barrier.stop()
                         self.choose_weight()
+                        self.save_data()
                         normal_utils.open_barrier_gate(2)
+                        time.sleep(1)
+                        normal_utils.close_barrier_gate(2)
                         self.weight_working = False
-                        self._timer_barrier.timeout.connect(self.__set_barrier2)
-                        self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)
+                        # self._timer_barrier.timeout.connect(self.__set_barrier2)
+                        # self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -545,7 +554,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         if not self.balanceNoBlael.text():
-            QtWidgets.QMessageBox.warning(self, '本程序', "磅单号不能为空！", QtWidgets.QMessageBox.Ok)
+            # QtWidgets.QMessageBox.warning(self, '本程序', "磅单号不能为空！", QtWidgets.QMessageBox.Ok)
+            print("磅单号不能为空！")
             return False
         balance_id = int(self.balanceNoBlael.text())
         total_weight = float(self.totalWeightLcdNumber.value())
@@ -558,6 +568,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         car_no = self.CarComboBox.currentText()
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车号不能为空！", QtWidgets.QMessageBox.Ok)
+            print("车号不能为空！")
             return False
         supplier = self.supplierComboBox.currentText()
         receiver = self.receiverComboBox.currentText()
@@ -611,9 +622,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         ret = self.db.update(sql, args=data)
         if warning:
             if ret:
-                QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+                # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
+                print("保存成功！")
             else:
-                QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+                # QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
+                print("保存失败！")
         if ret:
             self.set_table_view()
             self.clear_data()
@@ -697,6 +710,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         取重量
         :return:
         """
+        print("choose_weight")
         current_weight = self.weightLcdNumber.value()
         car_no = self.CarComboBox.currentText()
         if not car_no:
