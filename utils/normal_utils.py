@@ -283,9 +283,9 @@ def set_barrier_gate(num, state):
             print('set_barrier_gate spend time %s second.' % (time.time() - start))
         else:
             print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
-        my_serial.close()
     except Exception as e:
         print('set_barrier_gate error: ' + str(e.__str__()))
+    my_serial.close()
     return success
 
 
@@ -323,6 +323,7 @@ def get_barrier_state(num):
         my_serial.close()
     except Exception as e:
         print('get_barrier_state error: ' + str(e.__str__()))
+    my_serial.close()
     if success:
         if len(msg) > 3 and msg[3] & num == num:
             return 1
