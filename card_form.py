@@ -235,7 +235,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             self.db_model.setHeaderData(23, Qt.Horizontal, '扩展4')
             print(condition)
             self.tableView.setModel(self.db_model)
-            max_card_no_query = self.db.exec('select max(card_no) from t_card_info')
+            max_card_no_query = self.db.exec('select max(cast(card_no as int)) from t_card_info')
             ret = max_card_no_query.next()
             self.max_card_no = int(max_card_no_query.value(0)) if ret and max_card_no_query.value(0) != '' else -1
         self.tableView.setColumnHidden(0, True)
@@ -277,8 +277,9 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         if not car_no:
             QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能为空！", QtWidgets.QMessageBox.Ok)
             return
-        query = self.db.exec('select car_no from t_card_info where status >= 0')
-        while(query.next()):
+        if not change_data:
+            query = self.db.exec('select car_no from t_card_info where status >= 0')
+            while(query.next()):
                 if car_no==query.value(0):
                     QtWidgets.QMessageBox.warning(self, '本程序', "车牌号不能重复！", QtWidgets.QMessageBox.Ok)
                     return
@@ -327,6 +328,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             if ret:
                 QtWidgets.QMessageBox.information(self, '本程序', "添加成功！", QtWidgets.QMessageBox.Ok)
                 self.__query_data(1)
+                self.cleartext()
             else:
                 QtWidgets.QMessageBox.warning(self, '本程序', "添加失败！", QtWidgets.QMessageBox.Ok)
         else:
@@ -359,10 +361,25 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             if ret:
                 QtWidgets.QMessageBox.information(self, '本程序', "修改成功！", QtWidgets.QMessageBox.Ok)
                 self.__query_data()
+                self.cleartext()
             else:
                 QtWidgets.QMessageBox.warning(self, '本程序', "修改失败！", QtWidgets.QMessageBox.Ok)
-        if success:
-            self.max_card_no += 1
+        # if success:
+        #     self.max_card_no += 1
+
+    def cleartext(self):
+        self.carNoLineEdit_2.clear()
+        self.userNameLineEdit_2.clear()
+        self.genderComboBox.setCurrentIndex(0)
+        self.supplierLineEdit_2.clear()
+        self.receiverLineEdit_2.clear()
+        self.phoneNumberLineEdit.clear()
+        self.credNoLineEdit.clear()
+        self.cardTypeComboBox.setCurrentIndex(2)
+        self.isValidComboBox.setCurrentIndex(0)
+        self.addressLineEdit.clear()
+        self.cargoLineEdit.clear()
+        self.extraDoubleSpinBox.setValue(0.00)
 
     def __delete_data(self):
         """
@@ -383,6 +400,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
                 self.db_model.setRecord(current_row, record)
                 self.db_model.submitAll()
                 self.__query_data()
+                self.cleartext()
         else:
             QtWidgets.QMessageBox.warning(self, '本程序', "请选择要删除的记录！", QtWidgets.QMessageBox.Ok)
 

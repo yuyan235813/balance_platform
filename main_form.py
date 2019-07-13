@@ -37,6 +37,7 @@ import os
 import cv2
 from datetime import timedelta
 from datetime import datetime
+import win32com.client
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -348,6 +349,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 # self._timer_barrier.timeout.connect(self.__set_barrier1)
                 # self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
                 print("道闸1打开成功")
+                speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                str1 = """
+                  请上磅
+                                """
+                speaker.Speak(str1)
                 time.sleep(1)
                 if normal_utils.close_barrier_gate(1):
                     self.weight_working = True
@@ -624,6 +630,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 print("保存成功！")
+                speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                str1 = """
+                过磅已完成，请下磅
+                """
+                speaker.Speak(str1)
             else:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
                 print("保存失败！")
