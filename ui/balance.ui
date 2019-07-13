@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1356</width>
-    <height>691</height>
+    <height>693</height>
    </rect>
   </property>
   <property name="font">
@@ -1477,6 +1477,7 @@
     <addaction name="actionUserPermission"/>
     <addaction name="actionSystemParameterSetup"/>
     <addaction name="actionComSetup"/>
+    <addaction name="cardInfoAction"/>
     <addaction name="separator"/>
     <addaction name="actionChangeUser"/>
     <addaction name="actionExit"/>
@@ -1588,6 +1589,11 @@
   <action name="actionComSetup">
    <property name="text">
     <string>无人值守设置</string>
+   </property>
+  </action>
+  <action name="cardInfoAction">
+   <property name="text">
+    <string>卡片管理</string>
    </property>
   </action>
  </widget>

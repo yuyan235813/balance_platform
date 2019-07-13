@@ -26,6 +26,7 @@ from receiver_form import receiverForm
 from cargo_form import cargoForm
 from poll_form import pollmainForm
 from permission_form import PermissionSetupForm
+from card_form import CardForm
 from com_setup_form import ComSetupForm
 from functools import partial
 import subprocess
@@ -82,6 +83,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.com_setup_form = ComSetupForm()
         self.actionComSetup.triggered.connect(self.com_setup_form.show)
+        self.card_form = CardForm()
+        self.cardInfoAction.triggered.connect(self.card_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.extraWeightSpinBox.setValue(0)
         self.settlementLcdNumber.display(0)

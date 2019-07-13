@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(1356, 691)
+        mainWindow.resize(1356, 693)
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(10)
@@ -594,11 +594,14 @@ class Ui_mainWindow(object):
         self.actionExit.setObjectName("actionExit")
         self.actionComSetup = QtWidgets.QAction(mainWindow)
         self.actionComSetup.setObjectName("actionComSetup")
+        self.cardInfoAction = QtWidgets.QAction(mainWindow)
+        self.cardInfoAction.setObjectName("cardInfoAction")
         self.qmenuSystemSetup.addAction(self.actionBalanceFormSetup)
         self.qmenuSystemSetup.addAction(self.actionParameterSetup)
         self.qmenuSystemSetup.addAction(self.actionUserPermission)
         self.qmenuSystemSetup.addAction(self.actionSystemParameterSetup)
         self.qmenuSystemSetup.addAction(self.actionComSetup)
+        self.qmenuSystemSetup.addAction(self.cardInfoAction)
         self.qmenuSystemSetup.addSeparator()
         self.qmenuSystemSetup.addAction(self.actionChangeUser)
         self.qmenuSystemSetup.addAction(self.actionExit)
@@ -667,4 +670,5 @@ class Ui_mainWindow(object):
         self.actionChangeUser.setText(_translate("mainWindow", "切换用户"))
         self.actionExit.setText(_translate("mainWindow", "退出"))
         self.actionComSetup.setText(_translate("mainWindow", "无人值守设置"))
+        self.cardInfoAction.setText(_translate("mainWindow", "卡片管理"))
 
