@@ -332,7 +332,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._barrier_worker.trigger.connect(self.check_card_no)
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
-        self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
+        self._timer.start(NormalParam.COM_READ_DURATION*10)  # 设置定时间隔为1000ms即1s，并启动定时器
         self._timer_barrier = QTimer(self)
         self.active_video()
 
@@ -399,23 +399,24 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working and normal_utils.get_barrier_state(1) == 1:
-                        if self.__set_barrier1(0):
-                            print("道闸1关闭成功")
-                        else:
-                            print("道闸1关闭失败")
-                        self._timer_barrier.stop()
+                    if self.weight_working:
+                        if normal_utils.get_barrier_state(1) == 1:
+                            if self.__set_barrier1(0):
+                                print("道闸1关闭成功")
+                            else:
+                                print("道闸1关闭失败")
+                            self._timer_barrier.stop()
                         self.choose_weight()
                         self.save_data()
+                        self.weight_working = False
                         if self.__set_barrier2(1):
-                            self.weight_working = False
                             self._timer_barrier.timeout.connect(partial(self.__set_barrier2, 0))
                             self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)
                 elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= 10:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
                     self.pickBalanceButton.setEnabled(False)
-                    if self.__set_barrier2(0):
+                    if normal_utils.get_barrier_state(2) == 1 and self.__set_barrier2(0):
                         print("道闸2关闭成功")
                         self._timer_barrier.stop()
                 else:
