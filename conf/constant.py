@@ -28,7 +28,7 @@ class NormalParam:
     # 读取 COM 接口延时 ms
     COM_READ_DURATION = 10
     # 判断稳定时长 s
-    STABLES_DURATION = 1
+    STABLES_DURATION = 5
     # 判断稳定误差阀值
     STABLES_ERROR = 0
     # 检测称重仪表连接时长 s

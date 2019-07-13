@@ -105,6 +105,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.close_confirm = True
         # 无人值守是否正在称重，如果为 True，车在榜上并已稳定
         self.weight_working = False
+        self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
 
     def show(self):
         """
@@ -127,33 +128,60 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
 
-    def __set_barrier1(self):
+    def __set_barrier1(self, operate=-1):
         """
         设置道闸1
         :return:
         """
-        state = normal_utils.get_barrier_state(1)
-        print(state)
-        if state == 0:
-            if normal_utils.open_barrier_gate(1):
-                # self._timer_barrier.stop()
-                self.barrier1PushButton.setText('关闭道闸1')
-        elif state == 1:
+        res = False
+        if operate == -1:
+            state = normal_utils.get_barrier_state(1)
+            print(state)
+            if state == 0:
+                if normal_utils.open_barrier_gate(1):
+                    self.barrier1PushButton.setText('关闭道闸1')
+                    res = True
+            elif state == 1:
+                if normal_utils.close_barrier_gate(1):
+                    self.barrier1PushButton.setText('打开道闸1')
+                    res = True
+        elif operate == 0:
             if normal_utils.close_barrier_gate(1):
                 self.barrier1PushButton.setText('打开道闸1')
+                self._timer_barrier.stop()
+                res = True
+        elif operate == 1:
+            if normal_utils.open_barrier_gate(1):
+                self.barrier1PushButton.setText('关闭道闸1')
+                res = True
+        return res
 
-    def __set_barrier2(self):
+    def __set_barrier2(self, operate=-1):
         """
-        设置道闸1
+        设置道闸2
         :return:
         """
-        state = normal_utils.get_barrier_state(2)
-        if state == 0:
+        res = False
+        if operate == -1:
+            state = normal_utils.get_barrier_state(2)
+            if state == 0:
+                if normal_utils.open_barrier_gate(2):
+                    self.barrier1PushButton.setText('关闭道闸2')
+                    res = True
+            elif state == 1:
+                if normal_utils.close_barrier_gate(2):
+                    self.barrier1PushButton.setText('打开道闸2')
+                    res = True
+        elif operate == 0:
+            if normal_utils.close_barrier_gate(2):
+                self._timer_barrier.stop()
+                self.barrier1PushButton.setText('打开道闸2')
+                res = True
+        elif operate == 1:
             if normal_utils.open_barrier_gate(2):
                 self.barrier1PushButton.setText('关闭道闸2')
-        elif state == 1:
-            if normal_utils.close_barrier_gate(2):
-                self.barrier1PushButton.setText('打开道闸2')
+                res = True
+        return res
 
     def calculate(self):
         if self.balanceNoBlael.text() == "":
@@ -305,7 +333,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
-        # self._timer_barrier = QTimer(self)
+        self._timer_barrier = QTimer(self)
         self.active_video()
 
     def show_lcd(self, is_open, weight):
@@ -345,18 +373,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if ret:
             print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
             self.CarComboBox.setCurrentText(ret[0]['car_no'])
-            if normal_utils.open_barrier_gate(1):
-                # self._timer_barrier.timeout.connect(self.__set_barrier1)
-                # self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
+            if self.__set_barrier1(1):
+                self._timer_barrier.timeout.connect(partial(self.__set_barrier1, 0))
+                self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
                 print("道闸1打开成功")
-                speaker = win32com.client.Dispatch("SAPI.SpVoice")
-                str1 = """
-                  请上磅
-                                """
-                speaker.Speak(str1)
-                time.sleep(1)
-                if normal_utils.close_barrier_gate(1):
-                    self.weight_working = True
+                str1 = """请上磅"""
+                self.speaker.Speak(str1)
+                self.weight_working = True
             else:
                 print("道闸1打开失败")
         else:
@@ -376,20 +399,25 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working:
-                        # if normal_utils.close_barrier_gate(1):
-                        #     print("道闸1关闭成功")
-                        # else:
-                        #     print("道闸1关闭失败")
-                        # self._timer_barrier.stop()
+                    if self.weight_working and normal_utils.get_barrier_state(1) == 1:
+                        if self.__set_barrier1(0):
+                            print("道闸1关闭成功")
+                        else:
+                            print("道闸1关闭失败")
+                        self._timer_barrier.stop()
                         self.choose_weight()
                         self.save_data()
-                        normal_utils.open_barrier_gate(2)
-                        time.sleep(1)
-                        normal_utils.close_barrier_gate(2)
-                        self.weight_working = False
-                        # self._timer_barrier.timeout.connect(self.__set_barrier2)
-                        # self._timer_barrier.start(NormalParam.COM_READ_DURATION * 6)
+                        if self.__set_barrier2(1):
+                            self.weight_working = False
+                            self._timer_barrier.timeout.connect(partial(self.__set_barrier2, 0))
+                            self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)
+                elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= 10:
+                    self.stateLabel.setText(u'读取中……')
+                    self.stateLabel.setStyleSheet('color:black')
+                    self.pickBalanceButton.setEnabled(False)
+                    if self.__set_barrier2(0):
+                        print("道闸2关闭成功")
+                        self._timer_barrier.stop()
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -630,11 +658,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 print("保存成功！")
-                speaker = win32com.client.Dispatch("SAPI.SpVoice")
-                str1 = """
-                过磅已完成，请下磅
-                """
-                speaker.Speak(str1)
+                str1 = """过磅已完成，请下磅"""
+                self.speaker.Speak(str1)
             else:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
                 print("保存失败！")
@@ -902,7 +927,7 @@ class CardThread(QThread):
                     time.sleep(NormalParam.COM_OPEN_DURATION)
                     break
                 self.trigger.emit(is_open, str(card_no))
-                time.sleep(NormalParam.COM_READ_DURATION / 100)
+                time.sleep(NormalParam.COM_READ_DURATION / 10)
             self.trigger.emit(0, str(NormalParam.ERROR_CARD_NO))
             self._is_conn = False
         self._is_running = False
