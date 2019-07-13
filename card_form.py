@@ -12,6 +12,7 @@ from ui.card_form import Ui_cardFrom
 from all_in_one_test import AIODll
 import time
 import logging
+import datetime
 
 
 class CardForm(QtWidgets.QWidget, Ui_cardFrom):
@@ -48,7 +49,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         """
         self.beginDateEdit.setDate(QDate.currentDate())
         self.endDateEdit.setDate(QDate.currentDate())
-        self.validDateEdit.setDate(QDate.currentDate())
+        self.validDateEdit.setDate(datetime.date.today()+ datetime.timedelta(days=366))
         self.enrollDateEdit.setDate(QDate.currentDate())
         self.__query_data()
 
@@ -341,7 +342,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             record.setValue(6, valid_date)
             record.setValue(7, card_status)
             record.setValue(8, phone_number)
-            record.setValue(9, cred_no)
+            #record.setValue(9, cred_no)
             record.setValue(10, car_no)
             record.setValue(11, address)
             # record.setValue(12, operation_id)
