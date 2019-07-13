@@ -42,6 +42,30 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.row = -1
         self.__init_data()
 
+    def update_combobox(self):
+        """
+        下拉列表数据
+        :return:
+        """
+        cargo_query_sql = 'select name from t_cargo'
+        cargo_list = self.db.exec(cargo_query_sql)
+        self.cargocomboBox.clear()
+        while (cargo_list.next()):
+            self.cargocomboBox.addItem(cargo_list.value(0))
+        self.cargocomboBox.clearEditText()
+        supply_query_sql = 'select supplier_name from t_supplier'
+        supply_list = self.db.exec(supply_query_sql)
+        self.suppliercomboBox.clear()
+        while (supply_list.next()):
+            self.suppliercomboBox.addItem(supply_list.value(0))
+        self.suppliercomboBox.clearEditText()
+        receiver_query_sql = 'select receiver_name from t_receiver'
+        receiver_list = self.db.exec(receiver_query_sql)
+        self.receivercomboBox.clear()
+        while (receiver_list.next()):
+            self.receivercomboBox.addItem(receiver_list.value(0))
+        self.receivercomboBox.clearEditText()
+
     def __init_data(self):
         """
         初始化数据
@@ -52,6 +76,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.validDateEdit.setDate(datetime.date.today()+ datetime.timedelta(days=366))
         self.enrollDateEdit.setDate(QDate.currentDate())
         self.__query_data()
+        self.update_combobox()
 
     def __issue_card(self):
         """
@@ -162,9 +187,9 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.credNoLineEdit.setText(cred_no)
         self.carNoLineEdit_2.setText(car_no)
         self.addressLineEdit.setText(address)
-        self.supplierLineEdit_2.setText(supplier)
-        self.receiverLineEdit_2.setText(receiver)
-        self.cargoLineEdit.setText(cargo)
+        self.suppliercomboBox.setCurrentText(supplier)
+        self.receivercomboBox.setCurrentText(receiver)
+        self.cargocomboBox.setCurrentText(cargo)
         self.extraDoubleSpinBox.setValue(extra)
         self.priceDoubleSpinBox.setValue(price)
 
@@ -287,9 +312,9 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         address = self.addressLineEdit.text()
         operation_id = 0
         operation_date = str(QDate.currentDate().toPyDate())
-        supplier = self.supplierLineEdit_2.text()
-        receiver = self.receiverLineEdit_2.text()
-        cargo = self.cargoLineEdit.text()
+        supplier = self.suppliercomboBox.currentText()
+        receiver = self.receivercomboBox.currentText()
+        cargo = self.cargocomboBox.currentText()
         extra = self.extraDoubleSpinBox.value()
         price = self.priceDoubleSpinBox.value()
         status = 0
@@ -342,10 +367,10 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             record.setValue(6, valid_date)
             record.setValue(7, card_status)
             record.setValue(8, phone_number)
-            #record.setValue(9, cred_no)
+            record.setValue(9, cred_no)
             record.setValue(10, car_no)
             record.setValue(11, address)
-            # record.setValue(12, operation_id)
+            record.setValue(12, operation_id)
             record.setValue(13, str(QDate.currentDate().toPyDate()))
             record.setValue(14, supplier)
             record.setValue(15, receiver)
@@ -372,14 +397,14 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.carNoLineEdit_2.clear()
         self.userNameLineEdit_2.clear()
         self.genderComboBox.setCurrentIndex(0)
-        self.supplierLineEdit_2.clear()
-        self.receiverLineEdit_2.clear()
+        self.suppliercomboBox.setCurrentText("")
+        self.receivercomboBox.setCurrentText("")
         self.phoneNumberLineEdit.clear()
         self.credNoLineEdit.clear()
         self.cardTypeComboBox.setCurrentIndex(2)
         self.isValidComboBox.setCurrentIndex(0)
         self.addressLineEdit.clear()
-        self.cargoLineEdit.clear()
+        self.cargocomboBox.setCurrentText("")
         self.extraDoubleSpinBox.setValue(0.00)
 
     def __delete_data(self):
