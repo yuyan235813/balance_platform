@@ -25,7 +25,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         super(CardForm, self).__init__()
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
-        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "CardForm")
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("rmf/db/balance.db")
         self.queryPushButton.clicked.connect(self.__query_data)
         self.addPushButton.clicked.connect(self.__add_data)
