@@ -28,7 +28,6 @@ class CarManageForm(QtWidgets.QWidget, Ui_carManageForm):
         self.cancelPushButton.clicked.connect(self.close)
         self.deletePushButton.clicked.connect(self.__delete_data)
         self.savePushButton.clicked.connect(self.__save_data)
-        self.dialog = CarNoDialogForm()
         self.car_dialog = CarManageChangeForm(self)
         self.autoMe = 0
 
@@ -182,9 +181,6 @@ class CarManageChangeForm(QtWidgets.QDialog, Ui_dialog):
         显示车牌号键盘
         :return:
         """
-        if self.dialog.isVisible():
-            self.dialog.setVisible(False)
-            return
         self.dialog.setWindowModality(Qt.ApplicationModal)
         self.dialog.show()
 

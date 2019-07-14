@@ -495,14 +495,40 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                    QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.Yes:
-                self._com_worker.stop()
+                if self._barrier_worker1:
+                    self._barrier_worker1.stop()
+                    while not self._barrier_worker1.isStoped():
+                        time.sleep(0.02)
+                    self._barrier_worker1 = None
+                if self._barrier_worker1:
+                    self._barrier_worker1.stop()
+                    while not self._barrier_worker1.isStoped():
+                        time.sleep(0.02)
+                    self._barrier_worker2 = None
+                if self._com_worker:
+                    self._com_worker.stop()
+                    while not self._com_worker.isStoped():
+                        time.sleep(0.02)
                 for thread in self.thread_dict.values():
                     thread.stop()
                 event.accept()
             else:
                 event.ignore()
         else:
-            self._com_worker.stop()
+            if self._barrier_worker1:
+                self._barrier_worker1.stop()
+                while not self._barrier_worker1.isStoped():
+                    time.sleep(0.02)
+                self._barrier_worker1 = None
+            if self._barrier_worker1:
+                self._barrier_worker1.stop()
+                while not self._barrier_worker1.isStoped():
+                    time.sleep(0.02)
+                self._barrier_worker2 = None
+            if self._com_worker:
+                self._com_worker.stop()
+                while not self._com_worker.isStoped():
+                    time.sleep(0.02)
             for thread in self.thread_dict.values():
                 thread.stop()
             event.accept()
@@ -982,6 +1008,10 @@ class CardThread(QThread):
                 time.sleep(NormalParam.COM_READ_DURATION / 10)
             self.trigger.emit((self.read_no, 0, str(NormalParam.ERROR_CARD_NO)))
             self._is_conn = False
+        try:
+            self._serial.close()
+        except Exception as e:
+            logging.error(e)
         self._is_running = False
 
     def stop(self):
@@ -1075,6 +1105,10 @@ class COMThread(QThread):
                     time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
                 self.trigger.emit(0, 0)
                 self._is_conn = False
+        try:
+            self._serial.close()
+        except Exception as e:
+            logging.error(e)
         self._is_running = False
 
     def stop(self):

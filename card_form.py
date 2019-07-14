@@ -9,7 +9,9 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QDate, QModelIndex
 from PyQt5 import QtSql
 from ui.card_form import Ui_cardFrom
+from car_no_dialog_form import CarNoDialogForm
 from all_in_one_test import AIODll
+from functools import partial
 import time
 import logging
 import datetime
@@ -32,6 +34,9 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.cancelPushButton.clicked.connect(self.close)
         self.issuePushButton.clicked.connect(self.__issue_card)
         self.readPushButton.clicked.connect(self.__read_card)
+        self.dialog = CarNoDialogForm()
+        self.carNoPushButton.clicked.connect(partial(self.__show_dialog, self.carNoLineEdit))
+        self.carNoPushButton_2.clicked.connect(partial(self.__show_dialog, self.carNoLineEdit_2))
         self.table = 't_card_info'
         self.db_model = QtSql.QSqlTableModel()
         self.tableView.verticalHeader().hide()
@@ -45,6 +50,16 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
     def show(self):
         super().show()
         self.__init_data()
+
+    def __show_dialog(self, carNoLineEdit:QtWidgets.QLineEdit):
+        self.dialog.my_signal.connect(carNoLineEdit.setText)
+        self.dialog.setWindowModality(Qt.ApplicationModal)
+        self.dialog.show()
+        window_point = self.pos()
+        point = carNoLineEdit.pos()
+        point.setX(point.x() + window_point.x())
+        point.setY(point.y() + window_point.y() + 65)
+        self.dialog.move(point)
 
     def update_combobox(self):
         """
