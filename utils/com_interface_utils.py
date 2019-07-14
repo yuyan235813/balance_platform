@@ -10,7 +10,7 @@ from time import sleep
 
 import serial
 
-from conf.constant import ErrorCode, NormalParam
+from utils.constant import ErrorCode, NormalParam
 from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
 import time
 import logging

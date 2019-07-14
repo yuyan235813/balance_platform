@@ -90,7 +90,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         显示界面
         :return:
         """
-        super().show()
+        super(PermissionSetupForm, self).show()
         self.__init_data()
 
     def __show_user_permissions(self, model):

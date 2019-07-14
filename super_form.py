@@ -20,7 +20,7 @@ class SuperForm(QtWidgets.QWidget, Ui_superForm):
         super(SuperForm, self).__init__()
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
-        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "SuperForm")
         self.db.setDatabaseName("rmf/db/balance.db")
         self.queryPushButton.clicked.connect(self.__query_data)
         self.addPushButton.clicked.connect(self.__add_data)
@@ -29,6 +29,9 @@ class SuperForm(QtWidgets.QWidget, Ui_superForm):
         self.cancelPushButton.clicked.connect(self.close)
         self.tableComboBox.currentTextChanged.connect(self.__set_column)
         self.db_model = QtSql.QSqlTableModel()
+
+    def show(self):
+        super().show()
         self.__init_data()
 
     def __init_data(self):
@@ -137,7 +140,6 @@ class ReadonlyDelegate(QtWidgets.QItemDelegate):
 
     def createEditor(self, parent, option, index):
         return None
-
 
 
 if __name__ == '__main__':

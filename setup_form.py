@@ -34,7 +34,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         # self.setWindowFlag(Qt.WindowStaysOnTopHint)
 
     def show(self):
-        super().show()
+        super(SetupForm, self).show()
         list_parh = normal_utils.get_file_list(self.rmf_path)
         list_rmf = [os.path.split(path)[1] for path in list_parh]
         self.listWidget.addItems(list_rmf)

@@ -15,20 +15,25 @@ class ConfigParser:
     config_dic = {}
 
     @classmethod
-    def get_config(cls, sector, item):
-        value = None
-        try:
-            value = cls.config_dic[sector][item]
-        except KeyError:
+    def get_item(cls, key, default_value):
+        """
+        根据key获取配置的value
+        :param item:
+        :return:
+        """
+        key = key.lower()
+        if not cls.config_dic:
             cf = configparser.ConfigParser()
-            cf.read('settings.ini', encoding='utf8')  #注意setting.ini配置文件的路径
-            value = cf.get(sector, item)
-            cls.config_dic = value
-        finally:
-            return value
-
+            # cf.read('../conf/settings.ini', encoding='utf8')  #注意settings.ini配置文件的路径
+            cf.read('conf/settings.ini', encoding='utf8')  #注意settings.ini配置文件的路径
+            for section, item in cf.items():
+                for i in item:
+                    cls.config_dic[i] = cf.get(section, i)
+        if key in cls.config_dic.keys():
+            default_value = cls.config_dic.get(key)
+        return default_value
 
 if __name__ == '__main__':
-    con = ConfigParser()
-    res = con.get_config('logging', 'log_dir')
-    print(res)
+    conf = ConfigParser.get_item('debug', 1)
+    conf = ConfigParser.get_item('debug', 1)
+    print(conf)

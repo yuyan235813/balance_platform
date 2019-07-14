@@ -15,7 +15,7 @@ from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
-from conf.constant import NormalParam
+from utils.constant import NormalParam
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
@@ -55,7 +55,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
-        self._barrier_worker = None
+        self._barrier_worker1 = None
+        self._barrier_worker2 = None
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
@@ -81,7 +82,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.permission_form = PermissionSetupForm(self)
         self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
-        self.com_setup_form = ComSetupForm()
+        self.com_setup_form = ComSetupForm(self)
         self.actionComSetup.triggered.connect(self.com_setup_form.show)
         self.card_form = CardForm()
         self.cardInfoAction.triggered.connect(self.card_form.show)
@@ -106,8 +107,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.balance_opt_status = 0
         # 是否需要退出确认
         self.close_confirm = True
-        # 无人值守是否正在称重，如果为 True，车在榜上并已稳定
-        self.weight_working = False
+        # 无人值守是否正在称重，如果为 1，车在榜上并已稳定, 如果为 2，等待下磅，如果为 0，,榜上没有东西
+        self.weight_working = 0
+        # 判断进出口, 1 为gate1进，2为gate2进
+        self.gate_type = 1
         self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
 
     def show(self):
@@ -131,6 +134,18 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.supplierComboBox.addItem(values)
         self.supplierComboBox.clearEditText()
 
+    def __set_barrier(self, gate, operate):
+        """
+        设置道闸
+        :param gate:
+        :param operate:
+        :return:
+        """
+        if gate == 1:
+            return self.__set_barrier1(operate)
+        elif gate == 2:
+            return self.__set_barrier2(operate)
+
     def __set_barrier1(self, operate=-1):
         """
         设置道闸1
@@ -150,6 +165,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(1):
+                if self.gate_type == 2:
+                    self._timer_barrier.stop()
+                    self.weight_working = 0
                 self.barrier1PushButton.setText('打开道闸1')
                 self._timer_barrier.stop()
                 res = True
@@ -177,7 +195,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(2):
-                self._timer_barrier.stop()
+                if self.gate_type == 1:
+                    self._timer_barrier.stop()
+                    self.weight_working = 0
                 self.barrier1PushButton.setText('打开道闸2')
                 res = True
         elif operate == 1:
@@ -314,6 +334,33 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         初始化数据和定时器
         :return:
         """
+        if self._barrier_worker1:
+            self._barrier_worker1.stop()
+            while not self._barrier_worker1.isStoped():
+                time.sleep(0.02)
+            self._barrier_worker1 = None
+        if self._barrier_worker1:
+            self._barrier_worker1.stop()
+            while not self._barrier_worker1.isStoped():
+                time.sleep(0.02)
+            self._barrier_worker2 = None
+        query = """select read_com_switch1, read_com_switch2 from t_com_auto"""
+        ret = self.db.query(query)
+        if ret:
+            if ret[0]['read_com_switch1'] == 1:
+                self._read_com_switch1 = True
+                self._barrier_worker1 = CardThread(1)
+                self._barrier_worker1.start()
+                self._barrier_worker1.trigger.connect(self.check_card_no)
+            else:
+                self._read_com_switch1 = False
+            if ret[0]['read_com_switch2'] == 1:
+                self._read_com_switch2 = True
+                self._barrier_worker2 = CardThread(2)
+                self._barrier_worker2.start()
+                self._barrier_worker2.trigger.connect(self.check_card_no)
+            else:
+                self._read_com_switch2 = False
         self._is_open = False
         if self._com_worker:
             self._com_worker.stop()
@@ -321,18 +368,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 time.sleep(0.02)
         self._com_worker = COMThread()
         self._com_worker.start()
-
-        self._is_barrier_open = False
-        if self._barrier_worker:
-            self._barrier_worker.stop()
-            while not self._barrier_worker.isStoped():
-                time.sleep(0.02)
-        self._barrier_worker = CardThread()
-        self._barrier_worker.start()
         self._weight = {}
         self._timer = QTimer(self)  # 新建一个定时器
         # 关联timeout信号和showTime函数，每当定时器过了指定时间间隔，就会调用showTime函数
-        self._barrier_worker.trigger.connect(self.check_card_no)
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION*10)  # 设置定时间隔为1000ms即1s，并启动定时器
@@ -355,20 +393,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self._is_open = False
             self.weightLcdNumber.display(weight)
 
-    def check_card_no(self, is_open, card_no):
+    def check_card_no(self, args):
         u"""
         判断卡号
         :return:
         """
+        read_no = args[0]
+        is_open = args[1]
+        card_no = args[2]
         print("check_card_no")
-        print("card_no = %s" % card_no)
+        print("read_no = %s and card_no = %s" % (read_no, card_no))
         if card_no == str(-1):
-            print("card_no = %s" % card_no)
             return
         if self.weightLcdNumber.value() > 10:
             print("正在称重请稍候")
             return
-        if normal_utils.get_barrier_state(1) != 0:
+        if read_no == 1 and normal_utils.get_barrier_state(1) != 0:
+            self.gate_type = 1
+            print("道闸1已经打开")
+            return
+        if read_no == 2 and normal_utils.get_barrier_state(2) != 0:
+            self.gate_type = 2
             print("道闸1已经打开")
             return
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
@@ -376,17 +421,17 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if ret:
             print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
             self.CarComboBox.setCurrentText(ret[0]['car_no'])
-            if self.__set_barrier1(1):
-                self._timer_barrier.timeout.connect(partial(self.__set_barrier1, 0))
+            if self.__set_barrier(self.gate_type, 1):
+                self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
                 self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
                 print("道闸1打开成功")
                 str1 = """请上磅"""
                 self.speaker.Speak(str1)
-                self.weight_working = True
+                self.weight_working = 1
             else:
-                print("道闸1打开失败")
+                print("道闸%s打开失败" % self.gate_type)
         else:
-            print("card_no = %s 没有记录" % card_no)
+            print("read_no = %s and card_no = %s 没有记录" % (read_no, card_no))
 
     def check_weight_state(self):
         u"""
@@ -402,26 +447,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working:
-                        if normal_utils.get_barrier_state(1) == 1:
-                            if self.__set_barrier1(0):
-                                print("道闸1关闭成功")
+                    if self.weight_working == 1:
+                        if normal_utils.get_barrier_state(self.gate_type) == 1:
+                            if self.__set_barrier(self.gate_type, 0):
+                                print("道闸%s关闭成功" % self.gate_type)
                             else:
-                                print("道闸1关闭失败")
+                                print("道闸%s关闭失败" % self.gate_type)
                             self._timer_barrier.stop()
                         self.choose_weight()
                         self.save_data()
-                        self.weight_working = False
-                        if self.__set_barrier2(1):
-                            self._timer_barrier.timeout.connect(partial(self.__set_barrier2, 0))
+                        self.weight_working = 2
+                        if self.__set_barrier(3-self.gate_type, 1):
+                            self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
                             self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)
                 elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= 10:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
                     self.pickBalanceButton.setEnabled(False)
-                    if normal_utils.get_barrier_state(2) == 1 and self.__set_barrier2(0):
-                        print("道闸2关闭成功")
+                    if self.weight_working == 2 and self.__set_barrier(3-self.gate_type, 0):
+                        print("道闸%s关闭成功" % (3-self.gate_type))
                         self._timer_barrier.stop()
+                        self.weight_working = 0
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -864,14 +910,15 @@ class CardThread(QThread):
     """
     串口读取线程
     """
-    trigger = pyqtSignal(int, str)
+    trigger = pyqtSignal(tuple)
 
-    def __init__(self):
+    def __init__(self, read_no):
         self._is_conn = False
         self._serial = None
         self._is_running = True
         super().__init__()
         self.stoped = False
+        self.read_no = read_no
         self.mutex = QMutex()
         self.com_interface = None
         self.com_baud_rate = None
@@ -885,7 +932,7 @@ class CardThread(QThread):
         """
         query_sql_com1 = 'select * from t_com_auto where id = 1'
         ret = self.db.query(query_sql_com1)[0]
-        self.com_interface = 'COM%s' % ret['read_com']
+        self.com_interface = 'COM%s' % (ret['read_com1'] if self.read_no == 1 else ret['read_com2'])
         self.com_baud_rate = 9600
 
     def init_serial(self):
@@ -922,6 +969,7 @@ class CardThread(QThread):
                     logging.info(u'%s 接口未连接！' % self.com_interface)
                     time.sleep(NormalParam.COM_CHECK_CONN_DURATION)
                 except Exception as e:
+                    print(self.com_interface)
                     logging.error(e)
                     time.sleep(NormalParam.COM_OPEN_DURATION)
             while not self.stoped and self._serial.is_open:
@@ -930,9 +978,9 @@ class CardThread(QThread):
                 if card_no == NormalParam.ERROR_CARD_NO:
                     time.sleep(NormalParam.COM_OPEN_DURATION)
                     break
-                self.trigger.emit(is_open, str(card_no))
+                self.trigger.emit((self.read_no, is_open, str(card_no)))
                 time.sleep(NormalParam.COM_READ_DURATION / 10)
-            self.trigger.emit(0, str(NormalParam.ERROR_CARD_NO))
+            self.trigger.emit((self.read_no, 0, str(NormalParam.ERROR_CARD_NO)))
             self._is_conn = False
         self._is_running = False
 

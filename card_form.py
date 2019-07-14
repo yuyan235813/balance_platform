@@ -23,7 +23,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         super(CardForm, self).__init__()
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
-        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "CardForm")
         self.db.setDatabaseName("rmf/db/balance.db")
         self.queryPushButton.clicked.connect(self.__query_data)
         self.addPushButton.clicked.connect(self.__add_data)
@@ -40,6 +40,10 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         self.tableView.doubleClicked.connect(self.__display_data)
         self.read_card_no = 0
         self.row = -1
+        # self.__init_data()
+
+    def show(self):
+        super().show()
         self.__init_data()
 
     def __init_data(self):

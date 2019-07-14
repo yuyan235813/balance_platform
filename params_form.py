@@ -37,6 +37,14 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
         self.testPushButton2.clicked.connect(self.test_camera2)
         self.testPushButton3.clicked.connect(self.test_camera3)
         self.testPushButton4.clicked.connect(self.test_camera4)
+        # self.set_data()
+
+    def show(self):
+        """
+        
+        :return: 
+        """
+        super(ParamsForm, self).show()
         self.set_data()
 
     def params_dialog_show(self, table, column):

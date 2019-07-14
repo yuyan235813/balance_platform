@@ -1406,12 +1406,12 @@
           <item>
            <widget class="QLabel" name="label_12">
             <property name="text">
-             <string>读卡器：</string>
+             <string>读卡器1：</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="readCardLabel">
+           <widget class="QLabel" name="readCardLabel1">
             <property name="text">
              <string>未连接</string>
             </property>
@@ -1419,6 +1419,27 @@
           </item>
           <item>
            <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>读卡器2：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="readCardLabel2">
+            <property name="text">
+             <string>未连接</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>

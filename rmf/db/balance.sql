@@ -309,14 +309,17 @@ CREATE TABLE `t_card_info` (
 CREATE TABLE `t_com_auto` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `issue_com` int not null default 0, -- 发卡器串口
-  `read_com` int not null default 0, -- 读卡器串口
+  `read_com1` int not null default 0, -- 读卡器串口1
+  `read_com2` int not null default 0, -- 读卡器串口2
   `barrier_com` int not null default 0, -- 道闸串口
+  `read_com_switch1` int not null default 0, -- 是否启用读卡器1
+  `read_com_switch2` int not null default 0, -- 是否启用读卡器2
   `ext1` text, -- '备用1'
   `ext2` text, -- '备用2'
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com_auto VALUES(1,1,1,3,NULL,NULL,NULL,NULL);
+INSERT INTO t_com_auto VALUES(1,1,1,1,1,1,1,NULL,NULL,NULL,NULL);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
 INSERT INTO sqlite_sequence VALUES('t_com',2);
