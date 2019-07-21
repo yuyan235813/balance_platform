@@ -5,7 +5,7 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-from config_util import ConfigParser
+from utils.config_util import ConfigParser
 
 
 class ErrorCode:
@@ -42,6 +42,8 @@ class NormalParam:
     ERROR_WEIGHT = int(ConfigParser.get_item('ERROR_WEIGHT', -10000))
     # 错误卡号
     ERROR_CARD_NO = int(ConfigParser.get_item('ERROR_CARD_NO', -1))
+    # 道闸延迟关闭时长 ms
+    BARRIER_DELAY = int(ConfigParser.get_item('BARRIER_DELAY', 1000))
 
 
 if __name__ == '__main__':
