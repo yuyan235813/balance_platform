@@ -21,7 +21,7 @@ CREATE TABLE `t_com` (
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com VALUES(1,'默认设备',1,'COM4',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
+INSERT INTO t_com VALUES(1,'默认设备',1,'COM5',9600,8,-1,-1,0,0,NULL,NULL,NULL,NULL);
 CREATE TABLE `t_com_conf` (
   `com_no` text unique NOT NULL DEFAULT 'COM1'-- '串口号'
 );
@@ -332,7 +332,7 @@ CREATE TABLE `t_com_auto` (
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com_auto VALUES(1,1,1,1,1,1,0,NULL,NULL,NULL,NULL);
+INSERT INTO t_com_auto VALUES(1,9,6,9,7,1,0,NULL,NULL,NULL,NULL);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
 INSERT INTO sqlite_sequence VALUES('t_com',2);
