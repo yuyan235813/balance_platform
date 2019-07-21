@@ -164,6 +164,8 @@ INSERT INTO t_operation VALUES(8,1,'货物名称','cargo_form',1);
 INSERT INTO t_operation VALUES(9,1,'称重查询','poll_form',1);
 INSERT INTO t_operation VALUES(10,2,'称重磅单修改','poll_form_change',1);
 INSERT INTO t_operation VALUES(11,2,'称重磅单删除','poll_form_delete',1);
+INSERT INTO t_operation VALUES(12,1,'无人值守设置','com_setup_form',1);
+INSERT INTO t_operation VALUES(13,1,'卡片管理','card_form',1);
 CREATE TABLE `t_permission`(
   `id` integer primary key AUTOINCREMENT, -- ID
   `object_type` int not null default 1, --类型，1：角色；2：用户
@@ -226,6 +228,16 @@ INSERT INTO t_permission VALUES(52,2,'user1',10,0);
 INSERT INTO t_permission VALUES(53,2,'user1',11,0);
 INSERT INTO t_permission VALUES(54,2,'user2',10,0);
 INSERT INTO t_permission VALUES(55,2,'user2',11,0);
+INSERT INTO t_permission VALUES(56,1,'1',12,1);
+INSERT INTO t_permission VALUES(57,1,'1',13,1);
+INSERT INTO t_permission VALUES(58,1,'2',12,1);
+INSERT INTO t_permission VALUES(59,1,'2',13,1);
+INSERT INTO t_permission VALUES(60,2,'admin',12,1);
+INSERT INTO t_permission VALUES(61,2,'admin',13,1);
+INSERT INTO t_permission VALUES(62,2,'user1',12,0);
+INSERT INTO t_permission VALUES(63,2,'user1',13,1);
+INSERT INTO t_permission VALUES(64,2,'user2',12,1);
+INSERT INTO t_permission VALUES(65,2,'user2',13,1);
 CREATE TABLE `t_camera` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `camera_name` text unique not null default '默认设备', -- 称重仪名称
@@ -306,6 +318,7 @@ CREATE TABLE `t_card_info` (
   `ext3` text not null default '', --扩展3
   `ext4` text not null default '' --扩展4
 );
+INSERT INTO t_card_info VALUES(25,'fdsad',1,3,'0','2019-07-14','2020-07-14',1,'','','吉GE647','','0','2019-07-14','','','',0,0,0,'','','','');
 CREATE TABLE `t_com_auto` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `issue_com` int not null default 0, -- 发卡器串口
@@ -319,7 +332,7 @@ CREATE TABLE `t_com_auto` (
   `ext3` text, -- '备用3'
   `ext4` text -- '备用4'
 );
-INSERT INTO t_com_auto VALUES(1,1,1,1,1,1,1,NULL,NULL,NULL,NULL);
+INSERT INTO t_com_auto VALUES(1,1,1,1,1,1,0,NULL,NULL,NULL,NULL);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('t_rmf',1);
 INSERT INTO sqlite_sequence VALUES('t_com',2);
@@ -327,14 +340,14 @@ INSERT INTO sqlite_sequence VALUES('t_system_params_conf',1);
 INSERT INTO sqlite_sequence VALUES('t_supplier',4);
 INSERT INTO sqlite_sequence VALUES('t_cargo',1);
 INSERT INTO sqlite_sequence VALUES('t_car',36);
-INSERT INTO sqlite_sequence VALUES('t_operation',9);
+INSERT INTO sqlite_sequence VALUES('t_operation',13);
 INSERT INTO sqlite_sequence VALUES('t_role',2);
-INSERT INTO sqlite_sequence VALUES('t_permission',36);
+INSERT INTO sqlite_sequence VALUES('t_permission',65);
 INSERT INTO sqlite_sequence VALUES('t_user',2);
 INSERT INTO sqlite_sequence VALUES('t_receiver',4);
 INSERT INTO sqlite_sequence VALUES('t_camera',166);
 INSERT INTO sqlite_sequence VALUES('t_balance',94);
 INSERT INTO sqlite_sequence VALUES('t_balance_sync',1);
-INSERT INTO sqlite_sequence VALUES('t_card_info',24);
+INSERT INTO sqlite_sequence VALUES('t_card_info',25);
 INSERT INTO sqlite_sequence VALUES('t_com_auto',1);
 COMMIT;
