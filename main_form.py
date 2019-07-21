@@ -187,23 +187,24 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             state = normal_utils.get_barrier_state(2)
             if state == 0:
                 if normal_utils.open_barrier_gate(2):
-                    self.barrier1PushButton.setText('关闭道闸2')
+                    self.barrier2PushButton.setText('关闭道闸2')
                     res = True
             elif state == 1:
                 if normal_utils.close_barrier_gate(2):
-                    self.barrier1PushButton.setText('打开道闸2')
+                    self.barrier2PushButton.setText('打开道闸2')
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(2):
                 if self.gate_type == 1:
                     self._timer_barrier.stop()
                     self.weight_working = 0
-                self.barrier1PushButton.setText('打开道闸2')
+                self.barrier2PushButton.setText('打开道闸2')
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(2):
-                self.barrier1PushButton.setText('关闭道闸2')
+                self.barrier2PushButton.setText('关闭道闸2')
                 res = True
+        print(res)
         return res
 
     def calculate(self):
@@ -339,9 +340,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             while not self._barrier_worker1.isStoped():
                 time.sleep(0.02)
             self._barrier_worker1 = None
-        if self._barrier_worker1:
-            self._barrier_worker1.stop()
-            while not self._barrier_worker1.isStoped():
+        if self._barrier_worker2:
+            self._barrier_worker2.stop()
+            while not self._barrier_worker2.isStoped():
                 time.sleep(0.02)
             self._barrier_worker2 = None
         query = """select read_com_switch1, read_com_switch2 from t_com_auto"""
@@ -408,14 +409,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.weightLcdNumber.value() > 10:
             print("正在称重请稍候")
             return
-        if read_no == 1 and normal_utils.get_barrier_state(1) != 0:
+        if read_no == 1:
             self.gate_type = 1
-            print("道闸1已经打开")
-            return
-        if read_no == 2 and normal_utils.get_barrier_state(2) != 0:
+            if  normal_utils.get_barrier_state(1) != 0:
+                print("道闸1已经打开")
+                return
+        if read_no == 2:
             self.gate_type = 2
-            print("道闸1已经打开")
-            return
+            if  normal_utils.get_barrier_state(2) != 0:
+                print("道闸2已经打开")
+                return
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
         if ret:
@@ -424,9 +427,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if self.__set_barrier(self.gate_type, 1):
                 self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
                 self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
-                print("道闸1打开成功")
+                print("道闸%s打开成功" % self.gate_type)
                 str1 = """请上磅"""
-                self.speaker.Speak(str1)
+                # self.speaker.Speak(str1)
                 self.weight_working = 1
             else:
                 print("道闸%s打开失败" % self.gate_type)
@@ -735,7 +738,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 print("保存成功！")
                 str1 = """过磅已完成，请下磅"""
-                self.speaker.Speak(str1)
+                # self.speaker.Speak(str1)
             else:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
                 print("保存失败！")
