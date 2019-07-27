@@ -284,7 +284,10 @@ def set_barrier_gate(num, state):
                     if not read[2] & 2 ** (num - 1) == 2 ** (num - 1):
                         success = True
                 if success:
-                    print('open barrier %s success' % num)
+                    if state:
+                        print('open barrier %s success' % num)
+                    else:
+                        print('close barrier %s success' % num)
                     break
             print('set_barrier_gate spend time %s second.' % (time.time() - start))
         else:
@@ -325,7 +328,7 @@ def get_barrier_state(num):
                 my_serial.write(send_msg)
                 retry += 1
                 msg = my_serial.read(5)
-                if msg and msg[1] == 85:
+                if msg and msg[0] == 85:
                     print('get barrier %s state success' % num)
                     success = True
                     break

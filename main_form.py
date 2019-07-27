@@ -95,8 +95,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.printPushButton.clicked.connect(self.print_data)
         self.CarComboBox.editTextChanged.connect(self.update_weight)
         self.extraWeightSpinBox.valueChanged.connect(self.calculate)
-        self.barrier1PushButton.clicked.connect(self.__set_barrier1)
-        self.barrier2PushButton.clicked.connect(self.__set_barrier2)
+        self.barrier1PushButton.clicked.connect(partial(self.__set_barrier1, -1))
+        self.barrier2PushButton.clicked.connect(partial(self.__set_barrier2, -1))
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.weightLcdNumber.display(0)
@@ -154,7 +154,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         res = False
         if operate == -1:
             state = normal_utils.get_barrier_state(1)
-            # print(state)
             if state == 0:
                 if normal_utils.open_barrier_gate(1):
                     self.barrier1PushButton.setText('关闭道闸1')
@@ -167,7 +166,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if normal_utils.close_barrier_gate(1):
                 if self.gate_type == 2:
                     self._timer_barrier.stop()
-                    self.weight_working = 0
+                    # self.weight_working = 0
                 self.barrier1PushButton.setText('打开道闸1')
                 self._timer_barrier.stop()
                 res = True
@@ -197,14 +196,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if normal_utils.close_barrier_gate(2):
                 if self.gate_type == 1:
                     self._timer_barrier.stop()
-                    self.weight_working = 0
+                    # self.weight_working = 0
                 self.barrier2PushButton.setText('打开道闸2')
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(2):
                 self.barrier2PushButton.setText('关闭道闸2')
                 res = True
-        print(res)
         return res
 
     def calculate(self):
@@ -408,7 +406,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         # print("read_no = %s and card_no = %s" % (read_no, card_no))
         if card_no == str(-1):
             return
-        if self.weightLcdNumber.value() > 10:
+        if self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
             logging.warning("正在称重请稍候")
             return
         if read_no == 1:
@@ -427,8 +425,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             # print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
             self.CarComboBox.setCurrentText(ret[0]['car_no'])
             if self.__set_barrier(self.gate_type, 1):
-                self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
-                self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
+                self.__set_barrier(self.gate_type, 0)
+                # self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
+                # self._timer_barrier.start(NormalParam.BARRIER_DELAY)  # 设置定时间隔为60s，并启动定时器
                 print("道闸%s打开成功" % self.gate_type)
                 try:
                     str1 = """请上磅"""
@@ -455,7 +454,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working == 1 and not normal_utils.get_barrier_state(0 - self.gate_type):
+                    if self.weight_working == 1 and normal_utils.get_barrier_state(-2 - self.gate_type):
                         if normal_utils.get_barrier_state(self.gate_type) == 1:
                             if self.__set_barrier(self.gate_type, 0):
                                 logging.info("道闸%s关闭成功" % self.gate_type)
@@ -466,15 +465,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                         self.save_data()
                         self.weight_working = 2
                         if self.__set_barrier(3-self.gate_type, 1):
-                            self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
-                            self._timer_barrier.start(NormalParam.BARRIER_DELAY)
-                elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= 10:
+                            self.__set_barrier(3 - self.gate_type, 0)
+                            # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
+                            # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
+                elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
                     self.pickBalanceButton.setEnabled(False)
                     if self.weight_working == 2 and self.__set_barrier(3-self.gate_type, 0):
                         logging.info("道闸%s关闭成功" % (3-self.gate_type))
-                        self._timer_barrier.stop()
+                        # self._timer_barrier.stop()
                         self.weight_working = 0
                 else:
                     self.stateLabel.setText(u'读取中……')
@@ -984,10 +984,10 @@ class CardThread(QThread):
         else:
             self._serial = serial.Serial(self.com_interface, self.com_baud_rate, timeout=0.5)
         if self._serial.isOpen():
-            logging.info("open success")
+            logging.info("CardThread open success %s" % self.read_no)
         else:
-            logging.error("open failed")
-            raise Exception(u'%s 串口打开失败！' % 'COM5')
+            logging.error("CardThread open failed")
+            raise Exception(u'%s 串口打开失败！' % self.com_interface)
 
     def run(self):
         """
@@ -1014,7 +1014,7 @@ class CardThread(QThread):
                 card_no = com_interface_utils.read_card_no(self._serial)
                 if card_no == NormalParam.ERROR_CARD_NO:
                     time.sleep(NormalParam.COM_OPEN_DURATION)
-                    break
+                    continue
                 self.trigger.emit((self.read_no, is_open, str(card_no)))
                 time.sleep(NormalParam.COM_READ_DURATION / 10)
             self.trigger.emit((self.read_no, 0, str(NormalParam.ERROR_CARD_NO)))
