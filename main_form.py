@@ -454,20 +454,27 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working == 1 and normal_utils.get_barrier_state(-2 - self.gate_type):
-                        if normal_utils.get_barrier_state(self.gate_type) == 1:
-                            if self.__set_barrier(self.gate_type, 0):
-                                logging.info("道闸%s关闭成功" % self.gate_type)
-                            else:
-                                logging.warning("道闸%s关闭失败" % self.gate_type)
-                            self._timer_barrier.stop()
-                        self.choose_weight()
-                        self.save_data()
-                        self.weight_working = 2
-                        if self.__set_barrier(3-self.gate_type, 1):
-                            self.__set_barrier(3 - self.gate_type, 0)
-                            # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
-                            # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
+                    if self.weight_working == 1:
+                        if normal_utils.get_barrier_state(-2 - self.gate_type):
+                            if normal_utils.get_barrier_state(self.gate_type) == 1:
+                                if self.__set_barrier(self.gate_type, 0):
+                                    logging.info("道闸%s关闭成功" % self.gate_type)
+                                else:
+                                    logging.warning("道闸%s关闭失败" % self.gate_type)
+                                self._timer_barrier.stop()
+                            self.choose_weight()
+                            self.save_data()
+                            self.weight_working = 2
+                            if self.__set_barrier(3-self.gate_type, 1):
+                                self.__set_barrier(3 - self.gate_type, 0)
+                                # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
+                                # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
+                        else:
+                            try:
+                                str1 = """请注意，未完全上榜"""
+                                self.speaker.Speak(str1)
+                            except Exception as e:
+                                logging.error(e)
                 elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
