@@ -161,6 +161,10 @@ if __name__ == "__main__":
     # myshow.show()
     # sys.exit(app.exec_())
     # ret = normal_utils.get_barrier_state(1)
-    ret = normal_utils.close_barrier_gate(1)
+    # ret = normal_utils.close_barrier_gate(1)
     # ret = normal_utils.open_barrier_gate(2)
-    print(ret)
+    # print(ret)
+    num = 1
+    a = 15
+    print((a ^ 15) & 2 ** (num - 1) == 2 ** (num - 1))
+    # print(2 ** (num-1))

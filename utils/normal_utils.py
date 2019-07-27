@@ -250,6 +250,116 @@ def set_barrier_gate(num, state):
     :param state:
     :return:
     """
+    open_msg_1 = b"\x55\x01\x01\x00\x57"
+    close_msg_1 = b"\x55\x02\x01\x00\x58"
+    open_msg_2 = b"\x55\x01\x02\x00\x58"
+    close_msg_2 = b"\x55\x02\x02\x00\x59"
+    msg = open_msg_1
+    if num == 1 and state == 0:
+        msg = close_msg_1
+    elif num == 2 and state == 1:
+        msg = open_msg_2
+    elif num == 2 and state == 0:
+        msg = close_msg_2
+    db = EasySqlite(r'rmf/db/balance.db')
+    ret = db.query("select barrier_com from t_com_auto where id = 1")
+    if not ret:
+        logging.error('获取道闸串口信息失败！')
+        return -1
+    port = 'COM%s' % ret[0]['barrier_com']
+    success = False
+    try:
+        my_serial = serial.Serial(port, 9600, timeout=0.5)
+        if my_serial.isOpen():
+            start = time.time()
+            retry = 0
+            while retry < 5:
+                my_serial.write(msg)
+                retry += 1
+                read = my_serial.read(5)
+                if state == 1:
+                    if read[2] & 2 ** (num - 1) == 2 ** (num - 1):
+                        success = True
+                else:
+                    if not read[2] & 2 ** (num - 1) == 2 ** (num - 1):
+                        success = True
+                if success:
+                    print('open barrier %s success' % num)
+                    break
+            print('set_barrier_gate spend time %s second.' % (time.time() - start))
+        else:
+            print("set_barrier_gate fialed num: %s -- state: %s." % (num, state))
+        my_serial.close()
+    except Exception as e:
+        print('set_barrier_gate error: ' + str(e.__str__()))
+    return success
+
+
+def get_barrier_state(num):
+    """
+    获取道闸状态
+    ****
+    例如接收到如下返回帧:0x55  0xF0  0x05  0x0E  0x58
+    第三字节(参数0):=0x05=0101=Y3 Y2 Y1 Y0.表示Y3,Y1断开.Y2,Y0吸合
+    第四字节(参数1):=0x0E=1110=X3 X2 X1 X0.表示X3,X2,X1没信号,X0有信号
+    ****
+    :param state:
+    :return:-1 读取失败；0 关闭；1 打开
+    """
+    send_msg = b"\x55\x04\x00\x00\x59"
+    db = EasySqlite(r'rmf/db/balance.db')
+    ret = db.query("select barrier_com from t_com_auto where id = 1")
+    if not ret:
+        logging.error('获取道闸串口信息失败！')
+        return -1
+    port = 'COM%s' % ret[0]['barrier_com']
+    msg = ''
+    success = False
+    try:
+        my_serial = serial.Serial(port, 9600, timeout=0.5)
+        if my_serial.isOpen():
+            start = time.time()
+            retry = 0
+            while retry < 5:
+                print('send msg')
+                my_serial.write(send_msg)
+                retry += 1
+                msg = my_serial.read(5)
+                if msg and msg[1] == 85:
+                    print('get barrier %s state success' % num)
+                    success = True
+                    break
+            print('get_barrier_state spend time %s second.' % (time.time() - start))
+        else:
+            print("get_barrier_state fialed num: %s." % num)
+        my_serial.close()
+    except Exception as e:
+        print('get_barrier_state error: ' + str(e.__str__()))
+    if num > 0:
+        if success:
+            if len(msg) > 2 and msg[2] & 2 ** (num - 1) == 2 ** (num - 1):
+                return 1
+            else:
+                return 0
+        else:
+            return -1
+    else:
+        num = abs(num)
+        if success:
+            if len(msg) > 3 and (msg[3] ^ 15) & 2 ** (num - 1) == 2 ** (num - 1):
+                return 0
+            else:
+                return 1
+        else:
+            return -1
+
+
+def set_barrier_gate1(num, state):
+    """
+    设置道闸
+    :param state:
+    :return:
+    """
     open_msg_1 = b"\x01\x05\x00\x00\xFF\x00\x8C\x3A"
     close_msg_1 = b"\x01\x05\x00\x00\x00\x00\xCD\xCA"
     open_msg_2 = b"\x01\x05\x00\x01\xFF\x00\xDD\xFA"
@@ -289,7 +399,7 @@ def set_barrier_gate(num, state):
     return success
 
 
-def get_barrier_state(num):
+def get_barrier_state1(num):
     """
     获取道闸状态
     :param state:

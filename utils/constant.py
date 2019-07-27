@@ -44,6 +44,8 @@ class NormalParam:
     ERROR_CARD_NO = int(ConfigParser.get_item('ERROR_CARD_NO', -1))
     # 道闸延迟关闭时长 ms
     BARRIER_DELAY = int(ConfigParser.get_item('BARRIER_DELAY', 1000))
+    # 地磅最低有效重量 kg
+    BALANCE_LOW = int(ConfigParser.get_item('BALANCE_LOW', 10))
 
 
 if __name__ == '__main__':

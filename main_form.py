@@ -413,12 +413,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             return
         if read_no == 1:
             self.gate_type = 1
-            if  normal_utils.get_barrier_state(1) != 0:
+            if normal_utils.get_barrier_state(1) != 0:
                 print("道闸1已经打开")
                 return
         if read_no == 2:
             self.gate_type = 2
-            if  normal_utils.get_barrier_state(2) != 0:
+            if normal_utils.get_barrier_state(2) != 0:
                 print("道闸2已经打开")
                 return
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
@@ -430,8 +430,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
                 self._timer_barrier.start(NormalParam.COM_READ_DURATION * 1000 * 6)  # 设置定时间隔为60s，并启动定时器
                 print("道闸%s打开成功" % self.gate_type)
-                str1 = """请上磅"""
-                # self.speaker.Speak(str1)
+                try:
+                    str1 = """请上磅"""
+                    self.speaker.Speak(str1)
+                except Exception as e:
+                    logging.error(e)
                 self.weight_working = 1
             else:
                 logging.error("道闸%s打开失败" % self.gate_type)
@@ -448,11 +451,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             first = min(self._weight.keys())
             if first + NormalParam.STABLES_DURATION * 1000 < now:
                 weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
-                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > 10:
+                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working == 1:
+                    if self.weight_working == 1 and not normal_utils.get_barrier_state(0 - self.gate_type):
                         if normal_utils.get_barrier_state(self.gate_type) == 1:
                             if self.__set_barrier(self.gate_type, 0):
                                 logging.info("道闸%s关闭成功" % self.gate_type)
@@ -739,8 +742,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 logging.info("保存成功！")
-                str1 = """过磅已完成，请下磅"""
-                # self.speaker.Speak(str1)
+                try:
+                    str1 = """过磅已完成，请下磅"""
+                    self.speaker.Speak(str1)
+                except Exception as e:
+                    logging.error(e)
             else:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存失败！", QtWidgets.QMessageBox.Ok)
                 logging.warning("保存失败！")
