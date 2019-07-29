@@ -438,6 +438,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             else:
                 logging.error("道闸%s打开失败" % self.gate_type)
         else:
+            try:
+                str1 = """卡片无效"""
+                self.speaker.Speak(str1)
+            except Exception as e:
+                logging.error(e)
             logging.warning("read_no = %s and card_no = %s 没有记录" % (read_no, card_no))
 
     def check_weight_state(self):
