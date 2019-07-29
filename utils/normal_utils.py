@@ -21,18 +21,17 @@ import requests
 import json
 
 
-def stdev(sequence):
+def stdev(sequence, value):
     """
-    计算标准差
+    计算先对于value的平均偏离值
     :param sequence:
     :return:
     """
     if len(sequence) <= 1:
         return 0
     else:
-        avg = sum(sequence)/len(sequence)
-        sdsq = sum([(i - avg) ** 2 for i in sequence])
-        stdev = (sdsq / (len(sequence) - 1)) ** .5
+        sdsq = sum([abs(i - value) for i in sequence])
+        stdev = sdsq / len(sequence)
         return stdev
 
 
@@ -484,4 +483,6 @@ if __name__ == '__main__':
     # test_fun('tttt')
     # print(get_pwd_md5('kitty.'))
     # sync_data()
-    my_serial = serial.Serial('COM5', 9600, timeout=0.5)
+    # my_serial = serial.Serial('COM5', 9600, timeout=0.5)
+    aa = [20,21,22,23,21,20,20,20,24,25,21,20,23,20,20,20,20,24,20,21,22,20,20,21,19,18,20,20,20,23]
+    print(stdev(aa, 20))

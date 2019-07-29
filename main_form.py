@@ -450,7 +450,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             first = min(self._weight.keys())
             if first + NormalParam.STABLES_DURATION * 1000 < now:
                 weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
-                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
+                if normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
@@ -475,7 +475,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                 self.speaker.Speak(str1)
                             except Exception as e:
                                 logging.error(e)
-                elif normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
+                elif normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
                     self.pickBalanceButton.setEnabled(False)
