@@ -23,7 +23,7 @@ import json
 
 def stdev(sequence, value):
     """
-    计算先对于value的平均偏离值
+    计算相对于value的平均偏离值
     :param sequence:
     :return:
     """
@@ -484,5 +484,8 @@ if __name__ == '__main__':
     # print(get_pwd_md5('kitty.'))
     # sync_data()
     # my_serial = serial.Serial('COM5', 9600, timeout=0.5)
-    aa = [20,21,22,23,21,20,20,20,24,25,21,20,23,20,20,20,20,24,20,21,22,20,20,21,19,18,20,20,20,23]
-    print(stdev(aa, 20))
+    aa = [20,21,22,23,21,20,20,20,24,25,21,20,23,20,20,20,20,24,20,21,22,20,20,21,19,18,20,20,20,30]
+    avg = sum(aa) / len(aa)
+    print(avg)
+    print(stdev(aa, avg))
+    print(stdev(aa, 30))
