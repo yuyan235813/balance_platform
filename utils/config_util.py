@@ -26,7 +26,7 @@ class ConfigParser:
         key = key.lower()
         if not cls.config_dic:
             encoding = 'utf8'
-            file_path = '../conf/settings.ini'
+            file_path = 'conf/settings.ini'
             with open(file=file_path, mode='rb') as f:
                 data = f.read()
                 ret = chardet.detect(data)
