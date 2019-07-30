@@ -1530,9 +1530,13 @@
    <addaction name="qmenuQuery"/>
    <addaction name="qmenuHelp"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -1541,7 +1545,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionBalanceFormSetup">
    <property name="text">
     <string>磅单设置</string>

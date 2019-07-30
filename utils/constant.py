@@ -26,7 +26,11 @@ class NormalParam:
     """
     定义时间相关的常量
     """
-    # 读取 COM 接口延时 ms
+    # 检测是否稳定时间间隔 ms
+    CHECK_WEIGHT_STATE = int(ConfigParser.get_item('CHECK_WEIGHT_STATE', 200))
+    # 读取蓝牙读卡器接口延时 ms
+    CARD_READ_DURATION = int(ConfigParser.get_item('CARD_READ_DURATION', 10))
+    # 读取仪表接口延时 ms
     COM_READ_DURATION = int(ConfigParser.get_item('COM_READ_DURATION', 10))
     # 判断稳定时长 s
     STABLES_DURATION = int(ConfigParser.get_item('STABLES_DURATION', 5))
@@ -34,7 +38,7 @@ class NormalParam:
     STABLES_ERROR = int(ConfigParser.get_item('STABLES_ERROR', 0))
     # 检测称重仪表连接时长 s
     COM_CHECK_CONN_DURATION = int(ConfigParser.get_item('COM_CHECK_CONN_DURATION', 3))
-    # 检测称重仪表连接时长 s
+    # COM端口打开重试时长 s
     COM_OPEN_DURATION = int(ConfigParser.get_item('COM_OPEN_DURATION', 3))
     # 单次读取串口重试次数
     COM_RETRY_TIMES = int(ConfigParser.get_item('COM_RETRY_TIMES', 3))
@@ -46,8 +50,8 @@ class NormalParam:
     BARRIER_DELAY = int(ConfigParser.get_item('BARRIER_DELAY', 1000))
     # 地磅最低有效重量 kg
     BALANCE_LOW = int(ConfigParser.get_item('BALANCE_LOW', 10))
-    # 检测车是否完全上磅时间间隔 s
-    BALANCE_READY_TIMES = int(ConfigParser.get_item('BALANCE_READY_TIMES', 5))
+    # 检测车是否完全上磅时间间隔 ms
+    BALANCE_READY_TIMES = int(ConfigParser.get_item('BALANCE_READY_TIMES', 5000))
 
 
 if __name__ == '__main__':

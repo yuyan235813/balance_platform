@@ -40,6 +40,7 @@ from datetime import timedelta
 from datetime import datetime
 import win32com.client
 
+
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
@@ -112,6 +113,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         # 是否需要判断完全上榜，如果为1，需要，如果为0，不需要
         self.check_balance_ready = 1
         self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        # 监控摄像头线程
+        self.thread_dict = dict()
 
     def show(self):
         """
@@ -119,7 +122,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         :return:
         """
         super().show()
-        self.thread_dict = dict()
         self.init_data()
         self.set_table_view()
         self.update_combobox()
@@ -164,11 +166,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(1):
-                if self.gate_type == 2:
-                    self._timer_barrier.stop()
+                # if self.gate_type == 2:
+                    # self._timer_barrier.stop()
                     # self.weight_working = 0
                 self.barrier1PushButton.setText('打开道闸1')
-                self._timer_barrier.stop()
+                # self._timer_barrier.stop()
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(1):
@@ -194,8 +196,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(2):
-                if self.gate_type == 1:
-                    self._timer_barrier.stop()
+                # if self.gate_type == 1:
+                #     self._timer_barrier.stop()
                     # self.weight_working = 0
                 self.barrier2PushButton.setText('打开道闸2')
                 res = True
@@ -370,12 +372,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker = COMThread()
         self._com_worker.start()
         self._weight = {}
-        self._timer = QTimer(self)  # 新建一个定时器
-        # 关联timeout信号和showTime函数，每当定时器过了指定时间间隔，就会调用showTime函数
+        self._timer = QTimer(self)
+        # 检测是否稳定时间间隔 ms
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
-        self._timer.start(NormalParam.COM_READ_DURATION*10)  # 设置定时间隔为1000ms即1s，并启动定时器
-        self._timer_barrier = QTimer(self)
+        self._timer.start(NormalParam.CHECK_WEIGHT_STATE)
+        # self._timer_barrier = QTimer(self)
+        # 检测车是否完全上磅时间间隔 s
         self._timer_check_balance = QTimer(self)
         self._timer_check_balance.timeout.connect(self.set_check_balance_ready)
         self.active_video()
@@ -475,7 +478,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                     logging.info("道闸%s关闭成功" % self.gate_type)
                                 else:
                                     logging.warning("道闸%s关闭失败" % self.gate_type)
-                                self._timer_barrier.stop()
+                                # self._timer_barrier.stop()
                             self.choose_weight()
                             self.save_data()
                             self.weight_working = 2
@@ -1039,7 +1042,7 @@ class CardThread(QThread):
                     time.sleep(NormalParam.COM_OPEN_DURATION)
                     continue
                 self.trigger.emit((self.read_no, is_open, str(card_no)))
-                time.sleep(NormalParam.COM_READ_DURATION / 10)
+                time.sleep(NormalParam.CARD_READ_DURATION / 1000)
             self.trigger.emit((self.read_no, 0, str(NormalParam.ERROR_CARD_NO)))
             self._is_conn = False
         try:
@@ -1115,7 +1118,7 @@ class COMThread(QThread):
                 while not self.stoped:
                     weight = 100
                     self.trigger.emit(1, weight)
-                    time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                    time.sleep(NormalParam.COM_READ_DURATION / 1000)
                 self.trigger.emit(0, 0)
             else:
                 while not self._is_conn and not self.stoped:
@@ -1136,7 +1139,7 @@ class COMThread(QThread):
                         time.sleep(NormalParam.COM_OPEN_DURATION)
                         break
                     self.trigger.emit(is_open, weight)
-                    time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                    time.sleep(NormalParam.COM_READ_DURATION / 1000)
                 self.trigger.emit(0, 0)
                 self._is_conn = False
         try:
