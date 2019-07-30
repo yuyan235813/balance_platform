@@ -40,7 +40,6 @@ from datetime import timedelta
 from datetime import datetime
 import win32com.client
 
-
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
     u"""
     mainform
@@ -379,7 +378,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._timer_barrier = QTimer(self)
         self._timer_check_balance = QTimer(self)
         self._timer_check_balance.timeout.connect(self.set_check_balance_ready)
-        self._timer_check_balance.start(NormalParam.BALANCE_READY_TIMES)
         self.active_video()
 
     def set_check_balance_ready(self):
@@ -470,8 +468,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working == 1:
-                        if self.check_balance_ready and normal_utils.get_barrier_state(-2 - self.gate_type):
+                    if self.weight_working == 1 and self.check_balance_ready:
+                        if normal_utils.get_barrier_state(-2 - self.gate_type):
                             if normal_utils.get_barrier_state(self.gate_type) == 1:
                                 if self.__set_barrier(self.gate_type, 0):
                                     logging.info("道闸%s关闭成功" % self.gate_type)
@@ -485,8 +483,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                 self.__set_barrier(3 - self.gate_type, 0)
                                 # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
                                 # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
-                        elif self.check_balance_ready:
+                        else:
                             try:
+                                self.check_balance_ready = 0
+                                self._timer_check_balance.start(NormalParam.BALANCE_READY_TIMES)
                                 str1 = """请注意，未完全上榜"""
                                 self.speaker.Speak(str1)
                             except Exception as e:
