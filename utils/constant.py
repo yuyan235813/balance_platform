@@ -46,6 +46,8 @@ class NormalParam:
     BARRIER_DELAY = int(ConfigParser.get_item('BARRIER_DELAY', 1000))
     # 地磅最低有效重量 kg
     BALANCE_LOW = int(ConfigParser.get_item('BALANCE_LOW', 10))
+    # 检测车是否完全上磅时间间隔 s
+    BALANCE_READY_TIMES = int(ConfigParser.get_item('BALANCE_READY_TIMES', 5))
 
 
 if __name__ == '__main__':

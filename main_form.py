@@ -52,7 +52,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.parent = parent
         self.setupUi(self)
         self.setWindowTitle(u'飞然称重系统----当前用户：' + self.user_name)
-        self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
         self._barrier_worker1 = None
@@ -111,6 +110,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weight_working = 0
         # 判断进出口, 1 为gate1进，2为gate2进
         self.gate_type = 1
+        # 是否需要判断完全上榜，如果为1，需要，如果为0，不需要
+        self.check_balance_ready = 1
         self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
 
     def show(self):
@@ -376,7 +377,17 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION*10)  # 设置定时间隔为1000ms即1s，并启动定时器
         self._timer_barrier = QTimer(self)
+        self._timer_check_balance = QTimer(self)
+        self._timer_check_balance.timeout.connect(self.set_check_balance_ready)
+        self._timer_check_balance.start(NormalParam.BALANCE_READY_TIMES)
         self.active_video()
+
+    def set_check_balance_ready(self):
+        """
+        设置是否需要判断车辆完全上磅
+        :return:
+        """
+        self.check_balance_ready = 1 - self.check_balance_ready
 
     def show_lcd(self, is_open, weight):
         u"""
@@ -460,7 +471,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
                     if self.weight_working == 1:
-                        if normal_utils.get_barrier_state(-2 - self.gate_type):
+                        if self.check_balance_ready and normal_utils.get_barrier_state(-2 - self.gate_type):
                             if normal_utils.get_barrier_state(self.gate_type) == 1:
                                 if self.__set_barrier(self.gate_type, 0):
                                     logging.info("道闸%s关闭成功" % self.gate_type)
@@ -474,7 +485,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                 self.__set_barrier(3 - self.gate_type, 0)
                                 # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
                                 # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
-                        else:
+                        elif self.check_balance_ready:
                             try:
                                 str1 = """请注意，未完全上榜"""
                                 self.speaker.Speak(str1)
