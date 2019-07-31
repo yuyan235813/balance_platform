@@ -106,7 +106,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.balance_opt_status = 0
         # 是否需要退出确认
         self.close_confirm = True
-        # 无人值守是否正在称重，如果为 1，车在榜上并已稳定, 如果为 2，等待下磅，如果为 0，,榜上没有东西
+        # 无人值守是否正在称重，如果为 1，车在榜上并已稳定，如果为 0，榜上没有东西
         self.weight_working = 0
         # 判断进出口, 1 为gate1进，2为gate2进
         self.gate_type = 1
@@ -126,6 +126,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.set_table_view()
         self.update_combobox()
         self.__init_permission()
+        self.setStatusTip("启动完毕！")
 
     def show_supplier(self):
         supply_query_sql = 'select supplier_name from t_supplier'
@@ -166,11 +167,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(1):
-                # if self.gate_type == 2:
-                    # self._timer_barrier.stop()
-                    # self.weight_working = 0
                 self.barrier1PushButton.setText('打开道闸1')
-                # self._timer_barrier.stop()
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(1):
@@ -196,9 +193,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(2):
-                # if self.gate_type == 1:
-                #     self._timer_barrier.stop()
-                    # self.weight_working = 0
                 self.barrier2PushButton.setText('打开道闸2')
                 res = True
         elif operate == 1:
@@ -419,27 +413,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if card_no == str(-1):
             return
         if self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
-            logging.warning("正在称重请稍候")
+            self.setStatusTip("正在称重请稍候!")
             return
-        if read_no == 1:
-            self.gate_type = 1
-            if normal_utils.get_barrier_state(1) != 0:
-                print("道闸1已经打开")
-                return
-        if read_no == 2:
-            self.gate_type = 2
-            if normal_utils.get_barrier_state(2) != 0:
-                print("道闸2已经打开")
-                return
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
         if ret:
             # print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
             self.CarComboBox.setCurrentText(ret[0]['car_no'])
             if self.__set_barrier(self.gate_type, 1):
-                self.__set_barrier(self.gate_type, 0)
-                # self._timer_barrier.timeout.connect(partial(self.__set_barrier, self.gate_type, 0))
-                # self._timer_barrier.start(NormalParam.BARRIER_DELAY)  # 设置定时间隔为60s，并启动定时器
                 print("道闸%s打开成功" % self.gate_type)
                 try:
                     str1 = """请上磅"""
@@ -472,20 +453,13 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
                     if self.weight_working == 1 and self.check_balance_ready:
-                        if normal_utils.get_barrier_state(-2 - self.gate_type):
-                            if normal_utils.get_barrier_state(self.gate_type) == 1:
-                                if self.__set_barrier(self.gate_type, 0):
-                                    logging.info("道闸%s关闭成功" % self.gate_type)
-                                else:
-                                    logging.warning("道闸%s关闭失败" % self.gate_type)
-                                # self._timer_barrier.stop()
+                        if normal_utils.get_barrier_state((-2 - self.gate_type, self.gate_type)) == [1, 1]:
+                            start = time.time() * 1000
                             self.choose_weight()
                             self.save_data()
-                            self.weight_working = 2
-                            if self.__set_barrier(3-self.gate_type, 1):
-                                self.__set_barrier(3 - self.gate_type, 0)
-                                # self._timer_barrier.timeout.connect(partial(self.__set_barrier, 3-self.gate_type, 0))
-                                # self._timer_barrier.start(NormalParam.BARRIER_DELAY)
+                            self.weight_working = 0
+                            self.__set_barrier(3-self.gate_type, 1)
+                            logging.info("=========保存数据耗时: %s 毫秒" % time.time() * 1000 - start)
                         else:
                             try:
                                 self.check_balance_ready = 0
@@ -494,14 +468,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                                 self.speaker.Speak(str1)
                             except Exception as e:
                                 logging.error(e)
-                elif normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
-                    self.stateLabel.setText(u'读取中……')
-                    self.stateLabel.setStyleSheet('color:black')
-                    self.pickBalanceButton.setEnabled(False)
-                    if self.weight_working == 2 and self.__set_barrier(3-self.gate_type, 0):
-                        logging.info("道闸%s关闭成功" % (3-self.gate_type))
-                        # self._timer_barrier.stop()
-                        self.weight_working = 0
+                # elif normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
+                #     self.stateLabel.setText(u'读取中……')
+                #     self.stateLabel.setStyleSheet('color:black')
+                #     self.pickBalanceButton.setEnabled(False)
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -671,9 +641,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         更新重量
         :return:
         """
-        # if len(car_no) != 7:
-        #     self.leatherWeightLcdNumber.display(0)
-        #     return
         if self.balanceNoBlael.text():
             return
         self.balanceNoBlael.setText('')
