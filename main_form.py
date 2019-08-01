@@ -453,7 +453,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
                     if self.weight_working == 1 and self.check_balance_ready:
-                        if normal_utils.get_barrier_state((-2 - self.gate_type, self.gate_type)) == [1, 1]:
+                        if normal_utils.get_barrier_state(-2 - self.gate_type) == 1:
                             start = time.time() * 1000
                             self.choose_weight()
                             self.save_data()
