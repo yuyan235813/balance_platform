@@ -1000,12 +1000,15 @@ class CardThread(QThread):
                     time.sleep(NormalParam.COM_OPEN_DURATION)
             while not self.stoped and self._serial.is_open:
                 is_open = 1
-                card_no = com_interface_utils.read_card_no(self._serial)
-                if card_no == NormalParam.ERROR_CARD_NO:
-                    time.sleep(NormalParam.COM_OPEN_DURATION)
-                    continue
-                self.trigger.emit((self.read_no, is_open, str(card_no)))
-                time.sleep(NormalParam.CARD_READ_DURATION / 1000)
+                try:
+                    card_no = com_interface_utils.read_card_no(self._serial)
+                    if card_no == NormalParam.ERROR_CARD_NO:
+                        time.sleep(NormalParam.COM_OPEN_DURATION)
+                        continue
+                    self.trigger.emit((self.read_no, is_open, str(card_no)))
+                    time.sleep(NormalParam.CARD_READ_DURATION / 1000)
+                except Exception as e:
+                    logging.error(e)
             self.trigger.emit((self.read_no, 0, str(NormalParam.ERROR_CARD_NO)))
             self._is_conn = False
         try:
@@ -1097,12 +1100,15 @@ class COMThread(QThread):
                         time.sleep(NormalParam.COM_OPEN_DURATION)
                 while not self.stoped and self._serial.is_open:
                     is_open = 1
-                    weight = com_interface_utils.read_com_interface(self._serial)
-                    if weight == NormalParam.ERROR_WEIGHT:
-                        time.sleep(NormalParam.COM_OPEN_DURATION)
-                        break
-                    self.trigger.emit(is_open, weight)
-                    time.sleep(NormalParam.COM_READ_DURATION / 1000)
+                    try:
+                        weight = com_interface_utils.read_com_interface(self._serial)
+                        if weight == NormalParam.ERROR_WEIGHT:
+                            time.sleep(NormalParam.COM_OPEN_DURATION)
+                            break
+                        self.trigger.emit(is_open, weight)
+                        time.sleep(NormalParam.COM_READ_DURATION / 1000)
+                    except Exception as e:
+                        logging.error(e)
                 self.trigger.emit(0, 0)
                 self._is_conn = False
         try:
