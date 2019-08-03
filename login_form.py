@@ -63,7 +63,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                                       r"MyNewkey")
                 usetime = winreg.QueryValue(keys, "ValueName")
                 if int(usetime) > 0:
-                    if int(usetime) > 100:
+                    if int(usetime) > 30:
                         QtWidgets.QMessageBox.warning(self, '本程序', "无效使用次数！", QtWidgets.QMessageBox.Ok)
                         exit()
                     QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)
@@ -74,8 +74,8 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                     exit()
             else:
                 newKey = winreg.CreateKey(key, "MyNewkey")
-                winreg.SetValue(newKey, "ValueName", winreg.REG_SZ, "98")
-                QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件99次！", QtWidgets.QMessageBox.Ok)
+                winreg.SetValue(newKey, "ValueName", winreg.REG_SZ, "30")
+                QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件30次！", QtWidgets.QMessageBox.Ok)
         else:
             if Psyunew3.YReadString(outstring, 0, mylen, b'54886961', b'69615488', DevicePath) != 0:
                 QtWidgets.QMessageBox.warning(self, '本程序', "加密狗密钥错误！", QtWidgets.QMessageBox.Ok)
