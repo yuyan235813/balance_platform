@@ -1261,7 +1261,7 @@ class SpeakerThread(QThread):
                     self.speaker.Speak(self.words)
                 except Exception as e:
                     logging.error(e)
-            self.sleep(0.01)
+            self.msleep(10)
 
     def stop(self):
         """
