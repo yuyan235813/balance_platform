@@ -448,7 +448,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                             self.save_data()
                             self.weight_working = 0
                             self.__set_barrier(3 - self.gate_type, 1)
-                            logging.info("=========保存数据耗时: %s 毫秒" % time.time() * 1000 - start)
+                            logging.info("=========保存数据耗时: %s 毫秒" % str(time.time() * 1000 - start))
                         else:
                             try:
                                 self._weight.clear()
@@ -1216,6 +1216,7 @@ class SpeakerThread(QThread):
         """
         super(SpeakerThread, self).__init__()
         self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        self.speaker.Speak("启动成功")
         self.words = ""
         self.mutex = QMutex()
         self.do_speak = False
@@ -1240,7 +1241,7 @@ class SpeakerThread(QThread):
             if self.do_speak:
                 self.do_speak = False
                 try:
-                    self.speaker.speak(self.words)
+                    self.speaker.Speak(self.words)
                 except Exception as e:
                     logging.error(e)
             self.sleep(0.01)
