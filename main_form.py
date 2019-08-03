@@ -158,19 +158,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             state = normal_utils.get_barrier_state(1)
             if state == 0:
                 if normal_utils.open_barrier_gate(1):
-                    self.barrier1PushButton.setText('关闭道闸1')
                     res = True
             elif state == 1:
                 if normal_utils.close_barrier_gate(1):
-                    self.barrier1PushButton.setText('打开道闸1')
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(1):
-                self.barrier1PushButton.setText('打开道闸1')
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(1):
-                self.barrier1PushButton.setText('关闭道闸1')
                 res = True
         return res
 
@@ -184,19 +180,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             state = normal_utils.get_barrier_state(2)
             if state == 0:
                 if normal_utils.open_barrier_gate(2):
-                    self.barrier2PushButton.setText('关闭道闸2')
                     res = True
             elif state == 1:
                 if normal_utils.close_barrier_gate(2):
-                    self.barrier2PushButton.setText('打开道闸2')
                     res = True
         elif operate == 0:
             if normal_utils.close_barrier_gate(2):
-                self.barrier2PushButton.setText('打开道闸2')
                 res = True
         elif operate == 1:
             if normal_utils.open_barrier_gate(2):
-                self.barrier2PushButton.setText('关闭道闸2')
                 res = True
         return res
 
