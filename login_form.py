@@ -74,8 +74,8 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                     exit()
             else:
                 newKey = winreg.CreateKey(key, "MyNewkey")
-                winreg.SetValue(newKey, "ValueName", winreg.REG_SZ, "98")
-                QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件99次！", QtWidgets.QMessageBox.Ok)
+                winreg.SetValue(newKey, "ValueName", winreg.REG_SZ, "30")
+                QtWidgets.QMessageBox.warning(self, '本程序', "未检测到加密狗，你可以使用本软件30次！", QtWidgets.QMessageBox.Ok)
         else:
             if Psyunew3.YReadString(outstring, 0, mylen, b'cfcf3456', b'3456cfcf', DevicePath) != 0:
                 QtWidgets.QMessageBox.warning(self, '本程序', "加密狗密钥错误！", QtWidgets.QMessageBox.Ok)
