@@ -603,15 +603,15 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         self.printPushButton.clicked.connect(self.print_data)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
-        self.image_detail_dialog = ImageDetailDialog()
-        self.graphicsView_1.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_2.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_3.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_4.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_5.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_6.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_7.doubleClicked.connect(self.image_detail_dialog.show)
-        self.graphicsView_8.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.image_detail_dialog = ImageDetailDialog()
+        # self.graphicsView_1.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_2.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_3.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_4.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_5.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_6.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_7.doubleClicked.connect(self.image_detail_dialog.show)
+        # self.graphicsView_8.doubleClicked.connect(self.image_detail_dialog.show)
         self.parent=parent
 
     def show(self, column):
@@ -657,29 +657,29 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         self.receiverComboBox.setCurrentText(str(list(data_list[0].values())[10]))
         self.supplierComboBox.setCurrentText(str(list(data_list[0].values())[11]))
         self.operatorLineEdit_4.setText(str(list(data_list[0].values())[12]))
-        count = 0
-        while (count < 4):
-            count = count + 1
-            path1 = str(list(data_list[0].values())[13])+'0'+str(count)+'.png'
-            path2 = str(list(data_list[0].values())[14]) + '0' + str(count) + '.png'
-            if os.path.isfile(path1):
-                if count==1:
-                    show_image(path1, self.graphicsView_1)
-                if count == 2:
-                    show_image(path1, self.graphicsView_2)
-                if count == 3:
-                    show_image(path1, self.graphicsView_3)
-                if count == 4:
-                    show_image(path1, self.graphicsView_4)
-            if os.path.isfile(path2):
-                if count==1:
-                    show_image(path2, self.graphicsView_5)
-                if count == 2:
-                    show_image(path2, self.graphicsView_6)
-                if count == 3:
-                    show_image(path2, self.graphicsView_7)
-                if count == 4:
-                    show_image(path2, self.graphicsView_8)
+        # count = 0
+        # while (count < 4):
+        #     count = count + 1
+        #     path1 = str(list(data_list[0].values())[13])+'0'+str(count)+'.png'
+        #     path2 = str(list(data_list[0].values())[14]) + '0' + str(count) + '.png'
+        #     if os.path.isfile(path1):
+        #         if count==1:
+        #             show_image(path1, self.graphicsView_1)
+        #         if count == 2:
+        #             show_image(path1, self.graphicsView_2)
+        #         if count == 3:
+        #             show_image(path1, self.graphicsView_3)
+        #         if count == 4:
+        #             show_image(path1, self.graphicsView_4)
+        #     if os.path.isfile(path2):
+        #         if count==1:
+        #             show_image(path2, self.graphicsView_5)
+        #         if count == 2:
+        #             show_image(path2, self.graphicsView_6)
+        #         if count == 3:
+        #             show_image(path2, self.graphicsView_7)
+        #         if count == 4:
+        #             show_image(path2, self.graphicsView_8)
 
     def __init_permissions(self):
         """
@@ -745,37 +745,37 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         delete_sql = 'delete from t_balance where  balance_id = ?'
         ret_query = self.db.update
         data_list = self.db.query(query_sql, [int(balance_id)])
-        count = 0
-        while (count < 4):
-            count = count + 1
-            path1 = str(list(data_list[0].values())[0]) + '0' + str(count) + '.png'
-            path2 = str(list(data_list[0].values())[1]) + '0' + str(count) + '.png'
-            if os.path.isfile(path1):
-                if count == 1:
-                    if os.path.exists(path1):
-                        os.remove(path1)
-                if count == 2:
-                    if os.path.exists(path1):
-                        os.remove(path1)
-                if count == 3:
-                    if os.path.exists(path1):
-                        os.remove(path1)
-                if count == 4:
-                    if os.path.exists(path1):
-                        os.remove(path1)
-            if os.path.isfile(path2):
-                if count == 1:
-                    if os.path.exists(path2):
-                        os.remove(path2)
-                if count == 2:
-                    if os.path.exists(path2):
-                        os.remove(path2)
-                if count == 3:
-                    if os.path.exists(path2):
-                        os.remove(path2)
-                if count == 4:
-                    if os.path.exists(path2):
-                        os.remove(path2)
+        # count = 0
+        # while (count < 4):
+        #     count = count + 1
+        #     path1 = str(list(data_list[0].values())[0]) + '0' + str(count) + '.png'
+        #     path2 = str(list(data_list[0].values())[1]) + '0' + str(count) + '.png'
+        #     if os.path.isfile(path1):
+        #         if count == 1:
+        #             if os.path.exists(path1):
+        #                 os.remove(path1)
+        #         if count == 2:
+        #             if os.path.exists(path1):
+        #                 os.remove(path1)
+        #         if count == 3:
+        #             if os.path.exists(path1):
+        #                 os.remove(path1)
+        #         if count == 4:
+        #             if os.path.exists(path1):
+        #                 os.remove(path1)
+        #     if os.path.isfile(path2):
+        #         if count == 1:
+        #             if os.path.exists(path2):
+        #                 os.remove(path2)
+        #         if count == 2:
+        #             if os.path.exists(path2):
+        #                 os.remove(path2)
+        #         if count == 3:
+        #             if os.path.exists(path2):
+        #                 os.remove(path2)
+        #         if count == 4:
+        #             if os.path.exists(path2):
+        #                 os.remove(path2)
         ret = self.db.update(delete_sql, [int(balance_id)])
         if ret:
             QMessageBox.information(self, u'本程序', u'删除成功!', QMessageBox.Ok)
@@ -807,26 +807,26 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         self.p = subprocess.Popen(cmd_str)
 
 
-class ImageDetailDialog(QDialog, Ui_imageDetailDialog):
-    """
-    图片查看
-    """
-    def __init__(self):
-        super(ImageDetailDialog, self).__init__()
-        self.setupUi(self)
-        self.desktop = QApplication.desktop()
-        self.setFixedSize(self.desktop.width(), self.desktop.height());
-        self.setWindowModality(Qt.ApplicationModal)
-
-    def show(self, path):
-        """
-        显示界面
-        :param path:
-        :return:
-        """
-        if os.path.exists(path):
-            super(ImageDetailDialog, self).show()
-            show_image(path, self.graphicsView_1, True)
+# class ImageDetailDialog(QDialog, Ui_imageDetailDialog):
+#     """
+#     图片查看
+#     """
+#     def __init__(self):
+#         super(ImageDetailDialog, self).__init__()
+#         self.setupUi(self)
+#         self.desktop = QApplication.desktop()
+#         self.setFixedSize(self.desktop.width(), self.desktop.height());
+#         self.setWindowModality(Qt.ApplicationModal)
+#
+#     def show(self, path):
+#         """
+#         显示界面
+#         :param path:
+#         :return:
+#         """
+#         if os.path.exists(path):
+#             super(ImageDetailDialog, self).show()
+#             show_image(path, self.graphicsView_1, True)
 
 
 if __name__ == '__main__':

@@ -78,6 +78,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.permission_form.permission_changed.connect(self.__init_permission)
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
+        self.actionHelp.triggered.connect(self.open_help)
         self.extraWeightSpinBox.setValue(0)
         self.settlementLcdNumber.display(0)
         self.savePushButton.clicked.connect(partial(self.save_data, True))
@@ -108,6 +109,14 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.set_table_view()
         self.update_combobox()
         self.__init_permission()
+
+    def open_help(self):
+        """
+        显示帮助手册
+        :return:
+        """
+        import webbrowser
+        webbrowser.open(u"conf/helpme.pdf")
 
     def show_supplier(self):
         supply_query_sql = 'select supplier_name from t_supplier'
@@ -168,79 +177,79 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if item in perminsion_dict.keys():
                 perminsion_dict.get(item).setEnabled(True)
 
-    def active_video(self):
-        """
-        开启摄像头
-        :return:
-        """
-        sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
-        ret = self.db.query(sql)
-        for k in self.thread_dict.keys():
-            self.thread_dict[k].stop()
-        time.sleep(0.05)
-        if ret:
-            for item in ret:
-                url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
-                camera_no = item['camera_no']
-                self.thread_dict[str(camera_no)] = VideoThread(camera_no, url)
-                # 注册信号处理函数
-                self.thread_dict[str(camera_no)].breakSignal.connect(self.show_camera)
-                # 启动线程
-                # self.shotPushButton.clicked.connect(self.shot_change)
-                self.thread_dict[str(camera_no)].shortImage.connect(self.shot_info)
-                self.thread_dict[str(camera_no)].start()
+    # def active_video(self):
+    #     """
+    #     开启摄像头
+    #     :return:
+    #     """
+    #     sql = """select user_id, password, ip_addr, camera_no from t_camera where is_active = 1"""
+    #     ret = self.db.query(sql)
+    #     for k in self.thread_dict.keys():
+    #         self.thread_dict[k].stop()
+    #     time.sleep(0.05)
+    #     if ret:
+    #         for item in ret:
+    #             url = "rtsp://%s:%s@%s" % (item['user_id'], item['password'], item['ip_addr'])
+    #             camera_no = item['camera_no']
+    #             self.thread_dict[str(camera_no)] = VideoThread(camera_no, url)
+    #             # 注册信号处理函数
+    #             self.thread_dict[str(camera_no)].breakSignal.connect(self.show_camera)
+    #             # 启动线程
+    #             # self.shotPushButton.clicked.connect(self.shot_change)
+    #             self.thread_dict[str(camera_no)].shortImage.connect(self.shot_info)
+    #             self.thread_dict[str(camera_no)].start()
 
-    def shot_info(self, flag):
-        """
-        接收截图信息
-        :param flag:
-        :return:
-        """
-        # if flag:
-        #     QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
-        return flag
+    # def shot_info(self, flag):
+    #     """
+    #     接收截图信息
+    #     :param flag:
+    #     :return:
+    #     """
+    #     # if flag:
+    #     #     QtWidgets.QMessageBox.information(self, '本程序', "保存图片成功！")
+    #     return flag
+    #
+    # def shot_change(self, path):
+    #     """
+    #     截图
+    #     :return:
+    #     """
+    #
+    #     sql = """select  camera_no from t_camera where is_active = 1"""
+    #     ret = self.db.query(sql)
+    #     for item in ret:
+    #         camera_no = item['camera_no']
+    #         if camera_no == 1:
+    #             path1 = path+'01.png'
+    #             self.thread_dict['1'].shot_image(path1)
+    #             continue
+    #         if camera_no == 2:
+    #             path2 = path + '02.png'
+    #             self.thread_dict['2'].shot_image(path2)
+    #             continue
+    #         if camera_no == 3:
+    #             path3 = path + '03.png'
+    #             self.thread_dict['3'].shot_image(path3)
+    #             continue
+    #         if camera_no == 4:
+    #             path4 = path + '04.png'
+    #             self.thread_dict['4'].shot_image(path4)
+    #             continue
 
-    def shot_change(self, path):
-        """
-        截图
-        :return:
-        """
-
-        sql = """select  camera_no from t_camera where is_active = 1"""
-        ret = self.db.query(sql)
-        for item in ret:
-            camera_no = item['camera_no']
-            if camera_no == 1:
-                path1 = path+'01.png'
-                self.thread_dict['1'].shot_image(path1)
-                continue
-            if camera_no == 2:
-                path2 = path + '02.png'
-                self.thread_dict['2'].shot_image(path2)
-                continue
-            if camera_no == 3:
-                path3 = path + '03.png'
-                self.thread_dict['3'].shot_image(path3)
-                continue
-            if camera_no == 4:
-                path4 = path + '04.png'
-                self.thread_dict['4'].shot_image(path4)
-                continue
-
-    def show_camera(self, camera_no, qpixmap):
-        """
-        读取摄像头
-        :param qpixmap:
-        :return:
-        """
-        if camera_no == '1':
-            self.video_label_1.setPixmap(qpixmap)
-        elif camera_no == '2':
-            self.video_label_2.setPixmap(qpixmap)
-        elif camera_no == '3':
-            self.video_label_3.setPixmap(qpixmap)
-        elif camera_no == '4':
-            self.video_label_4.setPixmap(qpixmap)
+    # def show_camera(self, camera_no, qpixmap):
+    #     """
+    #     读取摄像头
+    #     :param qpixmap:
+    #     :return:
+    #     """
+    #     if camera_no == '1':
+    #         self.video_label_1.setPixmap(qpixmap)
+    #     elif camera_no == '2':
+    #         self.video_label_2.setPixmap(qpixmap)
+    #     elif camera_no == '3':
+    #         self.video_label_3.setPixmap(qpixmap)
+    #     elif camera_no == '4':
+    #         self.video_label_4.setPixmap(qpixmap)
 
     def init_data(self):
         u"""
@@ -260,7 +269,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.COM_READ_DURATION)  # 设置定时间隔为1000ms即1s，并启动定时器
-        self.active_video()
+        # self.active_video()
 
     def show_lcd(self, is_open, weight):
         u"""
@@ -492,7 +501,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
                 os.makedirs(abs_path)
             path = path + '\\' + str(balance_id)+str(today_date)
-            self.shot_change(path)
+            # self.shot_change(path)
             data = ''
             balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -727,8 +736,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.dialog.isVisible():
             self.dialog.setVisible(False)
             return
-        width = self.video_label_1.size().width()
-        height = self.video_label_1.size().height()
+        # width = self.video_label_1.size().width()
+        # height = self.video_label_1.size().height()
         # self.thread_dict[].set_size(width, height)
 
 
