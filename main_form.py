@@ -56,6 +56,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker = None
         self._barrier_worker1 = None
         self._barrier_worker2 = None
+        self.speaker = None
+        self.card_no = -1
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
@@ -110,7 +112,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weight_working = 0
         # 判断进出口, 1 为gate1进，2为gate2进
         self.gate_type = 1
-        self.speaker = None
         # 监控摄像头线程
         self.thread_dict = dict()
 
@@ -152,7 +153,6 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         设置道闸1
         :return:
         """
-        self.speaker.speak("请注意，未完全上磅")
         res = False
         if operate == -1:
             state = normal_utils.get_barrier_state(1)
@@ -408,7 +408,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
             self.setStatusTip("正在称重请稍候!")
             return
-        if self.weight_working == 1:
+        if self.weight_working == 1 and card_no == self.card_no:
             return
         self.gate_type = read_no
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
@@ -424,6 +424,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 except Exception as e:
                     logging.error(e)
                 self.weight_working = 1
+                self.card_no = card_no
             else:
                 logging.error("道闸%s打开失败" % self.gate_type)
         else:
@@ -454,7 +455,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                             self.choose_weight()
                             self.save_data()
                             self.weight_working = 0
-                            self.__set_barrier(3-self.gate_type, 1)
+                            self.__set_barrier(3 - self.gate_type, 1)
                             logging.info("=========保存数据耗时: %s 毫秒" % time.time() * 1000 - start)
                         else:
                             try:
@@ -1250,6 +1251,7 @@ class SpeakerThread(QThread):
                     self.speaker.speak(self.words)
                 except Exception as e:
                     logging.error(e)
+            self.sleep(0.01)
 
     def stop(self):
         """
