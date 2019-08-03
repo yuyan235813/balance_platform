@@ -63,7 +63,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
                                       r"MyNewkey")
                 usetime = winreg.QueryValue(keys, "ValueName")
                 if int(usetime) > 0:
-                    if int(usetime) > 100:
+                    if int(usetime) > 30:
                         QtWidgets.QMessageBox.warning(self, '本程序', "无效使用次数！", QtWidgets.QMessageBox.Ok)
                         exit()
                     QtWidgets.QMessageBox.warning(self, '本程序', "你还可以使用本软件 %s次！" % usetime, QtWidgets.QMessageBox.Ok)
