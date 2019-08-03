@@ -110,9 +110,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.weight_working = 0
         # 判断进出口, 1 为gate1进，2为gate2进
         self.gate_type = 1
-        # 是否需要判断完全上榜，如果为1，需要，如果为0，不需要
-        self.check_balance_ready = 1
-        self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        self.speaker = None
         # 监控摄像头线程
         self.thread_dict = dict()
 
@@ -154,6 +152,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         设置道闸1
         :return:
         """
+        self.speaker.speak("请注意，未完全上磅")
         res = False
         if operate == -1:
             state = normal_utils.get_barrier_state(1)
@@ -371,18 +370,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._com_worker.trigger.connect(self.show_lcd)
         self._timer.timeout.connect(self.check_weight_state)
         self._timer.start(NormalParam.CHECK_WEIGHT_STATE)
-        # self._timer_barrier = QTimer(self)
-        # 检测车是否完全上磅时间间隔 s
-        self._timer_check_balance = QTimer(self)
-        self._timer_check_balance.timeout.connect(self.set_check_balance_ready)
         self.active_video()
-
-    def set_check_balance_ready(self):
-        """
-        设置是否需要判断车辆完全上磅
-        :return:
-        """
-        self.check_balance_ready = 1 - self.check_balance_ready
+        # 语音播报线程
+        if self.speaker:
+            self.speaker.stop()
+        self.speaker = SpeakerThread()
+        self.speaker.start()
 
     def show_lcd(self, is_open, weight):
         u"""
@@ -415,6 +408,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         if self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
             self.setStatusTip("正在称重请稍候!")
             return
+        if self.weight_working == 1:
+            return
+        self.gate_type = read_no
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
         if ret:
@@ -424,7 +420,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 print("道闸%s打开成功" % self.gate_type)
                 try:
                     str1 = """请上磅"""
-                    self.speaker.Speak(str1)
+                    self.speaker.speak(str1)
                 except Exception as e:
                     logging.error(e)
                 self.weight_working = 1
@@ -433,7 +429,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         else:
             try:
                 str1 = """卡片无效"""
-                self.speaker.Speak(str1)
+                self.speaker.speak(str1)
             except Exception as e:
                 logging.error(e)
             logging.warning("read_no = %s and card_no = %s 没有记录" % (read_no, card_no))
@@ -452,7 +448,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
-                    if self.weight_working == 1 and self.check_balance_ready:
+                    if self.weight_working == 1:
                         if normal_utils.get_barrier_state(-2 - self.gate_type) == 1:
                             start = time.time() * 1000
                             self.choose_weight()
@@ -462,16 +458,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                             logging.info("=========保存数据耗时: %s 毫秒" % time.time() * 1000 - start)
                         else:
                             try:
-                                self.check_balance_ready = 0
-                                self._timer_check_balance.start(NormalParam.BALANCE_READY_TIMES)
+                                self._weight.clear()
                                 str1 = """请注意，未完全上榜"""
-                                self.speaker.Speak(str1)
+                                self.speaker.speak(str1)
                             except Exception as e:
                                 logging.error(e)
-                # elif normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() <= NormalParam.BALANCE_LOW:
-                #     self.stateLabel.setText(u'读取中……')
-                #     self.stateLabel.setStyleSheet('color:black')
-                #     self.pickBalanceButton.setEnabled(False)
                 else:
                     self.stateLabel.setText(u'读取中……')
                     self.stateLabel.setStyleSheet('color:black')
@@ -737,7 +728,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 logging.info("保存成功！")
                 try:
                     str1 = """过磅已完成，请下磅"""
-                    self.speaker.Speak(str1)
+                    self.speaker.speak(str1)
                 except Exception as e:
                     logging.error(e)
             else:
@@ -1221,6 +1212,51 @@ class VideoThread(QThread):
         with QMutexLocker(self.mutex):
             return self.stoped and not self.is_running
 
+
+class SpeakerThread(QThread):
+    """
+    语音播报线程
+    """
+    def __init__(self):
+        """
+        初始化
+        """
+        super(SpeakerThread, self).__init__()
+        self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        self.words = ""
+        self.mutex = QMutex()
+        self.do_speak = False
+        self.stoped = False
+
+    def speak(self, words):
+        """
+        语音播报
+        :param words:
+        :return:
+        """
+        if words and not self.stoped:
+            self.do_speak = True
+            self.words = words
+
+    def run(self):
+        """
+        运行
+        :return:
+        """
+        while not self.stoped:
+            if self.do_speak:
+                self.do_speak = False
+                try:
+                    self.speaker.speak(self.words)
+                except Exception as e:
+                    logging.error(e)
+
+    def stop(self):
+        """
+        :return:
+        """
+        with QMutexLocker(self.mutex):
+            self.stoped = True
 
 
 if __name__ == '__main__':

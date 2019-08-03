@@ -280,6 +280,8 @@ def set_barrier_gate(num, state):
         if my_serial.isOpen():
             start = time.time()
             for i in range(len(msgs)):
+                if i == 1:
+                    time.sleep(0.01)
                 msg = msgs[i]
                 state = states[i]
                 retry = 0
