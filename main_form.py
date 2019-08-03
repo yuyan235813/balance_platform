@@ -9,6 +9,7 @@ import datetime
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
+from ui.about_dialog import Ui_AboutDialog
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QImage
@@ -79,6 +80,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.actionHelp.triggered.connect(self.open_help)
+        self.about_dialog = AboutDialog()
+        self.actionAbout.triggered.connect(self.about_dialog.show)
         self.extraWeightSpinBox.setValue(0)
         self.settlementLcdNumber.display(0)
         self.savePushButton.clicked.connect(partial(self.save_data, True))
@@ -931,6 +934,14 @@ class VideoThread(QThread):
         with QMutexLocker(self.mutex):
             return self.stoped and not self.is_running
 
+
+class AboutDialog(QtWidgets.QDialog, Ui_AboutDialog):
+    u"""
+    mainform
+    """
+    def __init__(self):
+        super(AboutDialog, self).__init__()
+        self.setupUi(self)
 
 
 if __name__ == '__main__':
