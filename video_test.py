@@ -21,8 +21,8 @@ class VideoForm(QtWidgets.QWidget, Ui_videoTest):
         super(VideoForm, self).__init__()
         self.setupUi(self)
         # rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov
-        self.thread = VideoThread('rtsp://admin:qwer6961@192.168.31.64')
-        # self.thread = VideoThread('rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov')
+        # self.thread = VideoThread('rtsp://admin:qwer6961@192.168.31.64')
+        self.thread = VideoThread('rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov')
         # 注册信号处理函数
         self.thread.breakSignal.connect(self.showCamer)
         # 启动线程
@@ -124,7 +124,7 @@ class VideoThread(QThread):
                 logging.error(e)
                 time.sleep(0.5)
                 continue
-        self.breakSignal.emit( QPixmap(""))
+        self.breakSignal.emit(QPixmap(""))
         cap.release()
         self.is_running = False
 
@@ -156,10 +156,10 @@ class VideoThread(QThread):
 
 
 if __name__ == "__main__":
-    # app = QApplication(sys.argv)
-    # myshow = VideoForm()
-    # myshow.show()
-    # sys.exit(app.exec_())
+    app = QApplication(sys.argv)
+    myshow = VideoForm()
+    myshow.show()
+    sys.exit(app.exec_())
     # ret = normal_utils.get_barrier_state(1)
     # ret = normal_utils.close_barrier_gate(1)
     # ret = normal_utils.open_barrier_gate(2)
@@ -168,6 +168,6 @@ if __name__ == "__main__":
     # a = 15
     # print((a ^ 15) & 2 ** (num - 1) == 2 ** (num - 1))
     # print(2 ** (num-1))
-    import win32com.client
-    speaker = win32com.client.Dispatch("SAPI.SpVoice")
-    speaker.Speak("请注意，未完全上磅")
+    # import win32com.client
+    # speaker = win32com.client.Dispatch("SAPI.SpVoice")
+    # speaker.Speak("请注意，未完全上磅")

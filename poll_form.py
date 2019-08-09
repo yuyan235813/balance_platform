@@ -461,6 +461,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         保存item
         :return:
         """
+        balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         carNo = self.carNoLineEdit.text()
         totalWeight = self.totalWeightLineEdit.text()
         leatherWeight = self.leatherWeightLineEdit.text()
@@ -470,10 +471,10 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         operator = self.operatorLineEdit_4.text()
         balance_No = self.balanceNoLineEdit.text()
         insert_sql = '''update t_balance set car_no=?,total_weight=?,leather_weight=?,goods_name=?,receiver=?,
-                     supplier=?,operator=? where balance_id = ?'''
+                     supplier=?,operator=?,balance_time=? where balance_id = ?'''
         logging.debug(insert_sql)
         ret = self.db.update(insert_sql, [carNo, totalWeight, leatherWeight, goodnNmes, receiverName,
-                                          supplyName, operator, int(balance_No)])
+                                          supplyName, operator, balance_time, int(balance_No)])
         if ret:
             # QMessageBox.information(self, u'本程序', u'保存成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()
@@ -497,9 +498,10 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         删除item
         :return:
         """
+        balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         balance_id = self.balanceNoLineEdit.text()
-        query_sql = 'select ext1,ext2  from t_balance where  balance_id = ?'
-        delete_sql = 'update t_balance set ext3 = "1" where  balance_id = ?'
+        query_sql = 'select ext1,ext2  from t_balance where balance_id = ?'
+        delete_sql = 'update t_balance set ext3 = "1", balance_time = ? where balance_id = ?'
         data_list = self.db.query(query_sql, [int(balance_id)])
         count = 0
         while count < 4:
@@ -532,7 +534,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
                 if count == 4:
                     if os.path.exists(path2):
                         os.remove(path2)
-        ret = self.db.update(delete_sql, [int(balance_id)])
+        ret = self.db.update(delete_sql, [balance_time, int(balance_id)])
         if ret:
             QMessageBox.information(self, u'本程序', u'删除成功!', QMessageBox.Ok)
             self.receiverComboBox.clear()

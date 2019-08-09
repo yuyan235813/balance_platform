@@ -6,7 +6,7 @@
 @Email   : 794339312@qq.com
 """
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QDate, QModelIndex
+from PyQt5.QtCore import Qt, QDate, QModelIndex, QDateTime
 from PyQt5 import QtSql
 from ui.card_form import Ui_cardFrom
 from car_no_dialog_form import CarNoDialogForm
@@ -333,7 +333,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
                     return
         address = self.addressLineEdit.text()
         operation_id = 0
-        operation_date = str(QDate.currentDate().toPyDate())
+        operation_date = str(QDateTime.currentDateTime().toPyDateTime())
         supplier = self.suppliercomboBox.currentText()
         receiver = self.receivercomboBox.currentText()
         cargo = self.cargocomboBox.currentText()
@@ -393,7 +393,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
             record.setValue(10, car_no)
             record.setValue(11, address)
             record.setValue(12, operation_id)
-            record.setValue(13, str(QDate.currentDate().toPyDate()))
+            record.setValue(13, str(QDateTime.currentDateTime().toPyDateTime()))
             record.setValue(14, supplier)
             record.setValue(15, receiver)
             record.setValue(16, cargo)
@@ -503,3 +503,4 @@ if __name__ == '__main__':
     myshow = CardForm()
     myshow.show()
     sys.exit(app.exec_())
+    # print(QDateTime.toPyDateTime())

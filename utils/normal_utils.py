@@ -467,9 +467,9 @@ def get_barrier_state1(num):
         return -1
 
 
-def sync_data(url):
+def sync_data(table_name, url):
     """
-    同步数据
+    同步数据，上行
     :return:
     """
     # db = EasySqlite(r'rmf/db/balance.db')
@@ -477,26 +477,100 @@ def sync_data(url):
     time1 = '1970-01-01 00:00:00'
     time_now = datetime.datetime.now()
     time2 = (time_now + datetime.timedelta(seconds=-1)).strftime("%Y-%m-%d %H:%M:%S")
-    query_sql1 = """select max(sync_time) as sync_time from t_balance_sync"""
-    query_sql2 = """select * from t_balance where balance_time > '%s' and balance_time <='%s'"""
-    update_sql = """insert into t_balance_sync(sync_time) value(%s)""" % time2
+    query_sql1 = """select max(sync_time) as sync_time from t_balance_sync where table_name = '%s'""" % table_name
+    if table_name == 't_balance':
+        time_column = 'balance_time'
+        query_sql2 = """select * from t_balance a left join (select company from t_system_params_conf limit 1) b on 1=1 where a.balance_time > '%s' and a.balance_time <='%s' order by a.balance_time limit 10"""
+    else:
+        time_column = 'operation_date'
+        query_sql2 = """select * from t_card_info a left join (select company from t_system_params_conf limit 1) b on 1=1  where a.operation_date > '%s' and a.operation_date <='%s' order by a.operation_date limit 10"""
     ret1 = db.query(query_sql1)
-    if ret1:
+    if ret1 and ret1[0].get('sync_time'):
         time1 = ret1[0].get('sync_time')
-        ret2 = db.query(query_sql2 % (time1, time2))
-        if ret2:
-            data = dict()
-            data['count'] = len(ret2)
-            data['data'] = ret2
-            try:
-                response = requests.post(url, data)
-                res = json.loads(response.text)
-                if 'code' in res.keyset() and res.get('code') == 1:
-                    ret = db.update(update_sql)
-                    if ret:
-                       pass
-            except Exception as e:
-                logging.info(e)
+    ret2 = db.query(query_sql2 % (time1, time2))
+    if ret2:
+        company = ''
+        sync_time = time1
+        for item in ret2:
+            item.pop("id")
+            company = item.get('company')
+            sync_time = item.get(time_column) if item.get(time_column) > sync_time else sync_time
+        data = dict()
+        data['count'] = len(ret2)
+        data['data'] = json.dumps(ret2)
+        data['company'] = company
+        print(data)
+        try:
+            response = requests.post(url, data)
+            print(response.text)
+            res = json.loads(response.text)
+            print(res)
+            if 'success' in res.keys() and res.get('success'):
+                update_sql = """insert into t_balance_sync(table_name, sync_time) values('%s', '%s')""" % (table_name, sync_time)
+                ret = db.update(update_sql)
+                if ret:
+                    logging.info('同步数据 %s 成功，时间：%s' % (table_name, sync_time))
+                else:
+                    logging.error('同步数据客户端错误， %s 失败，时间：%s' % (table_name, sync_time))
+            else:
+                logging.error('同步数据服务端错误， %s 失败，时间：%s' % (table_name, sync_time))
+        except Exception as e:
+            logging.error(e)
+
+
+def sync_card_info(url):
+    """
+    同步数据，下行
+    :return:
+    """
+    # db = EasySqlite(r'rmf/db/balance.db')
+    db = EasySqlite(r'../rmf/db/balance.db')
+    query_sql1 = """select max(operation_date) as operation_date from t_card_info"""
+    query_sql2 = """select * from t_system_params_conf limit 1"""
+    delete_sql = """delete from t_card_info where card_no in (%s)"""
+    ret1 = db.query(query_sql1)
+    ret2 = db.query(query_sql2)
+    if ret1 and ret1[0].get('operation_date') and ret2:
+        operation_date = ret1[0].get('operation_date')
+        data = dict()
+        data['operation_date'] = operation_date
+        data['company'] = ret2[0].get('company')
+        data['limit'] = 10
+        try:
+            print(data)
+            response = requests.post(url, data)
+            res = json.loads(response.text)
+            # res = {'success':True, 'res':[{'card_no':'0', 'ext1':'1'},{'card_no':'1', 'ext1':'2'}]}
+            print(res)
+            if 'success' in res.keys() and res.get('success') and len(res.get('res')) > 0:
+                res_data = res.get('res')
+                card_nos = [item.get('card_no') for item in res_data]
+                delete_sql = delete_sql % ','.join(["'%s'" % card_no for card_no in card_nos])
+                db.update(delete_sql, commit=False)
+                insert_values = list()
+                for item in res_data:
+                    if 'id' in item.keys():
+                        item.pop('id')
+                    if 'company' in item.keys():
+                        item.pop('company')
+                    insert_data = [(k, item[k]) for k in item if item[k] is not None]
+                    print(insert_data)
+                    insert_sql = 'insert into t_card_info (' + ','.join(i[0] for i in insert_data) + ') values(' + ','.join(['?'] * len(item)) + ')'
+                    insert_values.append(['%r' % i[1] for i in insert_data])
+                print(insert_sql)
+                ret = db.update(insert_sql, args=insert_values)
+                print(ret)
+                if ret:
+                    print('成功')
+                else:
+                    print('失败')
+            elif len(res.get('res')) <= 0:
+                pass
+            else:
+                pass
+        except Exception as e:
+            print(e)
+            logging.info(e)
 
 
 if __name__ == '__main__':
@@ -504,12 +578,9 @@ if __name__ == '__main__':
     # print(generate_balance_id())
     # test_fun('tttt')
     # print(get_pwd_md5('kitty.'))
-    # sync_data()
-    # my_serial = serial.Serial('COM5', 9600, timeout=0.5)
-    # aa = [20,21,22,23,21,20,20,20,24,25,21,20,23,20,20,20,20,24,20,21,22,20,20,21,19,18,20,20,20,30]
-    # avg = sum(aa) / len(aa)
-    # print(avg)
-    # print(stdev(aa, avg))
-    # print(stdev(aa, 30))
-    msgs = 1
-    print(isinstance(msgs, (tuple, list)))
+    url = """http://7d06006c.ngrok.io/api/Tbalance/index"""
+    # sync_data('t_balance', url)
+    # url = """http://7d06006c.ngrok.io/api/card/index"""
+    # sync_data('t_card_info', url)
+    # url = """http://7d06006c.ngrok.io/api/Card/getList"""
+    sync_card_info(url)

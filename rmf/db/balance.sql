@@ -300,16 +300,17 @@ INSERT INTO t_balance VALUES(105,2019072716485905,'蒙S22575',140,120,20,'','山
 INSERT INTO t_balance VALUES(106,2019072716510005,'蒙S22575',160,120,40,'','山东鲁能集团','泰安军火库',0,0,0,0,0,0,0,0,NULL,NULL,0,NULL,'2019-07-27 16:51:35','2019-07-27 16:51:35','2019-07-27 16:51:00','系统管理员',1,NULL,'shot\201907\201907271651000520190727_165100','shot\201907\201907271651000520190727_165135','',NULL);
 CREATE TABLE `t_balance_sync`(
   `id` integer primary key AUTOINCREMENT, -- 'ID'
+  `table_name` text not null default '', -- '要同步的数据表'
   `sync_time` datetime not null DEFAULT (datetime('now', 'localtime')) --'同步时间'
 );
-INSERT INTO t_balance_sync VALUES(0,'2019-01-08 12:16:00');
-INSERT INTO t_balance_sync VALUES(1,'2019-01-08 13:16:00');
+INSERT INTO t_balance_sync VALUES(0, 't_balance', '2019-01-08 12:16:00');
+INSERT INTO t_balance_sync VALUES(1, 't_card_info', '2019-01-08 13:16:00');
 CREATE TABLE `t_card_info` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `user_name` text not null default '', -- 用户姓名
   `gender` int not null default 1, -- 性别，1为男，0为女
   `card_type` int not null DEFAULT 1, -- 卡片类型 1月卡2临时卡3免费卡
-  `card_no` text not null default '', -- 卡号
+  `card_no` text unique not null default '', -- 卡号
   `enroll_date` date not null default (date('now', 'localtime')), -- 登记日期
   `valid_date` date not null default (date('now', 'localtime')), -- 有效期
   `card_status` int not null DEFAULT 1, -- '卡片是否有效'
@@ -318,7 +319,7 @@ CREATE TABLE `t_card_info` (
   `car_no` text not null default '' , -- 车牌号
   `address` text not null default '', -- 地址
   `operation_id` text not null default '', -- 操作员编号
-  `operation_date` date not null default (date('now', 'localtime')), -- 操作日期
+  `operation_date` date not null default (datetime('now', 'localtime')), -- 操作日期
   `supplier` text not null default '', --供货单位
   `receiver` text not null default '', -- 收货单位
   `cargo` text not null default '', -- 货物名称
