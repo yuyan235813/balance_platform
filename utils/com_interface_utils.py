@@ -37,6 +37,31 @@ def read_com_interface(my_serial):
     return format_data(data)
 
 
+def read_com_interface_3168(my_serial):
+    """
+    读取串口数据
+    :param my_serial:
+    :return:
+    """
+    retry_time = 0
+    while retry_time < NormalParam.COM_RETRY_TIMES:
+        retry_time += 1
+        my_serial.flush()
+        data = my_serial.read(5)
+        print_data(my_serial.portstr, data)
+        # 验证数据
+        verify = verify_data_3168(data)
+        if 0 == verify:
+            break
+        else:
+            logging.error(verify)
+            continue
+        sleep(NormalParam.COM_READ_DURATION / 2 /1000)
+    if 0 != verify:
+        return NormalParam.ERROR_WEIGHT
+    return format_data_3168(data)
+
+
 def print_data(port, data):
     """
     打印16进制和10进制data
@@ -45,6 +70,36 @@ def print_data(port, data):
     """
     logging.debug('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
     logging.debug('%s read data 10d: %s' % (port, ' '.join(str(x) for x in data)))
+
+
+def verify_data_3168(data):
+    """
+    数据格式:
+     每隔 100ms 发送一组数据.每组数据 5 帧,每帧
+    数据有 11 位:1 位起始位(0),8 位数据位,2 位停止位(1)。
+    第 1 帧：D0～D7······0FFH(起始标志帧)。
+    第 2 帧：D0～D2······小 数点位置(0-5)。
+    D4······1 表示称重值稳定,0 表示不稳定。
+    D5······1 表示重量为负值,0 表示重量为正值。
+    D7······1 表示超载。
+    第 3 帧:D0～D3 位为重量值个位的 BCD 码。
+     D4～D7 位为重量值十位的 BCD 码。
+    第 4 帧 :D0～D3 位 为重量值百位的 BCD 码。
+     D4～D7 位为重量值千位的 BCD 码。
+    第 5 帧:D0～D3 位为重量值万位的 BCD 码。
+     D4～D7 位为重量值十万位的 BCD 码。
+    :param data:
+    :return:
+    """
+    if not data:
+        return ErrorCode.NOT_DATA_ERROR
+    if 5 != len(data):
+        return ErrorCode.DATA_LENGTH_ERROR
+    if 0xff != data[0]:
+        return ErrorCode.BEGIN_ERROR
+    if 0x80 & data[1] == 1:
+        return ErrorCode.OVER_LOAD_ERROR
+    return 0
 
 
 def verify_data(data):
@@ -83,6 +138,34 @@ def verify_data(data):
     if verify_low != low:
         return ErrorCode.LOW_VERIFY_ERROR
     return 0
+
+
+def format_data_3168(data):
+    """
+    数据格式:
+     每隔 100ms 发送一组数据.每组数据 5 帧,每帧
+    数据有 11 位:1 位起始位(0),8 位数据位,2 位停止位(1)。
+    第 1 帧：D0～D7······0FFH(起始标志帧)。
+    第 2 帧：D0～D2······小 数点位置(0-5)。
+    D4······1 表示称重值稳定,0 表示不稳定。
+    D5······1 表示重量为负值,0 表示重量为正值。
+    D7······1 表示超载。
+    第 3 帧:D0～D3 位为重量值个位的 BCD 码。
+     D4～D7 位为重量值十位的 BCD 码。
+    第 4 帧 :D0～D3 位 为重量值百位的 BCD 码。
+     D4～D7 位为重量值千位的 BCD 码。
+    第 5 帧:D0～D3 位为重量值万位的 BCD 码。
+     D4～D7 位为重量值十万位的 BCD 码。
+    :param data:
+    :return:
+    """
+    if not data:
+        return 0
+    ret = 0
+    for item in data[-1:1:-1]:
+        ret = ret * 100 + item - (item >> 4) * 6
+    symbol = -1 if data[1] & 0x20 else 1
+    return symbol * ret
 
 
 def format_data(data):
@@ -140,3 +223,6 @@ if __name__ == '__main__':
     my_serial.close()
     # func()
     # print(get_bytes_num())
+    data = [0xff, 0x11, 0x60, 0x00, 0x00]
+    ret = format_data_3168(data)
+    print(ret)

@@ -15,6 +15,8 @@ class ErrorCode:
     NOT_DATA_ERROR = 'E1001'
     # 数据起始错误
     BEGIN_ERROR = 'E1002'
+    # 超重
+    OVER_LOAD_ERROR = 'E1007'
     END_ERROR = 'E1003'
     HIGH_VERIFY_ERROR = 'E1004'
     LOW_VERIFY_ERROR = 'E1005'
