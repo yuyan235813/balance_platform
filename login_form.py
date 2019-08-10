@@ -31,6 +31,7 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         self.setupUi(self)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.cancelPushButton.clicked.connect(self.close)
+        self.company = "泰安市泰山区柒点信息科技有限公司"
         self.isexist = 0
         DevicePath = create_string_buffer(b'\0' * 260)
         ret = c_int()
@@ -91,6 +92,10 @@ class LoginForm(QtWidgets.QDialog, Ui_loginDialog):
         初始化数据
         :return:
         """
+        sql = "select company from t_system_params_conf limit 1"
+        ret = self.db.query(sql)
+        if ret:
+            self.company = ret[0].get('company')
         self.usernameComboBox.clear()
         sql = "select user_name from t_user where status = 1"
         ret = self.db.query(sql, result_dict=False)

@@ -7,8 +7,7 @@
 """
 import serial
 from time import sleep
-from conf.constant import ErrorCode, NormalParam
-from conf.config import (COM_BAUD_RATE, COM_INTERFACE)
+from utils.constant import ErrorCode, NormalParam
 import logging
 
 

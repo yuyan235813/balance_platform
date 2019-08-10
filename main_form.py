@@ -16,7 +16,7 @@ from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
-from conf.constant import NormalParam
+from utils.constant import NormalParam
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
@@ -47,9 +47,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.user_id = parent.user_id if parent else 'admin'
         self.user_name = parent.user_name if parent else '系统管理员'
+        self.company = parent.company if parent else '泰安市泰山区柒点信息科技有限公司'
         self.parent = parent
         self.setupUi(self)
-        self.setWindowTitle(u'飞然称重系统----当前用户：' + self.user_name)
+        self.setWindowTitle(u'飞然称重系统--%s--当前用户：%s' % (self.company, self.user_name))
         self.weightLcdNumber.display(0)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
