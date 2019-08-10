@@ -11,7 +11,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from ui.about_dialog import Ui_AboutDialog
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt, QEvent
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt
 from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
@@ -822,9 +822,9 @@ class COMThread(QThread):
                     weight = com_interface_utils.read_com_interface_3168(self._serial)
                     if weight == NormalParam.ERROR_WEIGHT:
                         time.sleep(NormalParam.COM_OPEN_DURATION)
-                        break
+                        continue
                     self.trigger.emit(is_open, weight)
-                    time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
+                    # time.sleep(NormalParam.COM_READ_DURATION / 2 / 1000)
                 self.trigger.emit(0, 0)
                 self._is_conn = False
         self._is_running = False
