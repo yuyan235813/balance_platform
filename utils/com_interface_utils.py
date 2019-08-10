@@ -21,7 +21,6 @@ def read_com_interface(my_serial):
     retry_time = 0
     while retry_time < NormalParam.COM_RETRY_TIMES:
         retry_time += 1
-        my_serial.flush()
         data = my_serial.read(12)
         print_data(my_serial.portstr, data)
         # 验证数据
@@ -46,8 +45,10 @@ def read_com_interface_3168(my_serial):
     retry_time = 0
     while retry_time < NormalParam.COM_RETRY_TIMES:
         retry_time += 1
-        my_serial.flush()
-        data = my_serial.read(5)
+        data_byte = my_serial.read()
+        while data_byte != b'\xff':
+            data_byte = my_serial.read()
+        data = data_byte + my_serial.read(4)
         print_data(my_serial.portstr, data)
         # 验证数据
         verify = verify_data_3168(data)
@@ -56,7 +57,7 @@ def read_com_interface_3168(my_serial):
         else:
             logging.error(verify)
             continue
-        sleep(NormalParam.COM_READ_DURATION / 2 /1000)
+        # sleep(NormalParam.COM_READ_DURATION / 2 /1000)
     if 0 != verify:
         return NormalParam.ERROR_WEIGHT
     return format_data_3168(data)
@@ -68,6 +69,7 @@ def print_data(port, data):
     :param data:
     :return:
     """
+    # print('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
     logging.debug('%s read data 16h: %s' % (port, ' '.join(hex(x) for x in data)))
     logging.debug('%s read data 10d: %s' % (port, ' '.join(str(x) for x in data)))
 
@@ -98,6 +100,8 @@ def verify_data_3168(data):
     if 0xff != data[0]:
         return ErrorCode.BEGIN_ERROR
     if 0x80 & data[1] == 1:
+        return ErrorCode.OVER_LOAD_ERROR
+    if 0xff == data[-1]:
         return ErrorCode.OVER_LOAD_ERROR
     return 0
 
@@ -212,13 +216,13 @@ def func():
 
 
 if __name__ == '__main__':
-    my_serial = serial.Serial('COM5', COM_BAUD_RATE, timeout=0.5)
+    my_serial = serial.Serial('COM3', 4800, timeout=0.5)
     if my_serial.isOpen():
         print("open success")
     else:
         print("open failed")
     while True:
-        data = read_com_interface(my_serial)
+        data = read_com_interface_3168(my_serial)
         print(data)
     my_serial.close()
     # func()

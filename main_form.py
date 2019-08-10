@@ -300,7 +300,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             first = min(self._weight.keys())
             if first + NormalParam.STABLES_DURATION * 1000 < now:
                 weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
-                if normal_utils.stdev(weights) <= NormalParam.STABLES_ERROR:
+                if normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
                     self.stateLabel.setText(u'稳定')
                     self.stateLabel.setStyleSheet('color:green')
                     self.pickBalanceButton.setEnabled(True)
@@ -818,7 +818,7 @@ class COMThread(QThread):
                         time.sleep(NormalParam.COM_OPEN_DURATION)
                 while not self.stoped and self._serial.is_open:
                     is_open = 1
-                    weight = com_interface_utils.read_com_interface(self._serial)
+                    weight = com_interface_utils.read_com_interface_3168(self._serial)
                     if weight == NormalParam.ERROR_WEIGHT:
                         time.sleep(NormalParam.COM_OPEN_DURATION)
                         break

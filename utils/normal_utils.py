@@ -17,26 +17,25 @@ import socket
 import base64
 
 
-def stdev(sequence):
+def stdev(sequence, value):
     """
-    计算标准差
+    计算相对于value的平均偏离值
     :param sequence:
     :return:
     """
     if len(sequence) <= 1:
         return 0
     else:
-        avg = sum(sequence)/len(sequence)
-        sdsq = sum([(i - avg) ** 2 for i in sequence])
-        stdev = (sdsq / (len(sequence) - 1)) ** .5
+        sdsq = sum([abs(i - value) for i in sequence])
+        stdev = sdsq / len(sequence)
         return stdev
 
 
-def get_file_list(path, type='.rmf'):
+def get_file_list(path, file_type='.rmf'):
     """
     获取指定目录下特定类型的文件
-    :param parh:
-    :param type:
+    :param path:
+    :param file_type:
     :return:
     """
     list_name = []
@@ -44,7 +43,7 @@ def get_file_list(path, type='.rmf'):
         file_path = os.path.join(path, file)
         if os.path.isdir(file_path):
             pass
-        elif os.path.splitext(file)[1] == type:
+        elif os.path.splitext(file)[1] == file_type:
             list_name.append(file_path)
         else:
             pass
