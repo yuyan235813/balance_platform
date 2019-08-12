@@ -39,7 +39,8 @@ import os
 import cv2
 from datetime import timedelta
 from datetime import datetime
-import win32com.client
+import comtypes.client
+import comtypes
 
 
 class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
@@ -1233,7 +1234,7 @@ class SpeakerThread(QThread):
         初始化
         """
         super(SpeakerThread, self).__init__()
-        self.speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        self.speaker = comtypes.client.CreateObject("SAPI.SpVoice")
         self.words = ""
         self.mutex = QMutex()
         self.do_speak = False
@@ -1254,6 +1255,7 @@ class SpeakerThread(QThread):
         运行
         :return:
         """
+        comtypes.CoInitialize()
         while not self.stoped:
             if self.do_speak:
                 self.do_speak = False
@@ -1262,6 +1264,7 @@ class SpeakerThread(QThread):
                 except Exception as e:
                     logging.error(e)
             self.msleep(10)
+        comtypes.CoUninitialize()
 
     def stop(self):
         """
