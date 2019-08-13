@@ -11,7 +11,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
 from ui.about_dialog import Ui_AboutDialog
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt, QEvent
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal, QMutexLocker, QMutex, Qt
 from PyQt5.QtGui import QPixmap, QImage
 from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
@@ -51,9 +51,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         super(MainForm, self).__init__()
         self.user_id = parent.user_id if parent else 'admin'
         self.user_name = parent.user_name if parent else '系统管理员'
+        self.company = parent.company if parent else '泰安市泰山区柒点信息科技有限公司'
         self.parent = parent
         self.setupUi(self)
-        self.setWindowTitle(u'飞然称重系统----当前用户：' + self.user_name)
+        self.setWindowTitle(u'飞然称重系统--%s--当前用户：%s' % (self.company, self.user_name))
         self.db = EasySqlite(r'rmf/db/balance.db')
         self._com_worker = None
         self._barrier_worker1 = None
