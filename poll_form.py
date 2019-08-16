@@ -461,7 +461,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         保存item
         :return:
         """
-        balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        balance_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         carNo = self.carNoLineEdit.text()
         totalWeight = self.totalWeightLineEdit.text()
         leatherWeight = self.leatherWeightLineEdit.text()
@@ -498,7 +498,7 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         删除item
         :return:
         """
-        balance_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        balance_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         balance_id = self.balanceNoLineEdit.text()
         query_sql = 'select ext1,ext2  from t_balance where balance_id = ?'
         delete_sql = 'update t_balance set ext3 = "1", balance_time = ? where balance_id = ?'
