@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'balance_setup.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -44,23 +44,33 @@ class Ui_balanceSetup(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
+        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.checkBox.setFont(font)
+        self.checkBox.setObjectName("checkBox")
+        self.horizontalLayout.addWidget(self.checkBox)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
         self.setupPushButton = QtWidgets.QPushButton(self.groupBox)
         self.setupPushButton.setObjectName("setupPushButton")
         self.horizontalLayout.addWidget(self.setupPushButton)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
         self.previewPushButton = QtWidgets.QPushButton(self.groupBox)
         self.previewPushButton.setObjectName("previewPushButton")
         self.horizontalLayout.addWidget(self.previewPushButton)
-        self.horizontalLayout.setStretch(0, 12)
+        self.horizontalLayout.setStretch(0, 5)
         self.horizontalLayout.setStretch(1, 3)
         self.horizontalLayout.setStretch(2, 1)
         self.horizontalLayout.setStretch(3, 3)
+        self.horizontalLayout.setStretch(4, 1)
+        self.horizontalLayout.setStretch(5, 3)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem3)
         self.defaultPushButton = QtWidgets.QPushButton(self.groupBox)
         self.defaultPushButton.setObjectName("defaultPushButton")
         self.horizontalLayout_2.addWidget(self.defaultPushButton)
@@ -69,8 +79,8 @@ class Ui_balanceSetup(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem3)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem4)
         self.exitPushButton = QtWidgets.QPushButton(self.groupBox)
         self.exitPushButton.setObjectName("exitPushButton")
         self.horizontalLayout_3.addWidget(self.exitPushButton)
@@ -83,6 +93,7 @@ class Ui_balanceSetup(object):
         _translate = QtCore.QCoreApplication.translate
         balanceSetup.setWindowTitle(_translate("balanceSetup", "磅单设置"))
         self.groupBox.setTitle(_translate("balanceSetup", "磅单设置"))
+        self.checkBox.setText(_translate("balanceSetup", "自动打印"))
         self.setupPushButton.setText(_translate("balanceSetup", "磅单设置"))
         self.previewPushButton.setText(_translate("balanceSetup", "预览空榜单"))
         self.defaultPushButton.setText(_translate("balanceSetup", "将当前磅单设置为使用磅单"))

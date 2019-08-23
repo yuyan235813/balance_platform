@@ -553,12 +553,13 @@ class Balance_detailDialog(QDialog, Ui_balance_detailDialog):
         """
         balance_id = int(self.balanceNoLineEdit.text())
         self.save_detail(warning=False)
-        sql = 'select default_rmf from t_rmf'
+        sql = 'select default_rmf, auto_print from t_rmf'
         ret = self.db.query(sql)
         logging.debug(self.balanceNoLineEdit.text())
 
         default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        action = 3 if ret[0].get('default_rmf', u'过称单(标准式).rmf') else 1
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where balance_id=\'%s\'" -r "%s" -a %s' % (balance_id, default_rmf, action)
         # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
         logging.debug(cmd_str)
         logging.debug(cmd_str)

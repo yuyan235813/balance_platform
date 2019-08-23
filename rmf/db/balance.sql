@@ -2,9 +2,10 @@ PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE `t_rmf` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
-  `default_rmf` text not null default '' -- 默认磅单rmf
+  `default_rmf` text not null default '', -- 默认磅单rmf
+  `auto_print` int not null default 0 -- 是否自动打印
 );
-INSERT INTO t_rmf VALUES(1,'过称单(标准式).rmf');
+INSERT INTO t_rmf VALUES(1,'过称单(标准式).rmf', 0);
 CREATE TABLE `t_com` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `device_name` text unique not null default '默认设备', -- 称重仪名称

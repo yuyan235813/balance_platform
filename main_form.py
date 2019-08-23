@@ -448,7 +448,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         if self._is_open:
             now = int(time.time() * 1000)
-            first = min(self._weight.keys())
+            first = now if len(self._weight) == 0 else min(self._weight.keys())
             if first + NormalParam.STABLES_DURATION * 1000 < now:
                 weights = [v for k, v in self._weight.items() if now - k <= NormalParam.STABLES_DURATION * 1000]
                 if normal_utils.stdev(weights, self.weightLcdNumber.value()) <= NormalParam.STABLES_ERROR and self.weightLcdNumber.value() > NormalParam.BALANCE_LOW:
@@ -810,11 +810,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             return
         balance_id = int(self.balanceNoBlael.text())
         if self.save_data(warning=False):
-            sql = 'select default_rmf from t_rmf'
+            sql = 'select default_rmf, auto_print from t_rmf'
             ret = self.db.query(sql)
             default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-            cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a 1' % (
-                balance_id, default_rmf)
+            action = 3 if ret[0].get('default_rmf', u'过称单(标准式).rmf') else 1
+            cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a %s' % (
+                balance_id, default_rmf, action)
             # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
             logging.debug(cmd_str)
             self.p = subprocess.Popen(cmd_str)

@@ -25,12 +25,14 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         self.setupUi(self)
         self.setWindowModality(Qt.ApplicationModal)
         self.p = None
+        self.db = EasySqlite(r'rmf/db/balance.db')
         self.exitPushButton.clicked.connect(self.close)
         self.rmf_path = os.path.join(os.getcwd(), r'rmf\rmf')
         self.report_file = os.path.join(os.getcwd(), r'rmf\RMReport.exe')
         self.defaultPushButton.clicked.connect(self.set_default_rmf)
         self.previewPushButton.clicked.connect(self.preview_rmf)
         self.setupPushButton.clicked.connect(self.setup_rmf)
+        self.checkBox.stateChanged.connect(self.set_auto_print)
         # self.setWindowFlag(Qt.WindowStaysOnTopHint)
 
     def show(self):
@@ -56,6 +58,19 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         :return:
         """
         self.selectedLineEdit.setText(item.text())
+
+    def set_auto_print(self, signal):
+        """
+        设置是否自动打印
+        :param signal:
+        :return:
+        """
+        sql = """update t_rmf set auto_print = %s where id = 1""" % signal
+        ret = self.db.update(sql)
+        if ret:
+            logging.info("设置自动打印状态为: %s" % ("打开" if signal else "关闭"))
+        else:
+            logging.error("设置自动打印失败！")
 
     def set_default_rmf(self):
         db = EasySqlite(r'rmf/db/balance.db')
