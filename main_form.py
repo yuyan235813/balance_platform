@@ -733,6 +733,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 logging.info("保存成功！")
+                self.print_data()
                 try:
                     str1 = """过磅已完成，请下磅"""
                     self.speaker.speak(str1)
@@ -804,16 +805,18 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         """
         if not self.balanceNoBlael.text():
             if self.stateLabel.text() != u'稳定':
-                QtWidgets.QMessageBox.warning(self, '本程序', "状态未稳定！", QtWidgets.QMessageBox.Ok)
+                # QtWidgets.QMessageBox.warning(self, '本程序', "状态未稳定！", QtWidgets.QMessageBox.Ok)
+                logging.error("状态未稳定！")
             else:
-                QtWidgets.QMessageBox.warning(self, '本程序', "请选择要打印的磅单！", QtWidgets.QMessageBox.Ok)
+                # QtWidgets.QMessageBox.warning(self, '本程序', "请选择要打印的磅单！", QtWidgets.QMessageBox.Ok)
+                logging.error("没有要打印的磅单！")
             return
         balance_id = int(self.balanceNoBlael.text())
         if self.save_data(warning=False):
             sql = 'select default_rmf, auto_print from t_rmf'
             ret = self.db.query(sql)
             default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-            action = 3 if ret[0].get('default_rmf', u'过称单(标准式).rmf') else 1
+            action = 3 if ret[0].get('auto_print', 0) else 1
             cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a %s' % (
                 balance_id, default_rmf, action)
             # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
