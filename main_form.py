@@ -733,9 +733,11 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 logging.info("保存成功！")
-                self.print_data()
+                str1 = """过磅已完成，请下磅"""
+                if self.balance_opt_status == 2:
+                    self.print_data()
+                    str1 = """过磅已完成，请取走打印单"""
                 try:
-                    str1 = """过磅已完成，请下磅"""
                     self.speaker.speak(str1)
                 except Exception as e:
                     logging.error(e)
