@@ -120,6 +120,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.gate_type = 1
         # 监控摄像头线程
         self.thread_dict = dict()
+        # 跟车判断
+        self.carfollow = 0
 
     def show(self):
         """
@@ -419,27 +421,29 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.gate_type = read_no
         query = """select car_no from t_card_info where card_no = '%s' and card_status = 1 and status = 1""" % card_no
         ret = self.db.query(query)
-        if ret:
-            # print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
-            self.CarComboBox.setCurrentText(ret[0]['car_no'])
-            if self.__set_barrier(self.gate_type, 1):
-                print("道闸%s打开成功" % self.gate_type)
+        if self.carfollow==0:
+            if ret:
+                self.carfollow = 1
+                # print("card_no = %s -- car_no = %s." % (card_no, ret[0]['car_no']))
+                self.CarComboBox.setCurrentText(ret[0]['car_no'])
+                if self.__set_barrier(self.gate_type, 1):
+                    print("道闸%s打开成功" % self.gate_type)
+                    try:
+                        str1 = """请上磅"""
+                        self.speaker.speak(str1)
+                    except Exception as e:
+                        logging.error(e)
+                    self.weight_working = 1
+                    self.card_no = card_no
+                else:
+                    logging.error("道闸%s打开失败" % self.gate_type)
+            else:
                 try:
-                    str1 = """请上磅"""
+                    str1 = """卡片无效"""
                     self.speaker.speak(str1)
                 except Exception as e:
                     logging.error(e)
-                self.weight_working = 1
-                self.card_no = card_no
-            else:
-                logging.error("道闸%s打开失败" % self.gate_type)
-        else:
-            try:
-                str1 = """卡片无效"""
-                self.speaker.speak(str1)
-            except Exception as e:
-                logging.error(e)
-            logging.warning("read_no = %s and card_no = %s 没有记录" % (read_no, card_no))
+                logging.warning("read_no = %s and card_no = %s 没有记录" % (read_no, card_no))
 
     def check_weight_state(self):
         u"""
@@ -695,7 +699,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 os.makedirs(abs_path)
             path = path + '\\' + str(balance_id)+str(today_date)
             self.shot_change(path)
-            if self.balance_opt_status == 1:
+            if self.balance_opt_status == 1 or(self.balance_opt_status ==2 and self.balance_status ==1):
                 sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                                 extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
                                 balance_time, balance_time2, operator, status,ext1,sweight) 
@@ -733,9 +737,15 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             if ret:
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 logging.info("保存成功！")
-                self.print_data()
+                str1 = """过磅已完成，请下磅"""
+                auto_query =" select auto_print from t_rmf where id=1"
+                status = self.db.query(auto_query)
+                if status[0].get('auto_print')==2:
+                    if self.balance_opt_status == 2:
+                        self.print_data()
+                        str1 = """过磅已完成，请领取打印单"""
+                self.carfollow=0
                 try:
-                    str1 = """过磅已完成，请下磅"""
                     self.speaker.speak(str1)
                 except Exception as e:
                     logging.error(e)
@@ -869,6 +879,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 balance_query = """select * from t_card_info where car_no = '%s'  and card_status=1  """ % car_no
                 ret = self.db.query(balance_query)
                 data = ret[0]
+                self.balance_opt_status = 1
                 if data:
                     self.priceSpinBox.setValue(data.get('price', 0.))
                     self.amountSpinBox.setValue(data.get('amount', 0.))
@@ -889,8 +900,23 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 self.leatherWeightLcdNumber.display(leather_weight_db)
                 self.actualWeightLcdNumber.display(actual_weight)
                 self.balance_status = 1
+                self.balance_opt_status = 2
+                balance_query = """select * from t_card_info where car_no = '%s'  and card_status=1  """ % car_no
+                ret = self.db.query(balance_query)
+                data = ret[0]
+                if data:
+                    self.priceSpinBox.setValue(data.get('price', 0.))
+                    self.amountSpinBox.setValue(data.get('amount', 0.))
+                    self.supplierComboBox.setCurrentText(data.get('supplier', ''))
+                    self.receiverComboBox.setCurrentText(data.get('receiver', ''))
+                    self.goodsComboBox.setCurrentText(data.get('cargo', ''))
+                    self.extraWeightSpinBox.setValue(data.get('extra', 0.))
+                    #self.operatorComboBox.setCurrentText(data.get('operator', ''))
+                    #self.balance_status = data.get('status', '')
+                else:
+                    self.totalWeightLcdNumber.display(self.weightLcdNumber.value())
             self.totalWeightLcdNumber.display(current_weight)
-            self.balance_opt_status = 1
+
         self.calculate()
 
     def show_dialog(self):
