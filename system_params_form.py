@@ -52,8 +52,8 @@ class SystemParamsForm(QtWidgets.QWidget, Ui_systemParamsSetupForm):
         auto_save = 1 if self.checkBox.isChecked() else 0
         price = float(self.priceDoubleSpinBox.text())
         precision = self.roundComboBox.currentText()
-        update_sql = 'replace into t_system_params_conf(id,unit, company, auto_save, price, `precision`)' \
-                     ' values(1, ?, ?, ?, ?, ?)'
+        update_sql = """update t_system_params_conf set unit = ?, company = ?, auto_save = ?, price = ?, `precision` = ?
+         where id = 1"""
         ret = self.db.query(update_sql, [unit, company, auto_save, price, precision])
         if ret:
             QtWidgets.QMessageBox.warning(self, u'本程序', u'保存失败:\n', QtWidgets.QMessageBox.Ok)
