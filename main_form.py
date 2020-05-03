@@ -17,6 +17,7 @@ from utils import com_interface_utils
 from utils.sqllite_util import EasySqlite
 from utils import normal_utils
 from utils.constant import NormalParam
+from utils.constant import DataSync
 from setup_form import SetupForm
 from params_form import ParamsForm
 from system_params_form import SystemParamsForm
@@ -382,6 +383,8 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.speaker.stop()
         self.speaker = SpeakerThread()
         self.speaker.start()
+        self.data_sync = DataSyncThread()
+        self.data_sync.start()
 
     def show_lcd(self, is_open, weight):
         u"""
@@ -1272,6 +1275,76 @@ class SpeakerThread(QThread):
                     logging.error(e)
             self.msleep(10)
         comtypes.CoUninitialize()
+
+    def stop(self):
+        """
+        :return:
+        """
+        with QMutexLocker(self.mutex):
+            self.stoped = True
+
+
+class DataSyncThread(QThread):
+    """
+    数据同步线程
+    """
+    def __init__(self):
+        """
+        初始化
+        """
+        super(DataSyncThread, self).__init__()
+        self.mutex = QMutex()
+        self.stoped = False
+
+    def sync_balance(self):
+        """
+        同步 t_balance
+        :return:
+        """
+        if not self.stoped:
+            while True:
+                ret = normal_utils.sync_data('t_balance', DataSync.BALANCE_URL)
+                if ret < 10:
+                    break
+
+    def sync_card(self):
+        """
+        同步 t_card_info
+        :return:
+        """
+        if not self.stoped:
+            while True:
+                ret = normal_utils.sync_data('t_card_info', DataSync.CARD_URL)
+                if ret < 10:
+                    break
+
+    def get_card_info(self):
+        """
+        下载 t_card_info
+        :return:
+        """
+        if not self.stoped:
+            while True:
+                ret = normal_utils.sync_card_info(DataSync.GET_CARD_URL)
+                if ret < 10:
+                    break
+
+    def run(self):
+        """
+        运行
+        :return:
+        """
+        while not self.stoped:
+            try:
+                logging.info('sync_balance')
+                self.sync_balance()
+                logging.info('sync_card')
+                self.sync_card()
+                logging.info('get_card_info')
+                self.get_card_info()
+            except Exception as e:
+                logging.error(e)
+            self.sleep(DataSync.SYNC_TIME)
 
     def stop(self):
         """

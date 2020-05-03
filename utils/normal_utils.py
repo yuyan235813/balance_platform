@@ -472,18 +472,18 @@ def sync_data(table_name, url):
     同步数据，上行
     :return:
     """
-    # db = EasySqlite(r'rmf/db/balance.db')
-    db = EasySqlite(r'../rmf/db/balance.db')
+    db = EasySqlite(r'rmf/db/balance.db')
+    # db = EasySqlite(r'../rmf/db/balance.db')
     time1 = '1970-01-01 00:00:00'
     time_now = datetime.datetime.now()
     time2 = (time_now + datetime.timedelta(seconds=-1)).strftime("%Y-%m-%d %H:%M:%S")
     query_sql1 = """select max(sync_time) as sync_time from t_balance_sync where table_name = '%s'""" % table_name
     if table_name == 't_balance':
         time_column = 'balance_time'
-        query_sql2 = """select * from t_balance a left join (select company from t_system_params_conf limit 1) b on 1=1 where a.balance_time > '%s' and a.balance_time <='%s' order by a.balance_time limit 10"""
+        query_sql2 = """select * from t_balance a left join (select company_id as company from t_system_params_conf limit 1) b on 1=1 where a.balance_time > '%s' and a.balance_time <='%s' order by a.balance_time limit 10"""
     else:
         time_column = 'operation_date'
-        query_sql2 = """select * from t_card_info a left join (select company from t_system_params_conf limit 1) b on 1=1  where a.operation_date > '%s' and a.operation_date <='%s' order by a.operation_date limit 10"""
+        query_sql2 = """select * from t_card_info a left join (select company_id as company from t_system_params_conf limit 1) b on 1=1  where a.operation_date > '%s' and a.operation_date <='%s' order by a.operation_date limit 10"""
     ret1 = db.query(query_sql1)
     if ret1 and ret1[0].get('sync_time'):
         time1 = ret1[0].get('sync_time')
@@ -496,15 +496,15 @@ def sync_data(table_name, url):
             company = item.get('company')
             sync_time = item.get(time_column) if item.get(time_column) > sync_time else sync_time
         data = dict()
-        data['count'] = len(ret2)
+        # result 取值1，0:无需同步；-1：接口请求失败；-2:同步数据抛异常；-3：更新本地数据库失败；>0:同步成功，同步的条数
+        data['count'] = result = len(ret2)
         data['data'] = json.dumps(ret2)
         data['company'] = company
-        print(data)
+        logging.info(data)
         try:
             response = requests.post(url, data)
-            print(response.text)
             res = json.loads(response.text)
-            print(res)
+            logging.info(res)
             if 'success' in res.keys() and res.get('success'):
                 update_sql = """insert into t_balance_sync(table_name, sync_time) values('%s', '%s')""" % (table_name, sync_time)
                 ret = db.update(update_sql)
@@ -513,9 +513,15 @@ def sync_data(table_name, url):
                 else:
                     logging.error('同步数据客户端错误， %s 失败，时间：%s' % (table_name, sync_time))
             else:
+                result = -1
                 logging.error('同步数据服务端错误， %s 失败，时间：%s' % (table_name, sync_time))
         except Exception as e:
             logging.error(e)
+            result = -2
+    else:
+        logging.info('没有需要同步的数据！')
+        result = 0
+    return result
 
 
 def sync_card_info(url):
@@ -523,8 +529,8 @@ def sync_card_info(url):
     同步数据，下行
     :return:
     """
-    # db = EasySqlite(r'rmf/db/balance.db')
-    db = EasySqlite(r'../rmf/db/balance.db')
+    db = EasySqlite(r'rmf/db/balance.db')
+    # db = EasySqlite(r'../rmf/db/balance.db')
     query_sql1 = """select max(operation_date) as operation_date from t_card_info"""
     query_sql2 = """select * from t_system_params_conf limit 1"""
     delete_sql = """delete from t_card_info where card_no in (%s)"""
@@ -534,16 +540,18 @@ def sync_card_info(url):
         operation_date = ret1[0].get('operation_date')
         data = dict()
         data['operation_date'] = operation_date
-        data['company'] = ret2[0].get('company')
-        data['limit'] = 10
+        data['company'] = ret2[0].get('company_id')
+        # result 取值1，0:无需同步；-1：接口请求失败；-2:同步数据抛异常；-3：更新本地数据库失败；>0:同步成功，同步的条数
+        data['limit'] = result = 10
         try:
-            print(data)
+            logging.info(data)
             response = requests.post(url, data)
             res = json.loads(response.text)
             # res = {'success':True, 'res':[{'card_no':'0', 'ext1':'1'},{'card_no':'1', 'ext1':'2'}]}
-            print(res)
-            if 'success' in res.keys() and res.get('success') and len(res.get('res')) > 0:
-                res_data = res.get('res')
+            logging.info(res)
+            if 'success' in res.keys() and res.get('success') and len(res.get('result')) > 0:
+                res_data = res.get('result')
+                result = len(res_data)
                 card_nos = [item.get('card_no') for item in res_data]
                 delete_sql = delete_sql % ','.join(["'%s'" % card_no for card_no in card_nos])
                 db.update(delete_sql, commit=False)
@@ -554,23 +562,25 @@ def sync_card_info(url):
                     if 'company' in item.keys():
                         item.pop('company')
                     insert_data = [(k, item[k]) for k in item if item[k] is not None]
-                    print(insert_data)
                     insert_sql = 'insert into t_card_info (' + ','.join(i[0] for i in insert_data) + ') values(' + ','.join(['?'] * len(item)) + ')'
-                    insert_values.append(['%r' % i[1] for i in insert_data])
-                print(insert_sql)
+                    insert_values.append(['%s' % i[1] for i in insert_data])
+                logging.info(insert_values)
                 ret = db.update(insert_sql, args=insert_values)
-                print(ret)
                 if ret:
-                    print('成功')
+                    logging.info('下载卡信息成功')
                 else:
-                    print('失败')
+                    result = -3
+                    logging.error('下载卡信息失败')
             elif len(res.get('res')) <= 0:
-                pass
+                result = 0
             else:
-                pass
+                result = -1
         except Exception as e:
-            print(e)
+            result = -2
             logging.info(e)
+    else:
+        result = 0
+    return result
 
 
 if __name__ == '__main__':
@@ -578,9 +588,9 @@ if __name__ == '__main__':
     # print(generate_balance_id())
     # test_fun('tttt')
     # print(get_pwd_md5('kitty.'))
-    url = """http://7d06006c.ngrok.io/api/Tbalance/index"""
+    # url = """http://39.97.120.140:1818/api/search/addBalance"""
     # sync_data('t_balance', url)
-    # url = """http://7d06006c.ngrok.io/api/card/index"""
+    # url = """http://39.97.120.140:1818/api/Card/index"""
     # sync_data('t_card_info', url)
-    # url = """http://7d06006c.ngrok.io/api/Card/getList"""
+    url = """http://39.97.120.140:1818/api/Card/getList"""
     sync_card_info(url)

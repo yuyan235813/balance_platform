@@ -45,6 +45,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         ret = db.query(select_sql)
         if ret and len(ret) > 0:
             self.selectedLineEdit.setText(ret[0]['default_rmf'])
+            self.checkBox.setChecked(True if ret[0]['auto_print'] else False)
         elif self.listWidget.currentItem():
             self.selectedLineEdit.setText(self.listWidget.currentItem().text())
         elif list_rmf:
@@ -65,6 +66,7 @@ class SetupForm(QtWidgets.QWidget, Ui_balanceSetup):
         :param signal:
         :return:
         """
+        print(signal)
         sql = """update t_rmf set auto_print = %s where id = 1""" % signal
         ret = self.db.update(sql)
         if ret:

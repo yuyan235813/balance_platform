@@ -72,9 +72,10 @@ CREATE TABLE `t_system_params_conf` (
   `company` text not null default 'xxx有限责任公司', -- 公司名称
   `auto_save` int not null default 1, -- 是否自动保存信息
   `price` decimal(10,2) not null default 0.0, -- 单价
-  `precision` text not null default '元' -- 精度
+  `precision` text not null default '元', -- 精度
+  `company_id` integer not null default 0 -- 公司ID
 );
-INSERT INTO t_system_params_conf VALUES(1,'吨','泰安大志有限责任公司',1,6,'元');
+INSERT INTO t_system_params_conf VALUES(1,'吨','泰安大志有限责任公司',1,6,'元',2);
 CREATE TABLE `t_supplier` (
   `supplier_id` integer primary key AUTOINCREMENT, -- 'ID',
   `supplier_name`text not null default '单位名称',
@@ -320,7 +321,7 @@ CREATE TABLE `t_card_info` (
   `car_no` text not null default '' , -- 车牌号
   `address` text not null default '', -- 地址
   `operation_id` text not null default '', -- 操作员编号
-  `operation_date` date not null default (datetime('now', 'localtime')), -- 操作日期
+  `operation_date` datetime not null default (datetime('now', 'localtime')), -- 操作日期
   `supplier` text not null default '', --供货单位
   `receiver` text not null default '', -- 收货单位
   `cargo` text not null default '', -- 货物名称
@@ -332,8 +333,8 @@ CREATE TABLE `t_card_info` (
   `ext3` text not null default '', --扩展3
   `ext4` text not null default '' --扩展4
 );
-INSERT INTO t_card_info VALUES(25,'fdsad',1,3,'0','2019-07-14','2020-07-14',1,'','','吉GE647','','0','2019-07-14','','','',0,0,0,'','','','');
-INSERT INTO t_card_info VALUES(26,'范德萨发',1,3,'1','2019-07-21','2020-07-21',1,'','','蒙S22575','','0','2019-07-21','山东鲁能集团','泰安军火库','',0,0,1,'','','','');
+replace INTO t_card_info VALUES(25,'fdsad',1,3,'0','2019-07-14','2020-07-14',1,'','','吉GE647','','0','2019-07-14 22:43:59.618000','','','',0,0,0,'','','','');
+INSERT INTO t_card_info VALUES(26,'范德萨发',1,3,'1','2019-07-21','2020-07-21',1,'','','蒙S22575','','0','2019-07-21 00:00:00','山东鲁能集团','泰安军火库','',0,0,1,'','','','');
 CREATE TABLE `t_com_auto` (
   `id` integer primary key AUTOINCREMENT, -- 'ID'
   `issue_com` int not null default 0, -- 发卡器串口

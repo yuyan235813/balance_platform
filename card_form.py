@@ -15,6 +15,7 @@ from functools import partial
 import time
 import logging
 import datetime
+import normal_utils
 
 
 class CardForm(QtWidgets.QWidget, Ui_cardFrom):
@@ -503,4 +504,4 @@ if __name__ == '__main__':
     myshow = CardForm()
     myshow.show()
     sys.exit(app.exec_())
-    # print(QDateTime.toPyDateTime())
+    # print(QDateTime.currentDateTime().toPyDateTime())

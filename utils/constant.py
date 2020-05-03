@@ -54,5 +54,18 @@ class NormalParam:
     BALANCE_READY_TIMES = int(ConfigParser.get_item('BALANCE_READY_TIMES', 5000))
 
 
+class DataSync:
+    """
+    数据同步参数
+    """
+    # 上传磅单数据
+    BALANCE_URL = ConfigParser.get_item('BALANCE_URL', 'http://39.97.120.140:1818/api/search/addBalance')
+    # 上传卡信息
+    CARD_URL = ConfigParser.get_item('CARD_URL', 'http://39.97.120.140:1818/api/Card/index')
+    # 下载磅单
+    GET_CARD_URL = ConfigParser.get_item('GET_CARD_URL', 'http://39.97.120.140:1818/api/Card/getList')
+    # 同步数据间隔s
+    SYNC_TIME = int(ConfigParser.get_item('SYNC_TIME', 300))
+
 if __name__ == '__main__':
     print(NormalParam.ERROR_CARD_NO)
