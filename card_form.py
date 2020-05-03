@@ -12,10 +12,8 @@ from ui.card_form import Ui_cardFrom
 from car_no_dialog_form import CarNoDialogForm
 from all_in_one_test import AIODll
 from functools import partial
-import time
 import logging
 import datetime
-import normal_utils
 
 
 class CardForm(QtWidgets.QWidget, Ui_cardFrom):
@@ -504,4 +502,3 @@ if __name__ == '__main__':
     myshow = CardForm()
     myshow.show()
     sys.exit(app.exec_())
-    # print(QDateTime.currentDateTime().toPyDateTime())
