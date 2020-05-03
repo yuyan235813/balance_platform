@@ -741,9 +741,12 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 # QtWidgets.QMessageBox.warning(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)
                 logging.info("保存成功！")
                 str1 = """过磅已完成，请下磅"""
-                if self.balance_opt_status == 2:
-                    self.print_data()
-                    str1 = """过磅已完成，请领取打印单"""
+                auto_query =" select auto_print from t_rmf where id=1"
+                status = self.db.query(auto_query)
+                if status[0].get('auto_print')==2:
+                    if self.balance_opt_status == 2:
+                        self.print_data()
+                        str1 = """过磅已完成，请领取打印单"""
                 self.carfollow=0
                 try:
                     self.speaker.speak(str1)
