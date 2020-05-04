@@ -719,6 +719,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     data = (total_weight, leather_weight, actual_weight, extra_value, price, amount, car_no,
                             supplier, receiver, goods_name, balance_time, operator, self.balance_status, path, settle,
                             balance_time, int(balance_id))
+                    self.ischange = 0
                 else:
                     sql = '''update t_balance set total_weight= ?, leather_weight= ?, actual_weight= ?,
                                          extra= ?, price = ?, amount= ?, car_no = ?, supplier = ?, receiver = ?,
@@ -825,16 +826,16 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 logging.error("没有要打印的磅单！")
             return
         balance_id = int(self.balanceNoBlael.text())
-        if self.save_data(warning=False):
-            sql = 'select default_rmf, auto_print from t_rmf'
-            ret = self.db.query(sql)
-            default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
-            action = 3 if ret[0].get('auto_print', 0) else 1
-            cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a %s' % (
-                balance_id, default_rmf, action)
-            # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
-            logging.debug(cmd_str)
-            self.p = subprocess.Popen(cmd_str)
+        # if self.save_data(warning=False):
+        sql = 'select default_rmf, auto_print from t_rmf'
+        ret = self.db.query(sql)
+        default_rmf = ret[0].get('default_rmf', u'过称单(标准式).rmf')
+        action = 3 if ret[0].get('auto_print', 0) else 1
+        cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.* from t_balance where  balance_id=\'%s\'" -r "%s" -a %s' % (
+            balance_id, default_rmf, action)
+        # cmd_str = self.report_file + u' -d "balance.db" -s "db1:select t_balance.*,t_supplier.* from t_balance,t_supplier where  t_balance.supplier = t_supplier.supplier_name and balance_id=\'%s\'" -r "%s" -a 1' % (balance_id, default_rmf)
+        logging.debug(cmd_str)
+        self.p = subprocess.Popen(cmd_str)
 
     def choose_weight(self):
         """
