@@ -27,7 +27,7 @@ class pollmainForm(QWidget, Ui_PollmainForm):
         self.setWindowModality(Qt.ApplicationModal)
         self.db = EasySqlite(r'rmf/db/balance.db')
         self.user_id = user_id
-        self.begindateEdit.setDate(QDate.currentDate())
+        self.begindateEdit.setDate(QDate.currentDate().addYears(-1))
         self.enddateEdit.setDate(QDate.currentDate())
         self.QueryPushButton.clicked.connect(self.poll_data)
         self.cancelPushButton.clicked.connect(self.cancel_pollForm)

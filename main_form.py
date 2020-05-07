@@ -702,7 +702,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                 os.makedirs(abs_path)
             path = path + '\\' + str(balance_id)+str(today_date)
             self.shot_change(path)
-            if self.balance_opt_status == 1 or(self.balance_opt_status ==2 and self.balance_status ==1):
+            if self.balance_opt_status == 1:
                 sql = '''replace into t_balance(balance_id, total_weight, leather_weight, actual_weight,
                                 extra, price, amount, car_no, supplier, receiver, goods_name,balance_time1,
                                 balance_time, balance_time2, operator, status,ext1,sweight) 
