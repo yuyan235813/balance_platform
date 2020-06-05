@@ -467,13 +467,11 @@ def get_barrier_state1(num):
         return -1
 
 
-def sync_data(table_name, url):
+def sync_data(table_name, url, db):
     """
     同步数据，上行
     :return:
     """
-    db = EasySqlite(r'rmf/db/balance.db')
-    # db = EasySqlite(r'../rmf/db/balance.db')
     time1 = '1970-01-01 00:00:00'
     time_now = datetime.datetime.now()
     time2 = (time_now + datetime.timedelta(seconds=-1)).strftime("%Y-%m-%d %H:%M:%S")
@@ -524,13 +522,13 @@ def sync_data(table_name, url):
     return result
 
 
-def sync_card_info(url):
+def sync_card_info(url, db):
     """
     同步数据，下行
+    :param url:
+    :param db:
     :return:
     """
-    db = EasySqlite(r'rmf/db/balance.db')
-    # db = EasySqlite(r'../rmf/db/balance.db')
     query_sql1 = """select max(operation_date) as operation_date from t_card_info"""
     query_sql2 = """select * from t_system_params_conf limit 1"""
     delete_sql = """delete from t_card_info where card_no in (%s)"""
@@ -554,7 +552,6 @@ def sync_card_info(url):
                 result = len(res_data)
                 card_nos = [item.get('card_no') for item in res_data]
                 delete_sql = delete_sql % ','.join(["'%s'" % card_no for card_no in card_nos])
-                db.update(delete_sql, commit=False)
                 insert_values = list()
                 for item in res_data:
                     if 'id' in item.keys():
@@ -565,6 +562,7 @@ def sync_card_info(url):
                     insert_sql = 'insert into t_card_info (' + ','.join(i[0] for i in insert_data) + ') values(' + ','.join(['?'] * len(item)) + ')'
                     insert_values.append(['%s' % i[1] for i in insert_data])
                 logging.info(insert_values)
+                db.update(delete_sql, commit=False)
                 ret = db.update(insert_sql, args=insert_values)
                 if ret:
                     logging.info('下载卡信息成功')

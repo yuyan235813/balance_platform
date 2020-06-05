@@ -92,5 +92,7 @@ class EasySqlite:
 
 
 if __name__ == '__main__':
-    db = EasySqlite('../rmf/db/balance.db')
-    ret = db.update('replace into t_data_bit_conf(data_bit) values(?)', args=[[-1], [-2]])
+    # db = EasySqlite('../rmf/db/balance.db')
+    # ret = db.update('replace into t_data_bit_conf(data_bit) values(?)', args=[[-1], [-2]], commit=False)
+    print('-------------')
+    # ret = db.update('replace into t_data_bit_conf(data_bit) values(?)', args=[[1], [2]])

@@ -5,7 +5,6 @@
 @Author  : lizhiran
 @Email   : 794339312@qq.com
 """
-import datetime
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from ui.balance import Ui_mainWindow
@@ -61,7 +60,9 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self._barrier_worker1 = None
         self._barrier_worker2 = None
         self.speaker = None
+        self.data_sync = None
         self.card_no = -1
+        self.close_card_form = 0
         self.dialog = CarNoDialogForm()
         self.dialog.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.pushButton.clicked.connect(self.show_dialog)
@@ -89,7 +90,7 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
         self.actionUserPermission.triggered.connect(self.permission_form.show)
         self.com_setup_form = ComSetupForm(self)
         self.actionComSetup.triggered.connect(self.com_setup_form.show)
-        self.card_form = CardForm()
+        self.card_form = CardForm(self)
         self.cardInfoAction.triggered.connect(self.card_form.show)
         self.pickBalanceButton.clicked.connect(self.choose_weight)
         self.actionHelp.triggered.connect(self.open_help)
@@ -385,7 +386,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
             self.speaker.stop()
         self.speaker = SpeakerThread()
         self.speaker.start()
-        self.data_sync = DataSyncThread()
+        # 数据同步
+        if self.data_sync:
+            self.data_sync.stop()
+        self.data_sync = DataSyncThread(self)
         self.data_sync.start()
 
     def show_lcd(self, is_open, weight):
@@ -520,6 +524,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                         time.sleep(0.02)
                 for thread in self.thread_dict.values():
                     thread.stop()
+                if self.data_sync:
+                    self.data_sync.stop()
+                if self.speaker:
+                    self.speaker.stop()
                 event.accept()
             else:
                 event.ignore()
@@ -540,6 +548,10 @@ class MainForm(QtWidgets.QMainWindow, Ui_mainWindow):
                     time.sleep(0.02)
             for thread in self.thread_dict.values():
                 thread.stop()
+            if self.data_sync:
+                self.data_sync.stop()
+            if self.speaker:
+                self.speaker.stop()
             event.accept()
 
     def update_combobox(self):
@@ -1313,13 +1325,16 @@ class DataSyncThread(QThread):
     """
     数据同步线程
     """
-    def __init__(self):
+    def __init__(self, parent):
         """
         初始化
         """
         super(DataSyncThread, self).__init__()
         self.mutex = QMutex()
         self.stoped = False
+        self.parent = parent
+        self.db = self.parent.db
+        self.init = 1
 
     def sync_balance(self):
         """
@@ -1328,7 +1343,7 @@ class DataSyncThread(QThread):
         """
         if not self.stoped:
             while True:
-                ret = normal_utils.sync_data('t_balance', DataSync.BALANCE_URL)
+                ret = normal_utils.sync_data('t_balance', DataSync.BALANCE_URL, self.db)
                 if ret < 10:
                     break
 
@@ -1339,7 +1354,7 @@ class DataSyncThread(QThread):
         """
         if not self.stoped:
             while True:
-                ret = normal_utils.sync_data('t_card_info', DataSync.CARD_URL)
+                ret = normal_utils.sync_data('t_card_info', DataSync.CARD_URL, self.db)
                 if ret < 10:
                     break
 
@@ -1350,7 +1365,7 @@ class DataSyncThread(QThread):
         """
         if not self.stoped:
             while True:
-                ret = normal_utils.sync_card_info(DataSync.GET_CARD_URL)
+                ret = normal_utils.sync_card_info(DataSync.GET_CARD_URL, self.db)
                 if ret < 10:
                     break
 
@@ -1360,15 +1375,18 @@ class DataSyncThread(QThread):
         :return:
         """
         while not self.stoped:
-            try:
-                logging.info('sync_balance')
-                self.sync_balance()
-                logging.info('sync_card')
-                self.sync_card()
-                logging.info('get_card_info')
-                self.get_card_info()
-            except Exception as e:
-                logging.error(e)
+            if self.init or self.parent.close_card_form:
+                self.parent.close_card_form = 0
+                self.init = 0
+                try:
+                    logging.info('sync_balance')
+                    self.sync_balance()
+                    logging.info('sync_card')
+                    self.sync_card()
+                    logging.info('get_card_info')
+                    self.get_card_info()
+                except Exception as e:
+                    logging.error(e)
             self.sleep(DataSync.SYNC_TIME)
 
     def stop(self):

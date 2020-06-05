@@ -180,7 +180,7 @@ class ParamsForm(QtWidgets.QWidget, Ui_paramsSetupForm):
             update_sql = '''update t_com set com_no="%s",baud_rate=%s,verification_bit=%s,data_bit=%s,stop_bit=%s
              where is_default=1''' % (com_no, baud_rate, verification_bit, data_bit, stop_bit)
             logging.debug(update_sql)
-            ret = self.db.update(update_sql, commit=False)
+            ret = self.db.update(update_sql)
         ret1 = self.save_camera()
         if ret and ret1:
             QtWidgets.QMessageBox.information(self, '本程序', "保存成功！", QtWidgets.QMessageBox.Ok)

@@ -20,9 +20,10 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
     """
     超级管理界面
     """
-    def __init__(self):
+    def __init__(self, parent):
         super(CardForm, self).__init__()
         self.setupUi(self)
+        self.parent = parent
         self.setWindowModality(Qt.ApplicationModal)
         if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
             self.db = QtSql.QSqlDatabase.database("qt_sql_default_connection")
@@ -301,9 +302,9 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         :return:
         """
         user_name = self.userNameLineEdit_2.text()
-        if not user_name:
-            QtWidgets.QMessageBox.warning(self, '本程序', "姓名不能为空！", QtWidgets.QMessageBox.Ok)
-            return
+        # if not user_name:
+        #     QtWidgets.QMessageBox.warning(self, '本程序', "姓名不能为空！", QtWidgets.QMessageBox.Ok)
+        #     return
         gender = self.genderComboBox.currentText()
         gender = 1 if gender == '男' else 0
         card_type = self.cardTypeComboBox.currentText()
@@ -459,6 +460,7 @@ class CardForm(QtWidgets.QWidget, Ui_cardFrom):
         """
         super(CardForm, self).closeEvent(a0)
         self.tableView.setModel(None)
+        self.parent.close_card_form = 1
 
 
 class CardInfoDelegate(QtWidgets.QItemDelegate):
