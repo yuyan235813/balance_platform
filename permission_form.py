@@ -228,13 +228,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                         and operation_id = (select id from t_operation where opt_name = '%s')
                         and object_id = (select user_id from t_user where user_name = '%s')
                         """ % (has_permission, opt_name, self.user_name)
-                self.db.update(sql, commit=False)
+                self.db.update(sql)
             if self.role_name:
                 sql = """update t_permission set status = %s where object_type = 1
                                         and operation_id = (select id from t_operation where opt_name = '%s')
                                         and object_id = (select id from t_role where role_name = '%s')
                                         """ % (has_permission, opt_name, self.role_name)
-                self.db.update(sql, commit=False)
+                self.db.update(sql)
         # 保存功能
         model = self.permissionTableView.model()
         row = model.rowCount()
@@ -246,13 +246,13 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                         and operation_id = (select id from t_operation where opt_name = '%s')
                         and object_id = (select user_id from t_user where user_name = '%s')
                         """ % (has_permission, opt_name, self.user_name)
-                self.db.update(sql, commit=False)
+                self.db.update(sql)
             if self.role_name:
                 sql = """update t_permission set status = %s where object_type = 1
                                         and operation_id = (select id from t_operation where opt_name = '%s')
                                         and object_id = (select id from t_role where role_name = '%s')
                                         """ % (has_permission, opt_name, self.role_name)
-                self.db.update(sql, commit=False)
+                self.db.update(sql)
         ret = self.db.update('')
         if ret:
             self.permission_changed.emit(True)
@@ -317,7 +317,7 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
         if reply == QtWidgets.QMessageBox.Yes:
             sql = """delete from t_permission where object_id in (select user_id from t_user where user_name = '%s') 
                                  and object_type = 2;""" % user_name
-            self.db.update(sql, commit=False)
+            self.db.update(sql)
             sql2 = "delete from t_user where user_name = '%s'" % user_name
             ret = self.db.update(sql2)
             if ret:
@@ -353,9 +353,9 @@ class PermissionSetupForm(QtWidgets.QWidget, Ui_permissionSetupForm):
                 return
             sql = """delete from t_permission where object_id in (select id from t_role where role_name = '%s') 
                      and object_type = 1;""" % role_name
-            self.db.update(sql, commit=False)
+            self.db.update(sql)
             sql2 = """delete from t_role where role_name = '%s';""" % role_name
-            ret = self.db.update(sql2, commit=True)
+            ret = self.db.update(sql2)
             if ret:
                 QtWidgets.QMessageBox.warning(self, '本程序', "删除成功！", QtWidgets.QMessageBox.Ok)
                 self.__init_data()

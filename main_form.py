@@ -1332,9 +1332,7 @@ class DataSyncThread(QThread):
         super(DataSyncThread, self).__init__()
         self.mutex = QMutex()
         self.stoped = False
-        self.parent = parent
-        self.db = self.parent.db
-        self.init = 1
+        self.db = parent.db
 
     def sync_balance(self):
         """
@@ -1375,18 +1373,15 @@ class DataSyncThread(QThread):
         :return:
         """
         while not self.stoped:
-            if self.init or self.parent.close_card_form:
-                self.parent.close_card_form = 0
-                self.init = 0
-                try:
-                    logging.info('sync_balance')
-                    self.sync_balance()
-                    logging.info('sync_card')
-                    self.sync_card()
-                    logging.info('get_card_info')
-                    self.get_card_info()
-                except Exception as e:
-                    logging.error(e)
+            try:
+                logging.info('sync_balance')
+                self.sync_balance()
+                logging.info('sync_card')
+                self.sync_card()
+                logging.info('get_card_info')
+                self.get_card_info()
+            except Exception as e:
+                logging.error(e)
             self.sleep(DataSync.SYNC_TIME)
 
     def stop(self):

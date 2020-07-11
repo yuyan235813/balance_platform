@@ -415,7 +415,7 @@ class ParamsDialog(QtWidgets.QDialog, Ui_dialog):
         :param value:
         :return:
         """
-        self.db.update('delete from %s' % table, commit=False)
+        self.db.update('delete from %s' % table)
         update_sql = 'replace into %s(%s) values(?)' % (table, column)
         logging.debug(value)
         ret = self.db.update(update_sql, args=value)

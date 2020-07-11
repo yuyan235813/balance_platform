@@ -562,7 +562,7 @@ def sync_card_info(url, db):
                     insert_sql = 'insert into t_card_info (' + ','.join(i[0] for i in insert_data) + ') values(' + ','.join(['?'] * len(item)) + ')'
                     insert_values.append(['%s' % i[1] for i in insert_data])
                 logging.info(insert_values)
-                db.update(delete_sql, commit=False)
+                db.update(delete_sql)
                 ret = db.update(insert_sql, args=insert_values)
                 if ret:
                     logging.info('下载卡信息成功')
@@ -590,5 +590,15 @@ if __name__ == '__main__':
     # sync_data('t_balance', url)
     # url = """http://39.97.120.140:1818/api/Card/index"""
     # sync_data('t_card_info', url)
-    url = """http://39.97.120.140:1818/api/Card/getList"""
-    sync_card_info(url)
+    # url = """http://39.97.120.140:1818/api/Card/getList"""
+    # sync_card_info(url)
+
+    data = dict()
+    data['operation_date'] = '2020-05-17'
+    data['company'] = 2
+    # result 取值1，0:无需同步；-1：接口请求失败；-2:同步数据抛异常；-3：更新本地数据库失败；>0:同步成功，同步的条数
+    data['limit'] = result = 10
+    url = 'http://39.97.120.140:1818/api/Card/getList'
+    response = requests.post(url, data)
+    res = json.loads(response.text)
+    print(res)
